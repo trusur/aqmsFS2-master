@@ -117,8 +117,13 @@ try:
                 except Exception as x:
                     windspeed = ""
                     winddir = ""
-                
                 rainrate = "0.0";
+                try:
+                    WIXDR = SENSOR.split("$WIXDR,")[1]
+                    rainrate = WIXDR.split(",")[1];
+                except Exception as x:
+                    rainrate = "0.0";                
+                
                 solarrad = "0.0";
                 
                 lat = GPGGA.split(",")[1];
