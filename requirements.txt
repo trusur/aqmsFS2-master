@@ -1,0 +1,5 @@
+pymodbus==2.5.3
+pyvantagepro
+mysql_connector
+crcmod
+minimalmodbus
