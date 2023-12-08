@@ -17,6 +17,7 @@
     <div id="layout-content">
         <?= $this->renderSection('content') ?>
     </div>
+    <?=$this->renderSection('modal')?>
     <div class="modal" id="ispModal" tabindex="-1" role="dialog" aria-labelledby="ispModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">

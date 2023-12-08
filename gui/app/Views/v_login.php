@@ -3,7 +3,7 @@
 <div class="container-md py-3">
     <form action="<?= base_url('login') ?>" method="POST">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6 col-12 mx-auto">
                 <div class="card">
                     <div class="card-body login-card-body">
                         <form method="POST" action="<?= base_url('login') ?>" id="formLogin" autocomplete="off">
@@ -25,8 +25,8 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-4">
-                                    <button type="submit" class="btn btn-primary btn-block">Ok</button>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-block">Login</button>
                                 </div>
                             </div>
                         </form>

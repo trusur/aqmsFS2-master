@@ -106,45 +106,45 @@
     }
 </script>
 <script>
-    $('form').submit(function(e) {
-        e.preventDefault();
-        let loader = `<i class="fas fa-spinner fa-spin"></i> Saving`;
-        $('#btn-save').html(loader);
-        try {
-            let action = $(this).attr('action');
-            let method = $(this).attr('method');
-            let serializeData = $(this).serialize();
-            $.ajax({
-                url: action,
-                type: method,
-                data: serializeData,
-                dataType: 'json',
-                success: function(data) {
-                    setTimeout(() => {
-                        $('#btn-save').html('Save Changes');
-                        if(!data?.success){
-                            toastr.error(data?.message);
-                        }else{
-                            toastr.success(data?.message);
-                        }
-                        if (data?.url_direction != undefined)
-                            window.location = "<?= base_url(); ?>/" + data?.url_direction;
-                    }, 1000);
-                },
-                error: function(xhr, status, err) {
-                    toastr.error(err.toString());
-                    $('#btn-save').html('Save Changes');
-                }
-            })
+    // $('form').submit(function(e) {
+    //     e.preventDefault();
+    //     let loader = `<i class="fas fa-spinner fa-spin"></i> Saving`;
+    //     $('#btn-save').html(loader);
+    //     try {
+    //         let action = $(this).attr('action');
+    //         let method = $(this).attr('method');
+    //         let serializeData = $(this).serialize();
+    //         $.ajax({
+    //             url: action,
+    //             type: method,
+    //             data: serializeData,
+    //             dataType: 'json',
+    //             success: function(data) {
+    //                 setTimeout(() => {
+    //                     $('#btn-save').html('Save Changes');
+    //                     if(!data?.success){
+    //                         toastr.error(data?.message);
+    //                     }else{
+    //                         toastr.success(data?.message);
+    //                     }
+    //                     if (data?.url_direction != undefined)
+    //                         window.location = "<?= base_url(); ?>/" + data?.url_direction;
+    //                 }, 1000);
+    //             },
+    //             error: function(xhr, status, err) {
+    //                 toastr.error(err.toString());
+    //                 $('#btn-save').html('Save Changes');
+    //             }
+    //         })
 
 
-        } catch (err) {
-            console.log(err);
-            toastr.error(err.toString());
-            $('#btn-save').html('Save Changes');
-        }
+    //     } catch (err) {
+    //         console.log(err);
+    //         toastr.error(err.toString());
+    //         $('#btn-save').html('Save Changes');
+    //     }
 
-    })
+    // })
 </script>
 <script>
     /* Capture */

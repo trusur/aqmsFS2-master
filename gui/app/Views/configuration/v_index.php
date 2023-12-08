@@ -282,61 +282,6 @@
 </div>
 <?= $this->endSection() ?>
 <?= $this->section('css') ?>
-<!-- Custom CSS Here -->
 <?= $this->endSection() ?>
 <?= $this->section('js') ?>
-<script>
-    // Copy to clipboard
-    const copyToClipboard = str => {
-        const el = document.createElement('textarea');
-        el.value = str;
-        el.setAttribute('readonly', '');
-        el.style.position = 'absolute';
-        el.style.left = '-9999px';
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-    };
-</script>
-<script>
-    $(document).ready(function() {
-        $('.btn-copy').click(function() {
-            let id = $(this).attr('data-id');
-            let text = $(`span[data-id="${id}"]`).text();
-            copyToClipboard(text);
-            toastr.success(`${text} berhasil disalin ke clipboard`);
-        });
-        $('.btn-show-all').click(function() {
-            let show = $(this).attr('data-show');
-            $(this).attr('data-show', show === 'true' ? 'false' : 'true');
-            if (show === 'true') {
-                $(this).html(`Show All`);
-            } else {
-                $(this).html(`Hidden`);
-            }
-        });
-    });
-</script>
-<!-- <script>
-    // Get Geolocation
-    $(document).ready(function() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                const latitude = position?.coords?.latitude;
-                const longitude = position?.coords?.longitude;
-                $(`input[name='long']`).val(longitude);
-                $(`input[name='lat']`).val(latitude);
-            }, (error) => {
-                console.log(`Error : ${error.code} - ${error.message}`);
-            }, {
-                enableHightAccuracy: true,
-                maximumAge: 30000,
-                timeout: 27000,
-            });
-        } else {
-            console.log(`Geolocation not support on this browser`);
-        }
-    });
-</script> -->
 <?= $this->endSection() ?>
