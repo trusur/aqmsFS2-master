@@ -8,7 +8,6 @@ class Login extends BaseController
 	public function __construct()
 	{
 		parent::__construct();
-		$this->password = "qweasd";
 	}
 
 	public function index()
@@ -25,10 +24,10 @@ class Login extends BaseController
 
 	public function login_action()
 	{
-		$url_direction = $this->request->getPost('url_direction');
-		$username = $this->request->getPost('username');
-		$password = $this->request->getPost('password');
-		if ($userlogin = @$this->users->where("email", $username)->findAll()[0]) {
+		$url_direction = request()->getPost('url_direction');
+		$username = request()->getPost('username');
+		$password = (string) request()->getPost('password');
+		if ($userlogin = $this->users->where("email", $username)->first()) {
 			if (password_verify($password, $userlogin->password)) {
 				$data['success'] = true;
 				$data['message'] = "Login Success";
@@ -53,7 +52,7 @@ class Login extends BaseController
 			$data['message'] = 'Wrong Username';
 			$statusCode = 401;
 		}
-		return $this->response->setJSON($data)->setStatusCode($statusCode);
+		return response()->setJSON($data)->setStatusCode($statusCode);
 	}
 
 	public function logout()

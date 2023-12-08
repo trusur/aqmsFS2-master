@@ -60,4 +60,5 @@ return [
     'calibrator_name' => 'Nama Operator Kalibrasi',
     'start' => 'Mulai',
     'force_stop' => 'Paksa Berhenti',
+    'login' => 'Masuk',
 ];

@@ -18,7 +18,7 @@ class Configuration extends BaseController
 	}
 	public function index()
 	{
-		if (!$this->session->get("loggedin")) return redirect()->to(base_url() . '/login?url_direction=configurations');
+		if (!$this->session->get("loggedin")) return redirect()->to(base_url("login?url_direction=configurations") );
 
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			return $this->saving_edit();

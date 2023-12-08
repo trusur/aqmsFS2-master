@@ -61,4 +61,5 @@ return [
     'calibrator_name' => 'Calibrator Name',
     'start' => 'Start',
     'force_stop' => 'Force Stop',
+    'login' => 'Login',
 ];

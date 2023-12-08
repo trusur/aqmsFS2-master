@@ -1,18 +1,26 @@
 <nav class="sticky-top shadow-lg navbar navbar-expand-lg navbar-dark">
     <div class="container-md">
-        <!-- <div style="font-weight:bolder;font-size:30px;" onclick="showHiddenMenu();">
-        </div> -->
-        <a class="navbar-brand" href="<?= base_url() ?>" style="font-weight:bolder;font-size:30px;">
-            <img src="<?= base_url('/img/logo.png') ?>" width="50" height="50" class="d-inline-block align-top" alt="Logo TRUSUR">&nbsp;
-            <!-- AQMS -->
-        </a>
+        <span class="navbar-brand d-flex align-items-center" href="<?= base_url() ?>" style="column-gap:12px;font-weight:bolder;font-size:30px;">
+            <a href="<?=base_url()?>">
+            <img src="<?= base_url('img/logo.png') ?>" width="50" height="50" class="d-inline-block align-top" alt="Logo TRUSUR"> 
+            </a>
+            <div id="logo-text" style="cursor:pointer;" class="position-relative d-flex align-items-center">
+                <span style="font-size:20px">AQMS</span>
+                <div class="position-absolute" style="top: -2px;right: -11px">
+                    <small class="badge badge-dark" style="font-size:10px">EFS1</small>
+                </div>
+            </div>
+        </span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto" style="font-weight:bolder;font-size:20px;">
-                <li class="btn-dark rounded border border-light nav-item mr-2 <?= @strtolower($__routename) == 'configuration' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_configuration') ?>">
+                <?php 
+                    if(session()->get("loggedin")):                
+                ?>
+                 <li class="btn-dark rounded border border-light nav-item mr-2 <?= @strtolower($__routename) == 'configuration' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_configuration') ?>">
                     <a class="nav-link" href="<?= base_url('configurations') ?>"><?= lang('Global.Configuration') ?></a>
                 </li>
                 <li id="parameters_nav" class="btn-dark rounded border border-light nav-item mr-2 hide d-none <?= @strtolower($__routename) == 'parameter' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_parameter') ?>">
@@ -21,15 +29,21 @@
                 <li id="calibrations_nav" class="btn-dark rounded border border-light nav-item mr-2 hide d-none <?= @strtolower($__routename) == 'calibration' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_calibration') ?>">
                     <a class="nav-link" href="<?= base_url('calibrations') ?>"><?= lang('Global.Calibration') ?></a>
                 </li>
+                <li id="logout_nav" class="btn-dark rounded border border-light nav-item mr-2" data-intro="Logout">
+                    <a class="nav-link" href="<?= base_url('login/logout') ?>">Logout</a>
+                </li>
+                <?php else: ?>
                 <li class="btn-dark rounded border border-light nav-item mr-2 <?= @strtolower($__routename) == 'export' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_export') ?>">
                     <a class="nav-link" href="<?= base_url('exports') ?>"><?= lang('Global.Export') ?></a>
                 </li>
                 <li class="btn-dark rounded border border-light nav-item mr-2 <?= @strtolower($__routename) == 'rht' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_extras') ?>">
                     <a class="nav-link" href="<?= base_url('rht') ?>"><?= lang('Global.extras') ?></a>
                 </li>
-                <li id="logout_nav" class="btn-dark rounded border border-light nav-item mr-2 hide d-none" data-intro="Logout">
-                    <a class="nav-link" href="<?= base_url('login/logout') ?>">Logout</a>
+                <li class="btn-dark rounded border border-light nav-item mr-2 <?= @strtolower($__routename) == 'rht' ? 'active' : '' ?>" data-intro="<?= lang('Global.intro_extras') ?>">
+                    <a class="nav-link" href="<?= base_url('login?url_direction=configuration') ?>"><?= lang('Global.login') ?></a>
                 </li>
+                <?php endif; ?>
+                
             </ul>
             <div class="d-flex justify-content-end align-items-center my-2 ml-md-0">
                 <div id="connect" data-intro="<?= lang('Global.intro_connectivity') ?>">
@@ -47,11 +61,11 @@
                 <div class="mx-1" data-intro="<?= lang('Global.intro_lang') ?>">
                     <?php if (@session()->get('web_lang') == 'en') : ?>
                         <a href="<?= base_url('lang/id') ?>" class="btn btn-sm btn-primary" title="Translate to Indonesia">
-                            <img src="<?= base_url('/img/gb.svg') ?>" alt="EN" height="20vh" width="20vw">
+                            <img src="<?= base_url('img/gb.svg') ?>" alt="EN" height="20vh" width="20vw">
                         </a>
                     <?php else : ?>
                         <a href="<?= base_url('lang/en') ?>" class="btn btn-sm btn-primary" title="Terjemahkan ke Bahasa Inggris">
-                            <img src="<?= base_url('/img/id.svg') ?>" alt="ID" height="20vh" width="20vw">
+                            <img src="<?= base_url('img/id.svg') ?>" alt="ID" height="20vh" width="20vw">
                         </a>
                     <?php endif; ?>
                 </div>
@@ -59,15 +73,3 @@
         </div>
     </div>
 </nav>
-
-<script>
-    var showHiddenMenuCount = 0;
-
-    function showHiddenMenu() {
-        showHiddenMenuCount++;
-        if (showHiddenMenuCount > 4) {
-            $("#parameters_nav").removeClass("d-none");
-            $("#calibrations_nav").removeClass("d-none");
-        }
-    }
-</script>
