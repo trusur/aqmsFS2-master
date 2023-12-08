@@ -8,7 +8,7 @@ class FormulaReferences extends Migration
 {
 	public function up()
 	{
-		$this->forge->dropTable('formula_references');
+		$this->forge->dropTable('formula_references',true);
 		$this->forge->addField([
 			'id'			=> ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
 			'parameter_id'	=> ['type' => 'INT', 'default' => 0],

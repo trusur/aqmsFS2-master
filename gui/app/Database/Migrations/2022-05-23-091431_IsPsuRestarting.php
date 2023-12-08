@@ -9,7 +9,7 @@ class IsPsuRestarting extends Migration
 	public function up()
 	{
 		$data = [
-			['name' => 'is_psu_restarting', 'content' => '1'],
+			['name' => 'is_psu_restarting', 'content' => '0'],
 		];
 		$this->db->table('configurations')->insertBatch($data);
 	}

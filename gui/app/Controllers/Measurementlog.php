@@ -11,6 +11,8 @@ use Exception;
 
 class Measurementlog extends BaseController
 {
+	protected $measurement_log;
+	protected $parameter;
 	public function __construct()
 	{
 		$this->measurement_log = new m_measurement_log();
@@ -20,9 +22,9 @@ class Measurementlog extends BaseController
 	public function index()
 	{
 		$data['config'] = [
-			'pump_state' => @$this->configuration->where(['name' => 'pump_state'])->get()->getFirstRow()->content,
-			'pump_last' => @$this->configuration->where(['name' => 'pump_last'])->get()->getFirstRow()->content,
-			'pump_interval' => @$this->configuration->where(['name' => 'pump_interval'])->get()->getFirstRow()->content,
+			'pump_state' => $this->configuration->where(['name' => 'pump_state'])->first()->content ?? 0,
+			'pump_last' => $this->configuration->where(['name' => 'pump_last'])->first()->content ?? date("Y-m-d H:i:s",strtotime("-1 hour")),
+			'pump_interval' => $this->configuration->where(['name' => 'pump_interval'])->first()->content ?? 360,
 			'now' => date('Y-m-d H:i:s'),
 		];
 		try {
@@ -33,7 +35,7 @@ class Measurementlog extends BaseController
 			}
 			$data['logs'] = $measurement_logs;
 		} catch (Exception $e) {
-			echo $e->getMessage();
+			log_message('error', "Measurementlog->index: ".$e->getMessage());
 			$data = null;
 		}
 		return $this->response->setJson($data);

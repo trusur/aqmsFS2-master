@@ -9,7 +9,7 @@ class IsAutoRestart extends Migration
 	public function up()
 	{
 		$data = [
-			['name' => 'is_auto_restart', 'content' => '1'],
+			['name' => 'is_auto_restart', 'content' => '0'],
 		];
 		$this->db->table('configurations')->insertBatch($data);
 	}
