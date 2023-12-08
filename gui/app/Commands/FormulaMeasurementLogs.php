@@ -29,6 +29,7 @@ class FormulaMeasurementLogs extends BaseCommand
 	protected $measurement_histories;
 	protected $configurations;
 	protected $lastPutData;
+	protected $measurements;
 
 	public function __construct()
 	{
@@ -61,7 +62,7 @@ class FormulaMeasurementLogs extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'command:name [arguments] [options]';
+	protected $usage = 'command:formula_measurement_logs';
 
 	/**
 	 * The Command's Arguments
@@ -94,29 +95,30 @@ class FormulaMeasurementLogs extends BaseCommand
 	public function run(array $params)
 	{
 		while (true) {
-			$this->measurement_logs->where("(is_averaged = 1 AND xtimestamp < ('" . date("Y-m-d H:i:s") . "' - INTERVAL 48 HOUR))")->delete();
-			// $this->measurement_histories->where("xtimestamp < ('" . date("Y-m-d H:i:s") . "' - INTERVAL 24 HOUR)")->delete();
+			// $now = date("Y-m-d H:i:s");
+			// $this->measurement_logs->where("(is_averaged = 1 AND xtimestamp < ('{$now}' - INTERVAL 48 HOUR))")->delete();
 
 			foreach ($this->sensor_values->findAll() as $sensor_value) {
 				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
 			}
 
 			foreach ($this->parameters->where("is_view", 1)->findAll() as $parameter) {
-				if ($parameter->formula != "") {
+				if ($parameter->formula) {
 					if (substr($parameter->formula, 0, 21) != "formula_references==>") {
 						try {
 							@eval("\$data[$parameter->id] = $parameter->formula;");
 						} catch (Exception $e) {
+							log_message('error', "Formula Error [{$parameter->code}]: ".$e->getMessage());
 						}
-						$sensor_check = @$sensor[@$sensor_value->sensor_reader_id * 1][@$sensor_value->pin * 1];
-						$sensor_value = @$this->sensor_values->where("id", $parameter->sensor_value_id)->findAll()[0];
-						if (strpos(" " . @$sensor[@$sensor_value->sensor_reader_id * 1][@$sensor_value->pin * 1], "FS2_MEMBRASENS") > 0) {
+						$sensor_value = $this->sensor_values->where("id", $parameter->sensor_value_id)->first();
+						$sensor_check = $sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] ?? null;
+						if (strpos(" " . $sensor_check, "FS2_MEMBRASENS") > 0) {
 							try {
 								$arr_sensor_value = explode('$sensor[' . $sensor_value->sensor_reader_id . '][' . $sensor_value->pin . '])[', $parameter->formula)[1];
 								$arr_sensor_value = explode("])", $arr_sensor_value)[0];
-								$sensor_value = explode(";", @$sensor[@$sensor_value->sensor_reader_id * 1][@$sensor_value->pin * 1])[$arr_sensor_value + 4];
+								$sensor_value = explode(";", $sensor_check)[$arr_sensor_value + 4];
 							} catch (Exception $e) {
-								$sensor_value = (float) @$sensor[@$sensor_value->sensor_reader_id * 1][@$sensor_value->pin * 1] * 1;
+								$sensor_value = (float) $sensor_check * 1;
 							}
 						} elseif ((count(explode(",", $sensor_check)) == 7) && (count(explode(";", $sensor_check)) == 2)) {
 							// Check PM AQMS FS1 Value
@@ -125,7 +127,7 @@ class FormulaMeasurementLogs extends BaseCommand
 							} catch (Exception $e) {
 							}
 						} else {
-							$sensor_value = (float) @$sensor[@$sensor_value->sensor_reader_id * 1][@$sensor_value->pin * 1] * 1;
+							$sensor_value = (float) $sensor_check * 1;
 						}
 					} else {
 						$parameter_formulas = explode("==>", $parameter->formula);
@@ -135,6 +137,7 @@ class FormulaMeasurementLogs extends BaseCommand
 						try {
 							@eval("\$x = $parameter_formulas[1];");
 						} catch (Exception $e) {
+							log_message('error', "Formula Error [{$parameter->code}]: ".$e->getMessage());
 						}
 						$formula_references = @$this->formula_references->where("parameter_id", $parameter->id)->where("(" . $x . ") BETWEEN min_value AND max_value")->findAll()[0];
 						if (@$formula_references->id > 0) {
@@ -156,7 +159,6 @@ class FormulaMeasurementLogs extends BaseCommand
 					"is_averaged" => 0
 				];
 				$this->measurement_logs->save($measurement_logs);
-				// $this->measurement_histories->save($measurement_logs);
 			}
 			sleep(1);
 		}
