@@ -1,498 +1,628 @@
 <?php
 
 /**
- * This file is part of the CodeIgniter 4 framework.
+ * This file is part of CodeIgniter 4 framework.
  *
  * (c) CodeIgniter Foundation <admin@codeigniter.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
 namespace CodeIgniter\Security;
 
+use CodeIgniter\Cookie\Cookie;
 use CodeIgniter\HTTP\IncomingRequest;
+use CodeIgniter\HTTP\Request;
 use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\I18n\Time;
 use CodeIgniter\Security\Exceptions\SecurityException;
-use Config\App;
+use CodeIgniter\Session\Session;
+use Config\Cookie as CookieConfig;
+use Config\Security as SecurityConfig;
+use Config\Services;
+use ErrorException;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * Class Security
  *
  * Provides methods that help protect your site against
  * Cross-Site Request Forgery attacks.
+ *
+ * @see \CodeIgniter\Security\SecurityTest
  */
 class Security implements SecurityInterface
 {
-	/**
-	 * CSRF Hash
-	 *
-	 * Random hash for Cross Site Request Forgery protection cookie
-	 *
-	 * @var string|null
-	 */
-	protected $hash = null;
+    public const CSRF_PROTECTION_COOKIE  = 'cookie';
+    public const CSRF_PROTECTION_SESSION = 'session';
+    protected const CSRF_HASH_BYTES      = 16;
 
-	/**
-	 * CSRF Token Name
-	 *
-	 * Token name for Cross Site Request Forgery protection cookie.
-	 *
-	 * @var string
-	 */
-	protected $tokenName = 'csrf_token_name';
+    /**
+     * CSRF Protection Method
+     *
+     * Protection Method for Cross Site Request Forgery protection.
+     *
+     * @var string 'cookie' or 'session'
+     *
+     * @deprecated 4.4.0 Use $this->config->csrfProtection.
+     */
+    protected $csrfProtection = self::CSRF_PROTECTION_COOKIE;
 
-	/**
-	 * CSRF Header Name
-	 *
-	 * Token name for Cross Site Request Forgery protection cookie.
-	 *
-	 * @var string
-	 */
-	protected $headerName = 'X-CSRF-TOKEN';
+    /**
+     * CSRF Token Randomization
+     *
+     * @var bool
+     *
+     * @deprecated 4.4.0 Use $this->config->tokenRandomize.
+     */
+    protected $tokenRandomize = false;
 
-	/**
-	 * CSRF Cookie Name
-	 *
-	 * Cookie name for Cross Site Request Forgery protection cookie.
-	 *
-	 * @var string
-	 */
-	protected $cookieName = 'csrf_cookie_name';
+    /**
+     * CSRF Hash (without randomization)
+     *
+     * Random hash for Cross Site Request Forgery protection.
+     *
+     * @var string|null
+     */
+    protected $hash;
 
-	/**
-	 * CSRF Expires
-	 *
-	 * Expiration time for Cross Site Request Forgery protection cookie.
-	 *
-	 * Defaults to two hours (in seconds).
-	 *
-	 * @var integer
-	 */
-	protected $expires = 7200;
+    /**
+     * CSRF Token Name
+     *
+     * Token name for Cross Site Request Forgery protection.
+     *
+     * @var string
+     *
+     * @deprecated 4.4.0 Use $this->config->tokenName.
+     */
+    protected $tokenName = 'csrf_token_name';
 
-	/**
-	 * CSRF Regenerate
-	 *
-	 * Regenerate CSRF Token on every request.
-	 *
-	 * @var boolean
-	 */
-	protected $regenerate = true;
+    /**
+     * CSRF Header Name
+     *
+     * Header name for Cross Site Request Forgery protection.
+     *
+     * @var string
+     *
+     * @deprecated 4.4.0 Use $this->config->headerName.
+     */
+    protected $headerName = 'X-CSRF-TOKEN';
 
-	/**
-	 * CSRF Redirect
-	 *
-	 * Redirect to previous page with error on failure.
-	 *
-	 * @var boolean
-	 */
-	protected $redirect = true;
+    /**
+     * The CSRF Cookie instance.
+     *
+     * @var Cookie
+     */
+    protected $cookie;
 
-	/**
-	 * CSRF SameSite
-	 *
-	 * Setting for CSRF SameSite cookie token.
-	 *
-	 * Allowed values are: None - Lax - Strict - ''.
-	 *
-	 * Defaults to `Lax` as recommended in this link:
-	 *
-	 * @see https://portswigger.net/web-security/csrf/samesite-cookies
-	 *
-	 * @var string 'Lax'|'None'|'Strict'
-	 */
-	protected $samesite = 'Lax';
+    /**
+     * CSRF Cookie Name (with Prefix)
+     *
+     * Cookie name for Cross Site Request Forgery protection.
+     *
+     * @var string
+     */
+    protected $cookieName = 'csrf_cookie_name';
 
-	//--------------------------------------------------------------------
+    /**
+     * CSRF Expires
+     *
+     * Expiration time for Cross Site Request Forgery protection cookie.
+     *
+     * Defaults to two hours (in seconds).
+     *
+     * @var int
+     *
+     * @deprecated 4.4.0 Use $this->config->expires.
+     */
+    protected $expires = 7200;
 
-	/**
-	 * Constructor.
-	 *
-	 * Stores our configuration and fires off the init() method to setup
-	 * initial state.
-	 *
-	 * @param App $config
-	 *
-	 * @throws SecurityException
-	 */
-	public function __construct($config)
-	{
-		$security = config('Security');
-		// Store CSRF-related configurations
-		$this->tokenName  = $security->tokenName ?? $config->CSRFTokenName ?? $this->tokenName;
-		$this->headerName = $security->headerName ?? $config->CSRFHeaderName ?? $this->headerName;
-		$this->cookieName = $security->cookieName ?? $config->CSRFCookieName ?? $this->cookieName;
-		$this->expires    = $security->expires ?? $config->CSRFExpire ?? $this->expires;
-		$this->regenerate = $security->regenerate ?? $config->CSRFRegenerate ?? $this->regenerate;
-		$this->samesite   = $security->samesite ?? $config->CSRFSameSite ?? $this->samesite;
+    /**
+     * CSRF Regenerate
+     *
+     * Regenerate CSRF Token on every request.
+     *
+     * @var bool
+     *
+     * @deprecated 4.4.0 Use $this->config->regenerate.
+     */
+    protected $regenerate = true;
 
-		if (! in_array(strtolower($this->samesite), ['none', 'lax', 'strict', ''], true))
-		{
-			throw SecurityException::forInvalidSameSite($this->samesite);
-		}
+    /**
+     * CSRF Redirect
+     *
+     * Redirect to previous page with error on failure.
+     *
+     * @var bool
+     *
+     * @deprecated 4.4.0 Use $this->config->redirect.
+     */
+    protected $redirect = false;
 
-		if (isset($config->cookiePrefix))
-		{
-			$this->cookieName = $config->cookiePrefix . $this->cookieName;
-		}
+    /**
+     * CSRF SameSite
+     *
+     * Setting for CSRF SameSite cookie token.
+     *
+     * Allowed values are: None - Lax - Strict - ''.
+     *
+     * Defaults to `Lax` as recommended in this link:
+     *
+     * @see https://portswigger.net/web-security/csrf/samesite-cookies
+     *
+     * @var string
+     *
+     * @deprecated `Config\Cookie` $samesite property is used.
+     */
+    protected $samesite = Cookie::SAMESITE_LAX;
 
-		$this->generateHash();
-	}
+    private IncomingRequest $request;
 
-	//--------------------------------------------------------------------
+    /**
+     * CSRF Cookie Name without Prefix
+     */
+    private ?string $rawCookieName = null;
 
-	/**
-	 * CSRF Verify
-	 *
-	 * @param RequestInterface $request
-	 *
-	 * @return $this|false
-	 *
-	 * @throws SecurityException
-	 *
-	 * @deprecated Use `CodeIgniter\Security\Security::verify()` instead of using this method.
-	 */
-	public function CSRFVerify(RequestInterface $request)
-	{
-		return $this->verify($request);
-	}
+    /**
+     * Session instance.
+     */
+    private ?Session $session = null;
 
-	//--------------------------------------------------------------------
+    /**
+     * CSRF Hash in Request Cookie
+     *
+     * The cookie value is always CSRF hash (without randomization) even if
+     * $tokenRandomize is true.
+     */
+    private ?string $hashInCookie = null;
 
-	/**
-	 * Returns the CSRF Hash.
-	 *
-	 * @return string|null
-	 *
-	 * @deprecated Use `CodeIgniter\Security\Security::getHash()` instead of using this method.
-	 */
-	public function getCSRFHash(): ?string
-	{
-		return $this->getHash();
-	}
+    /**
+     * Security Config
+     */
+    protected SecurityConfig $config;
 
-	//--------------------------------------------------------------------
+    /**
+     * Constructor.
+     *
+     * Stores our configuration and fires off the init() method to setup
+     * initial state.
+     */
+    public function __construct(SecurityConfig $config)
+    {
+        $this->config = $config;
 
-	/**
-	 * Returns the CSRF Token Name.
-	 *
-	 * @return string
-	 *
-	 * @deprecated Use `CodeIgniter\Security\Security::getTokenName()` instead of using this method.
-	 */
-	public function getCSRFTokenName(): string
-	{
-		return $this->getTokenName();
-	}
+        $this->rawCookieName = $config->cookieName;
 
-	//--------------------------------------------------------------------
+        if ($this->isCSRFCookie()) {
+            $cookie = config(CookieConfig::class);
 
-	/**
-	 * CSRF Verify
-	 *
-	 * @param RequestInterface $request
-	 *
-	 * @return $this|false
-	 *
-	 * @throws SecurityException
-	 */
-	public function verify(RequestInterface $request)
-	{
-		// If it's not a POST request we will set the CSRF cookie.
-		if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST')
-		{
-			return $this->sendCookie($request);
-		}
+            $this->configureCookie($cookie);
+        } else {
+            // Session based CSRF protection
+            $this->configureSession();
+        }
 
-		// Does the token exist in POST, HEADER or optionally php:://input - json data.
-		if ($request->hasHeader($this->headerName) && ! empty($request->getHeader($this->headerName)->getValue()))
-		{
-			$tokenName = $request->getHeader($this->headerName)->getValue();
-		}
-		else
-		{
-			$json = json_decode($request->getBody());
+        $this->request      = Services::request();
+        $this->hashInCookie = $this->request->getCookie($this->cookieName);
 
-			if (! empty($request->getBody()) && ! empty($json) && json_last_error() === JSON_ERROR_NONE)
-			{
-				$tokenName = $json->{$this->tokenName} ?? null;
-			}
-			else
-			{
-				$tokenName = null;
-			}
-		}
+        $this->restoreHash();
+        if ($this->hash === null) {
+            $this->generateHash();
+        }
+    }
 
-		$token = $_POST[$this->tokenName] ?? $tokenName;
+    private function isCSRFCookie(): bool
+    {
+        return $this->config->csrfProtection === self::CSRF_PROTECTION_COOKIE;
+    }
 
-		// Does the tokens exist in both the POST/POSTed JSON and COOKIE arrays and match?
-		if (! isset($token, $_COOKIE[$this->cookieName]) || $token !== $_COOKIE[$this->cookieName])
-		{
-			throw SecurityException::forDisallowedAction();
-		}
+    private function configureSession(): void
+    {
+        $this->session = Services::session();
+    }
 
-		if (isset($_POST[$this->tokenName]))
-		{
-			// We kill this since we're done and we don't want to pollute the POST array.
-			unset($_POST[$this->tokenName]);
-			$request->setGlobal('post', $_POST);
-		}
-		elseif (isset($json->{$this->tokenName}))
-		{
-			// We kill this since we're done and we don't want to pollute the JSON data.
-			unset($json->{$this->tokenName});
-			$request->setBody(json_encode($json));
-		}
+    private function configureCookie(CookieConfig $cookie): void
+    {
+        $cookiePrefix     = $cookie->prefix;
+        $this->cookieName = $cookiePrefix . $this->rawCookieName;
+        Cookie::setDefaults($cookie);
+    }
 
-		// Regenerate on every submission?
-		if ($this->regenerate)
-		{
-			// Nothing should last forever.
-			$this->hash = null;
-			unset($_COOKIE[$this->cookieName]);
-		}
+    /**
+     * CSRF Verify
+     *
+     * @return $this|false
+     *
+     * @throws SecurityException
+     *
+     * @deprecated Use `CodeIgniter\Security\Security::verify()` instead of using this method.
+     *
+     * @codeCoverageIgnore
+     */
+    public function CSRFVerify(RequestInterface $request)
+    {
+        return $this->verify($request);
+    }
 
-		$this->generateHash();
-		$this->sendCookie($request);
+    /**
+     * Returns the CSRF Token.
+     *
+     * @deprecated Use `CodeIgniter\Security\Security::getHash()` instead of using this method.
+     *
+     * @codeCoverageIgnore
+     */
+    public function getCSRFHash(): ?string
+    {
+        return $this->getHash();
+    }
 
-		log_message('info', 'CSRF token verified.');
+    /**
+     * Returns the CSRF Token Name.
+     *
+     * @deprecated Use `CodeIgniter\Security\Security::getTokenName()` instead of using this method.
+     *
+     * @codeCoverageIgnore
+     */
+    public function getCSRFTokenName(): string
+    {
+        return $this->getTokenName();
+    }
 
-		return $this;
-	}
+    /**
+     * CSRF Verify
+     *
+     * @return $this
+     *
+     * @throws SecurityException
+     */
+    public function verify(RequestInterface $request)
+    {
+        // Protects POST, PUT, DELETE, PATCH
+        $method           = strtoupper($request->getMethod());
+        $methodsToProtect = ['POST', 'PUT', 'DELETE', 'PATCH'];
+        if (! in_array($method, $methodsToProtect, true)) {
+            return $this;
+        }
 
-	//--------------------------------------------------------------------
+        $postedToken = $this->getPostedToken($request);
 
-	/**
-	 * Returns the CSRF Hash.
-	 *
-	 * @return string|null
-	 */
-	public function getHash(): ?string
-	{
-		return $this->hash;
-	}
+        try {
+            $token = ($postedToken !== null && $this->config->tokenRandomize)
+                ? $this->derandomize($postedToken) : $postedToken;
+        } catch (InvalidArgumentException $e) {
+            $token = null;
+        }
 
-	//--------------------------------------------------------------------
+        // Do the tokens match?
+        if (! isset($token, $this->hash) || ! hash_equals($this->hash, $token)) {
+            throw SecurityException::forDisallowedAction();
+        }
 
-	/**
-	 * Returns the CSRF Token Name.
-	 *
-	 * @return string
-	 */
-	public function getTokenName(): string
-	{
-		return $this->tokenName;
-	}
+        $this->removeTokenInRequest($request);
 
-	//--------------------------------------------------------------------
+        if ($this->config->regenerate) {
+            $this->generateHash();
+        }
 
-	/**
-	 * Returns the CSRF Header Name.
-	 *
-	 * @return string
-	 */
-	public function getHeaderName(): string
-	{
-		return $this->headerName;
-	}
+        log_message('info', 'CSRF token verified.');
 
-	//--------------------------------------------------------------------
+        return $this;
+    }
 
-	/**
-	 * Returns the CSRF Cookie Name.
-	 *
-	 * @return string
-	 */
-	public function getCookieName(): string
-	{
-		return $this->cookieName;
-	}
+    /**
+     * Remove token in POST or JSON request data
+     */
+    private function removeTokenInRequest(RequestInterface $request): void
+    {
+        assert($request instanceof Request);
 
-	//--------------------------------------------------------------------
+        if (isset($_POST[$this->config->tokenName])) {
+            // We kill this since we're done and we don't want to pollute the POST array.
+            unset($_POST[$this->config->tokenName]);
+            $request->setGlobal('post', $_POST);
+        } else {
+            $body = $request->getBody() ?? '';
+            $json = json_decode($body);
+            if ($json !== null && json_last_error() === JSON_ERROR_NONE) {
+                // We kill this since we're done and we don't want to pollute the JSON data.
+                unset($json->{$this->config->tokenName});
+                $request->setBody(json_encode($json));
+            } else {
+                parse_str($body, $parsed);
+                // We kill this since we're done and we don't want to pollute the BODY data.
+                unset($parsed[$this->config->tokenName]);
+                $request->setBody(http_build_query($parsed));
+            }
+        }
+    }
 
-	/**
-	 * Check if CSRF cookie is expired.
-	 *
-	 * @return boolean
-	 */
-	public function isExpired(): bool
-	{
-		return $this->expires === 0;
-	}
+    private function getPostedToken(RequestInterface $request): ?string
+    {
+        assert($request instanceof IncomingRequest);
 
-	//--------------------------------------------------------------------
+        // Does the token exist in POST, HEADER or optionally php:://input - json data or PUT, DELETE, PATCH - raw data.
 
-	/**
-	 * Check if request should be redirect on failure.
-	 *
-	 * @return boolean
-	 */
-	public function shouldRedirect(): bool
-	{
-		return $this->redirect;
-	}
+        if ($tokenValue = $request->getPost($this->config->tokenName)) {
+            return $tokenValue;
+        }
 
-	//--------------------------------------------------------------------
+        if ($request->hasHeader($this->config->headerName)
+            && $request->header($this->config->headerName)->getValue() !== ''
+            && $request->header($this->config->headerName)->getValue() !== []) {
+            return $request->header($this->config->headerName)->getValue();
+        }
 
-	/**
-	 * Sanitize Filename
-	 *
-	 * Tries to sanitize filenames in order to prevent directory traversal attempts
-	 * and other security threats, which is particularly useful for files that
-	 * were supplied via user input.
-	 *
-	 * If it is acceptable for the user input to include relative paths,
-	 * e.g. file/in/some/approved/folder.txt, you can set the second optional
-	 * parameter, $relative_path to TRUE.
-	 *
-	 * @param string  $str          Input file name
-	 * @param boolean $relativePath Whether to preserve paths
-	 *
-	 * @return string
-	 */
-	public function sanitizeFilename(string $str, bool $relativePath = false): string
-	{
-		// List of sanitize filename strings
-		$bad = [
-			'../',
-			'<!--',
-			'-->',
-			'<',
-			'>',
-			"'",
-			'"',
-			'&',
-			'$',
-			'#',
-			'{',
-			'}',
-			'[',
-			']',
-			'=',
-			';',
-			'?',
-			'%20',
-			'%22',
-			'%3c',
-			'%253c',
-			'%3e',
-			'%0e',
-			'%28',
-			'%29',
-			'%2528',
-			'%26',
-			'%24',
-			'%3f',
-			'%3b',
-			'%3d',
-		];
+        $body = (string) $request->getBody();
 
-		if (! $relativePath)
-		{
-			$bad[] = './';
-			$bad[] = '/';
-		}
+        if ($body !== '') {
+            $json = json_decode($body);
+            if ($json !== null && json_last_error() === JSON_ERROR_NONE) {
+                return $json->{$this->config->tokenName} ?? null;
+            }
 
-		$str = remove_invisible_characters($str, false);
+            parse_str($body, $parsed);
 
-		do
-		{
-			$old = $str;
-			$str = str_replace($bad, '', $str);
-		}
-		while ($old !== $str);
+            return $parsed[$this->config->tokenName] ?? null;
+        }
 
-		return stripslashes($str);
-	}
+        return null;
+    }
 
-	//--------------------------------------------------------------------
+    /**
+     * Returns the CSRF Token.
+     */
+    public function getHash(): ?string
+    {
+        return $this->config->tokenRandomize ? $this->randomize($this->hash) : $this->hash;
+    }
 
-	/**
-	 * Generates the CSRF Hash.
-	 *
-	 * @return string
-	 */
-	protected function generateHash(): string
-	{
-		if (is_null($this->hash))
-		{
-			// If the cookie exists we will use its value.
-			// We don't necessarily want to regenerate it with
-			// each page load since a page could contain embedded
-			// sub-pages causing this feature to fail
-			if (isset($_COOKIE[$this->cookieName])
-				&& is_string($_COOKIE[$this->cookieName])
-				&& preg_match('#^[0-9a-f]{32}$#iS', $_COOKIE[$this->cookieName]) === 1
-			)
-			{
-				return $this->hash = $_COOKIE[$this->cookieName];
-			}
+    /**
+     * Randomize hash to avoid BREACH attacks.
+     *
+     * @params string $hash CSRF hash
+     *
+     * @return string CSRF token
+     */
+    protected function randomize(string $hash): string
+    {
+        $keyBinary  = random_bytes(static::CSRF_HASH_BYTES);
+        $hashBinary = hex2bin($hash);
 
-			$this->hash = bin2hex(random_bytes(16));
-		}
+        if ($hashBinary === false) {
+            throw new LogicException('$hash is invalid: ' . $hash);
+        }
 
-		return $this->hash;
-	}
+        return bin2hex(($hashBinary ^ $keyBinary) . $keyBinary);
+    }
 
-	//--------------------------------------------------------------------
+    /**
+     * Derandomize the token.
+     *
+     * @params string $token CSRF token
+     *
+     * @return string CSRF hash
+     *
+     * @throws InvalidArgumentException "hex2bin(): Hexadecimal input string must have an even length"
+     */
+    protected function derandomize(string $token): string
+    {
+        $key   = substr($token, -static::CSRF_HASH_BYTES * 2);
+        $value = substr($token, 0, static::CSRF_HASH_BYTES * 2);
 
-	/**
-	 * CSRF Send Cookie
-	 *
-	 * @param RequestInterface $request
-	 *
-	 * @return             Security|false
-	 * @codeCoverageIgnore
-	 */
-	protected function sendCookie(RequestInterface $request)
-	{
-		$config = new App();
+        try {
+            return bin2hex(hex2bin($value) ^ hex2bin($key));
+        } catch (ErrorException $e) {
+            // "hex2bin(): Hexadecimal input string must have an even length"
+            throw new InvalidArgumentException($e->getMessage());
+        }
+    }
 
-		$expires = $this->isExpired() ? $this->expires : time() + $this->expires;
-		$path    = $config->cookiePath ?? '/';
-		$domain  = $config->cookieDomain ?? '';
-		$secure  = $config->cookieSecure ?? false;
+    /**
+     * Returns the CSRF Token Name.
+     */
+    public function getTokenName(): string
+    {
+        return $this->config->tokenName;
+    }
 
-		if ($secure && ! $request->isSecure())
-		{
-			return false;
-		}
+    /**
+     * Returns the CSRF Header Name.
+     */
+    public function getHeaderName(): string
+    {
+        return $this->config->headerName;
+    }
 
-		if (PHP_VERSION_ID < 70300)
-		{
-			// In PHP < 7.3.0, there is a "hacky" way to set the samesite parameter
-			$samesite = '';
+    /**
+     * Returns the CSRF Cookie Name.
+     */
+    public function getCookieName(): string
+    {
+        return $this->config->cookieName;
+    }
 
-			if (! empty($this->samesite))
-			{
-				$samesite = '; samesite=' . $this->samesite;
-			}
+    /**
+     * Check if CSRF cookie is expired.
+     *
+     * @deprecated
+     *
+     * @codeCoverageIgnore
+     */
+    public function isExpired(): bool
+    {
+        return $this->cookie->isExpired();
+    }
 
-			setcookie($this->cookieName, $this->hash, $expires, $path . $samesite, $domain, $secure, true);
-		}
-		else
-		{
-			// PHP 7.3 adds another function signature allowing setting of samesite
-			$params = [
-				'expires'  => $expires,
-				'path'     => $path,
-				'domain'   => $domain,
-				'secure'   => $secure,
-				'httponly' => true, // Enforce HTTP only cookie for security
-			];
+    /**
+     * Check if request should be redirect on failure.
+     */
+    public function shouldRedirect(): bool
+    {
+        return $this->config->redirect;
+    }
 
-			if (! empty($this->samesite))
-			{
-				$params['samesite'] = $this->samesite;
-			}
+    /**
+     * Sanitize Filename
+     *
+     * Tries to sanitize filenames in order to prevent directory traversal attempts
+     * and other security threats, which is particularly useful for files that
+     * were supplied via user input.
+     *
+     * If it is acceptable for the user input to include relative paths,
+     * e.g. file/in/some/approved/folder.txt, you can set the second optional
+     * parameter, $relative_path to TRUE.
+     *
+     * @param string $str          Input file name
+     * @param bool   $relativePath Whether to preserve paths
+     */
+    public function sanitizeFilename(string $str, bool $relativePath = false): string
+    {
+        // List of sanitize filename strings
+        $bad = [
+            '../',
+            '<!--',
+            '-->',
+            '<',
+            '>',
+            "'",
+            '"',
+            '&',
+            '$',
+            '#',
+            '{',
+            '}',
+            '[',
+            ']',
+            '=',
+            ';',
+            '?',
+            '%20',
+            '%22',
+            '%3c',
+            '%253c',
+            '%3e',
+            '%0e',
+            '%28',
+            '%29',
+            '%2528',
+            '%26',
+            '%24',
+            '%3f',
+            '%3b',
+            '%3d',
+        ];
 
-			// @phpstan-ignore-next-line @todo ignore to be removed in 4.1 with rector 0.9
-			setcookie($this->cookieName, $this->hash, $params);
-		}
+        if (! $relativePath) {
+            $bad[] = './';
+            $bad[] = '/';
+        }
 
-		log_message('info', 'CSRF cookie sent.');
+        $str = remove_invisible_characters($str, false);
 
-		return $this;
-	}
+        do {
+            $old = $str;
+            $str = str_replace($bad, '', $str);
+        } while ($old !== $str);
+
+        return stripslashes($str);
+    }
+
+    /**
+     * Restore hash from Session or Cookie
+     */
+    private function restoreHash(): void
+    {
+        if ($this->isCSRFCookie()) {
+            if ($this->isHashInCookie()) {
+                $this->hash = $this->hashInCookie;
+            }
+        } elseif ($this->session->has($this->config->tokenName)) {
+            // Session based CSRF protection
+            $this->hash = $this->session->get($this->config->tokenName);
+        }
+    }
+
+    /**
+     * Generates (Regenerates) the CSRF Hash.
+     */
+    public function generateHash(): string
+    {
+        $this->hash = bin2hex(random_bytes(static::CSRF_HASH_BYTES));
+
+        if ($this->isCSRFCookie()) {
+            $this->saveHashInCookie();
+        } else {
+            // Session based CSRF protection
+            $this->saveHashInSession();
+        }
+
+        return $this->hash;
+    }
+
+    private function isHashInCookie(): bool
+    {
+        if ($this->hashInCookie === null) {
+            return false;
+        }
+
+        $length  = static::CSRF_HASH_BYTES * 2;
+        $pattern = '#^[0-9a-f]{' . $length . '}$#iS';
+
+        return preg_match($pattern, $this->hashInCookie) === 1;
+    }
+
+    private function saveHashInCookie(): void
+    {
+        $this->cookie = new Cookie(
+            $this->rawCookieName,
+            $this->hash,
+            [
+                'expires' => $this->config->expires === 0 ? 0 : Time::now()->getTimestamp() + $this->config->expires,
+            ]
+        );
+
+        $response = Services::response();
+        $response->setCookie($this->cookie);
+    }
+
+    /**
+     * CSRF Send Cookie
+     *
+     * @return false|Security
+     *
+     * @deprecated Set cookies to Response object instead.
+     */
+    protected function sendCookie(RequestInterface $request)
+    {
+        assert($request instanceof IncomingRequest);
+
+        if ($this->cookie->isSecure() && ! $request->isSecure()) {
+            return false;
+        }
+
+        $this->doSendCookie();
+        log_message('info', 'CSRF cookie sent.');
+
+        return $this;
+    }
+
+    /**
+     * Actual dispatching of cookies.
+     * Extracted for this to be unit tested.
+     *
+     * @codeCoverageIgnore
+     *
+     * @deprecated Set cookies to Response object instead.
+     */
+    protected function doSendCookie(): void
+    {
+        cookies([$this->cookie], false)->dispatch();
+    }
+
+    private function saveHashInSession(): void
+    {
+        $this->session->set($this->config->tokenName, $this->hash);
+    }
 }

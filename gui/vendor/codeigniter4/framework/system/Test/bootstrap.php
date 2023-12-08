@@ -1,18 +1,19 @@
 <?php
 
 /**
- * This file is part of the CodeIgniter 4 framework.
+ * This file is part of CodeIgniter 4 framework.
  *
  * (c) CodeIgniter Foundation <admin@codeigniter.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
-use CodeIgniter\Services;
+use CodeIgniter\Config\DotEnv;
 use Config\Autoload;
 use Config\Modules;
 use Config\Paths;
+use Config\Services;
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -26,10 +27,8 @@ defined('CI_DEBUG') || define('CI_DEBUG', true);
 // Often these constants are pre-defined, but query the current directory structure as a fallback
 defined('HOMEPATH') || define('HOMEPATH', realpath(rtrim(getcwd(), '\\/ ')) . DIRECTORY_SEPARATOR);
 $source = is_dir(HOMEPATH . 'app')
-	? HOMEPATH
-	: (is_dir('vendor/codeigniter4/framework/')
-		? 'vendor/codeigniter4/framework/'
-		: 'vendor/codeigniter4/codeigniter4/');
+    ? HOMEPATH
+    : (is_dir('vendor/codeigniter4/framework/') ? 'vendor/codeigniter4/framework/' : 'vendor/codeigniter4/codeigniter4/');
 defined('CONFIGPATH') || define('CONFIGPATH', realpath($source . 'app/Config') . DIRECTORY_SEPARATOR);
 defined('PUBLICPATH') || define('PUBLICPATH', realpath($source . 'public') . DIRECTORY_SEPARATOR);
 unset($source);
@@ -51,17 +50,15 @@ defined('COMPOSER_PATH') || define('COMPOSER_PATH', realpath(HOMEPATH . 'vendor/
 defined('VENDORPATH')    || define('VENDORPATH', realpath(HOMEPATH . 'vendor') . DIRECTORY_SEPARATOR);
 
 // Load Common.php from App then System
-if (file_exists(APPPATH . 'Common.php'))
-{
-	require_once APPPATH . 'Common.php';
+if (is_file(APPPATH . 'Common.php')) {
+    require_once APPPATH . 'Common.php';
 }
 
 require_once SYSTEMPATH . 'Common.php';
 
 // Set environment values that would otherwise stop the framework from functioning during tests.
-if (! isset($_SERVER['app.baseURL']))
-{
-	$_SERVER['app.baseURL'] = 'http://example.com/';
+if (! isset($_SERVER['app.baseURL'])) {
+    $_SERVER['app.baseURL'] = 'http://example.com/';
 }
 
 // Load necessary components
@@ -76,20 +73,21 @@ require_once SYSTEMPATH . 'Config/BaseService.php';
 require_once SYSTEMPATH . 'Config/Services.php';
 require_once APPPATH . 'Config/Services.php';
 
-// Use Config\Services as CodeIgniter\Services
-if (! class_exists('CodeIgniter\Services', false))
-{
-	class_alias('Config\Services', 'CodeIgniter\Services');
+// Initialize and register the loader with the SPL autoloader stack.
+Services::autoloader()->initialize(new Autoload(), new Modules())->register();
+
+// Now load Composer's if it's available
+if (is_file(COMPOSER_PATH)) {
+    require_once COMPOSER_PATH;
 }
 
-// Launch the autoloader to gather namespaces (includes composer.json's "autoload-dev")
-$loader = Services::autoloader();
-$loader->initialize(new Autoload(), new Modules());
-$loader->register(); // Register the loader with the SPL autoloader stack.
+// Load environment settings from .env files into $_SERVER and $_ENV
+require_once SYSTEMPATH . 'Config/DotEnv.php';
 
-require_once APPPATH . 'Config/Routes.php';
+$env = new DotEnv(ROOTPATH);
+$env->load();
 
-/**
- * @var \CodeIgniter\Router\RouteCollection $routes
- */
-$routes->getRoutes('*');
+// Always load the URL helper, it should be used in most of apps.
+helper('url');
+
+Services::routes()->loadRoutes();
