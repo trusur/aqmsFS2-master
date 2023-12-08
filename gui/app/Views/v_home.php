@@ -152,7 +152,7 @@
                     if (data?.logs) {
                         data?.logs.map(function(value, index) {
                             try {
-                                let param_value = cleanStr(value?.value);
+                                let param_value = cleanStr(value?.measured);
                                 let default_unit = cleanStr(value?.default_unit);
                                 let molecular_mass = cleanStr(value?.molecular_mass);
                                 let p_type = value?.p_type
