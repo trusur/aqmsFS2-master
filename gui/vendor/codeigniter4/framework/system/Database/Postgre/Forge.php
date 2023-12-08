@@ -1,12 +1,12 @@
 <?php
 
 /**
- * This file is part of the CodeIgniter 4 framework.
+ * This file is part of CodeIgniter 4 framework.
  *
  * (c) CodeIgniter Foundation <admin@codeigniter.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
 namespace CodeIgniter\Database\Postgre;
@@ -18,214 +18,199 @@ use CodeIgniter\Database\Forge as BaseForge;
  */
 class Forge extends BaseForge
 {
-	/**
-	 * CHECK DATABASE EXIST statement
-	 *
-	 * @var string
-	 */
-	protected $checkDatabaseExistStr = 'SELECT 1 FROM pg_database WHERE datname = ?';
+    /**
+     * CHECK DATABASE EXIST statement
+     *
+     * @var string
+     */
+    protected $checkDatabaseExistStr = 'SELECT 1 FROM pg_database WHERE datname = ?';
 
-	/**
-	 * DROP CONSTRAINT statement
-	 *
-	 * @var string
-	 */
-	protected $dropConstraintStr = 'ALTER TABLE %s DROP CONSTRAINT %s';
+    /**
+     * DROP CONSTRAINT statement
+     *
+     * @var string
+     */
+    protected $dropConstraintStr = 'ALTER TABLE %s DROP CONSTRAINT %s';
 
-	/**
-	 * UNSIGNED support
-	 *
-	 * @var array
-	 */
-	protected $_unsigned = [
-		'INT2'     => 'INTEGER',
-		'SMALLINT' => 'INTEGER',
-		'INT'      => 'BIGINT',
-		'INT4'     => 'BIGINT',
-		'INTEGER'  => 'BIGINT',
-		'INT8'     => 'NUMERIC',
-		'BIGINT'   => 'NUMERIC',
-		'REAL'     => 'DOUBLE PRECISION',
-		'FLOAT'    => 'DOUBLE PRECISION',
-	];
+    /**
+     * DROP INDEX statement
+     *
+     * @var string
+     */
+    protected $dropIndexStr = 'DROP INDEX %s';
 
-	/**
-	 * NULL value representation in CREATE/ALTER TABLE statements
-	 *
-	 * @var string
-	 */
-	protected $_null = 'NULL';
+    /**
+     * UNSIGNED support
+     *
+     * @var array
+     */
+    protected $_unsigned = [
+        'INT2'     => 'INTEGER',
+        'SMALLINT' => 'INTEGER',
+        'INT'      => 'BIGINT',
+        'INT4'     => 'BIGINT',
+        'INTEGER'  => 'BIGINT',
+        'INT8'     => 'NUMERIC',
+        'BIGINT'   => 'NUMERIC',
+        'REAL'     => 'DOUBLE PRECISION',
+        'FLOAT'    => 'DOUBLE PRECISION',
+    ];
 
-	//--------------------------------------------------------------------
+    /**
+     * NULL value representation in CREATE/ALTER TABLE statements
+     *
+     * @var string
+     *
+     * @internal
+     */
+    protected $null = 'NULL';
 
-	/**
-	 * CREATE TABLE attributes
-	 *
-	 * @param  array $attributes Associative array of table attributes
-	 * @return string
-	 */
-	protected function _createTableAttributes(array $attributes): string
-	{
-		return '';
-	}
+    /**
+     * @var Connection
+     */
+    protected $db;
 
-	//--------------------------------------------------------------------
+    /**
+     * CREATE TABLE attributes
+     *
+     * @param array $attributes Associative array of table attributes
+     */
+    protected function _createTableAttributes(array $attributes): string
+    {
+        return '';
+    }
 
-	/**
-	 * ALTER TABLE
-	 *
-	 * @param string $alterType ALTER type
-	 * @param string $table     Table name
-	 * @param mixed  $field     Column definition
-	 *
-	 * @return string|array|boolean
-	 */
-	protected function _alterTable(string $alterType, string $table, $field)
-	{
-		if (in_array($alterType, ['DROP', 'ADD'], true))
-		{
-			return parent::_alterTable($alterType, $table, $field);
-		}
+    /**
+     * @param array|string $field
+     *
+     * @return array|bool|string
+     */
+    protected function _alterTable(string $alterType, string $table, $field)
+    {
+        if (in_array($alterType, ['DROP', 'ADD'], true)) {
+            return parent::_alterTable($alterType, $table, $field);
+        }
 
-		$sql  = 'ALTER TABLE ' . $this->db->escapeIdentifiers($table);
-		$sqls = [];
-		foreach ($field as $data)
-		{
-			if ($data['_literal'] !== false)
-			{
-				return false;
-			}
+        $sql  = 'ALTER TABLE ' . $this->db->escapeIdentifiers($table);
+        $sqls = [];
 
-			if (version_compare($this->db->getVersion(), '8', '>=') && isset($data['type']))
-			{
-				$sqls[] = $sql . ' ALTER COLUMN ' . $this->db->escapeIdentifiers($data['name'])
-						. " TYPE {$data['type']}{$data['length']}";
-			}
+        foreach ($field as $data) {
+            if ($data['_literal'] !== false) {
+                return false;
+            }
 
-			if (! empty($data['default']))
-			{
-				$sqls[] = $sql . ' ALTER COLUMN ' . $this->db->escapeIdentifiers($data['name'])
-						. " SET DEFAULT {$data['default']}";
-			}
+            if (version_compare($this->db->getVersion(), '8', '>=') && isset($data['type'])) {
+                $sqls[] = $sql . ' ALTER COLUMN ' . $this->db->escapeIdentifiers($data['name'])
+                    . " TYPE {$data['type']}{$data['length']}";
+            }
 
-			if (isset($data['null']))
-			{
-				$sqls[] = $sql . ' ALTER COLUMN ' . $this->db->escapeIdentifiers($data['name'])
-						. ($data['null'] === true ? ' DROP' : ' SET') . ' NOT NULL';
-			}
+            if (! empty($data['default'])) {
+                $sqls[] = $sql . ' ALTER COLUMN ' . $this->db->escapeIdentifiers($data['name'])
+                    . " SET DEFAULT {$data['default']}";
+            }
 
-			if (! empty($data['new_name']))
-			{
-				$sqls[] = $sql . ' RENAME COLUMN ' . $this->db->escapeIdentifiers($data['name'])
-						. ' TO ' . $this->db->escapeIdentifiers($data['new_name']);
-			}
+            $nullable = true; // Nullable by default.
+            if (isset($data['null']) && ($data['null'] === false || $data['null'] === ' NOT ' . $this->null)) {
+                $nullable = false;
+            }
+            $sqls[] = $sql . ' ALTER COLUMN ' . $this->db->escapeIdentifiers($data['name'])
+                . ($nullable === true ? ' DROP' : ' SET') . ' NOT NULL';
 
-			if (! empty($data['comment']))
-			{
-				$sqls[] = 'COMMENT ON COLUMN' . $this->db->escapeIdentifiers($table)
-						. '.' . $this->db->escapeIdentifiers($data['name'])
-						. " IS {$data['comment']}";
-			}
-		}
+            if (! empty($data['new_name'])) {
+                $sqls[] = $sql . ' RENAME COLUMN ' . $this->db->escapeIdentifiers($data['name'])
+                    . ' TO ' . $this->db->escapeIdentifiers($data['new_name']);
+            }
 
-		return $sqls;
-	}
+            if (! empty($data['comment'])) {
+                $sqls[] = 'COMMENT ON COLUMN' . $this->db->escapeIdentifiers($table)
+                    . '.' . $this->db->escapeIdentifiers($data['name'])
+                    . " IS {$data['comment']}";
+            }
+        }
 
-		//--------------------------------------------------------------------
+        return $sqls;
+    }
 
-	/**
-	 * Process column
-	 *
-	 * @param  array $field
-	 * @return string
-	 */
-	protected function _processColumn(array $field): string
-	{
-		return $this->db->escapeIdentifiers($field['name'])
-				. ' ' . $field['type'] . $field['length']
-				. $field['default']
-				. $field['null']
-				. $field['auto_increment']
-				. $field['unique'];
-	}
+    /**
+     * Process column
+     */
+    protected function _processColumn(array $field): string
+    {
+        return $this->db->escapeIdentifiers($field['name'])
+            . ' ' . $field['type'] . ($field['type'] === 'text' ? '' : $field['length'])
+            . $field['default']
+            . $field['null']
+            . $field['auto_increment']
+            . $field['unique'];
+    }
 
-	//--------------------------------------------------------------------
+    /**
+     * Performs a data type mapping between different databases.
+     */
+    protected function _attributeType(array &$attributes)
+    {
+        // Reset field lengths for data types that don't support it
+        if (isset($attributes['CONSTRAINT']) && stripos($attributes['TYPE'], 'int') !== false) {
+            $attributes['CONSTRAINT'] = null;
+        }
 
-	/**
-	 * Field attribute TYPE
-	 *
-	 * Performs a data type mapping between different databases.
-	 *
-	 * @param array $attributes
-	 *
-	 * @return void
-	 */
-	protected function _attributeType(array &$attributes)
-	{
-		// Reset field lengths for data types that don't support it
-		if (isset($attributes['CONSTRAINT']) && stripos($attributes['TYPE'], 'int') !== false)
-		{
-			$attributes['CONSTRAINT'] = null;
-		}
+        switch (strtoupper($attributes['TYPE'])) {
+            case 'TINYINT':
+                $attributes['TYPE']     = 'SMALLINT';
+                $attributes['UNSIGNED'] = false;
+                break;
 
-		switch (strtoupper($attributes['TYPE']))
-		{
-			case 'TINYINT':
-				$attributes['TYPE']     = 'SMALLINT';
-				$attributes['UNSIGNED'] = false;
-				break;
-			case 'MEDIUMINT':
-				$attributes['TYPE']     = 'INTEGER';
-				$attributes['UNSIGNED'] = false;
-				break;
-			case 'DATETIME':
-				$attributes['TYPE'] = 'TIMESTAMP';
-				break;
-			default:
-				break;
-		}
-	}
+            case 'MEDIUMINT':
+                $attributes['TYPE']     = 'INTEGER';
+                $attributes['UNSIGNED'] = false;
+                break;
 
-	//--------------------------------------------------------------------
+            case 'DATETIME':
+                $attributes['TYPE'] = 'TIMESTAMP';
+                break;
 
-	/**
-	 * Field attribute AUTO_INCREMENT
-	 *
-	 * @param array $attributes
-	 * @param array $field
-	 *
-	 * @return void
-	 */
-	protected function _attributeAutoIncrement(array &$attributes, array &$field)
-	{
-		if (! empty($attributes['AUTO_INCREMENT']) && $attributes['AUTO_INCREMENT'] === true)
-		{
-			$field['type'] = $field['type'] === 'NUMERIC' || $field['type'] === 'BIGINT' ? 'BIGSERIAL' : 'SERIAL';
-		}
-	}
+            default:
+                break;
+        }
+    }
 
-	//--------------------------------------------------------------------
+    /**
+     * Field attribute AUTO_INCREMENT
+     */
+    protected function _attributeAutoIncrement(array &$attributes, array &$field)
+    {
+        if (! empty($attributes['AUTO_INCREMENT']) && $attributes['AUTO_INCREMENT'] === true) {
+            $field['type'] = $field['type'] === 'NUMERIC' || $field['type'] === 'BIGINT' ? 'BIGSERIAL' : 'SERIAL';
+        }
+    }
 
-	/**
-	 * Drop Table
-	 *
-	 * Generates a platform-specific DROP TABLE string
-	 *
-	 * @param string  $table    Table name
-	 * @param boolean $ifExists Whether to add an IF EXISTS condition
-	 * @param boolean $cascade
-	 *
-	 * @return string
-	 */
-	protected function _dropTable(string $table, bool $ifExists, bool $cascade): string
-	{
-		$sql = parent::_dropTable($table, $ifExists, $cascade);
+    /**
+     * Generates a platform-specific DROP TABLE string
+     */
+    protected function _dropTable(string $table, bool $ifExists, bool $cascade): string
+    {
+        $sql = parent::_dropTable($table, $ifExists, $cascade);
 
-		if ($cascade === true)
-		{
-			$sql .= ' CASCADE';
-		}
+        if ($cascade === true) {
+            $sql .= ' CASCADE';
+        }
 
-		return $sql;
-	}
+        return $sql;
+    }
+
+    /**
+     * Constructs sql to check if key is a constraint.
+     */
+    protected function _dropKeyAsConstraint(string $table, string $constraintName): string
+    {
+        return "SELECT con.conname
+               FROM pg_catalog.pg_constraint con
+                INNER JOIN pg_catalog.pg_class rel
+                           ON rel.oid = con.conrelid
+                INNER JOIN pg_catalog.pg_namespace nsp
+                           ON nsp.oid = connamespace
+               WHERE nsp.nspname = '{$this->db->schema}'
+                     AND rel.relname = '" . trim($table, '"') . "'
+                     AND con.conname = '" . trim($constraintName, '"') . "'";
+    }
 }

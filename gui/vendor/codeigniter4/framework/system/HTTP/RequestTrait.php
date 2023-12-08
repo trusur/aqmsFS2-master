@@ -1,17 +1,19 @@
 <?php
 
 /**
- * This file is part of the CodeIgniter 4 framework.
+ * This file is part of CodeIgniter 4 framework.
  *
  * (c) CodeIgniter Foundation <admin@codeigniter.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
  */
 
 namespace CodeIgniter\HTTP;
 
+use CodeIgniter\Exceptions\ConfigException;
 use CodeIgniter\Validation\FormatRules;
+use Config\App;
 
 /**
  * Request Trait
@@ -23,355 +25,340 @@ use CodeIgniter\Validation\FormatRules;
  */
 trait RequestTrait
 {
-	/**
-	 * IP address of the current user.
-	 *
-	 * @var string
-	 *
-	 * @deprecated Will become private in a future release
-	 */
-	protected $ipAddress = '';
+    /**
+     * IP address of the current user.
+     *
+     * @var string
+     *
+     * @deprecated Will become private in a future release
+     */
+    protected $ipAddress = '';
 
-	/**
-	 * Stores values we've retrieved from
-	 * PHP globals.
-	 *
-	 * @var array
-	 */
-	protected $globals = [];
+    /**
+     * Stores values we've retrieved from
+     * PHP globals.
+     *
+     * @var array
+     */
+    protected $globals = [];
 
-	/**
-	 * Gets the user's IP address.
-	 *
-	 * @return string IP address
-	 */
-	public function getIPAddress(): string
-	{
-		if ($this->ipAddress)
-		{
-			return $this->ipAddress;
-		}
+    /**
+     * Gets the user's IP address.
+     *
+     * @return string IP address if it can be detected.
+     *                If the IP address is not a valid IP address,
+     *                then will return '0.0.0.0'.
+     */
+    public function getIPAddress(): string
+    {
+        if ($this->ipAddress) {
+            return $this->ipAddress;
+        }
 
-		$ipValidator = [
-			new FormatRules(),
-			'valid_ip',
-		];
+        $ipValidator = [
+            new FormatRules(),
+            'valid_ip',
+        ];
 
-		/**
-		 * @deprecated $this->proxyIPs property will be removed in the future
-		 */
-		$proxyIPs = isset($this->proxyIPs) ? $this->proxyIPs : config('App')->proxyIPs;
-		if (! empty($proxyIPs) && ! is_array($proxyIPs))
-		{
-			$proxyIPs = explode(',', str_replace(' ', '', $proxyIPs));
-		}
+        $proxyIPs = config(App::class)->proxyIPs;
 
-		$this->ipAddress = $this->getServer('REMOTE_ADDR');
+        if (! empty($proxyIPs) && (! is_array($proxyIPs) || is_int(array_key_first($proxyIPs)))) {
+            throw new ConfigException(
+                'You must set an array with Proxy IP address key and HTTP header name value in Config\App::$proxyIPs.'
+            );
+        }
 
-		if ($proxyIPs)
-		{
-			foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'] as $header)
-			{
-				if (($spoof = $this->getServer($header)) !== null)
-				{
-					// Some proxies typically list the whole chain of IP
-					// addresses through which the client has reached us.
-					// e.g. client_ip, proxy_ip1, proxy_ip2, etc.
-					sscanf($spoof, '%[^,]', $spoof);
+        $this->ipAddress = $this->getServer('REMOTE_ADDR');
 
-					if (! $ipValidator($spoof))
-					{
-						$spoof = null;
-					}
-					else
-					{
-						break;
-					}
-				}
-			}
+        // If this is a CLI request, $this->ipAddress is null.
+        if ($this->ipAddress === null) {
+            return $this->ipAddress = '0.0.0.0';
+        }
 
-			if ($spoof)
-			{
-				foreach ($proxyIPs as $proxyIP)
-				{
-					// Check if we have an IP address or a subnet
-					if (strpos($proxyIP, '/') === false)
-					{
-						// An IP address (and not a subnet) is specified.
-						// We can compare right away.
-						if ($proxyIP === $this->ipAddress)
-						{
-							$this->ipAddress = $spoof;
-							break;
-						}
+        // @TODO Extract all this IP address logic to another class.
+        foreach ($proxyIPs as $proxyIP => $header) {
+            // Check if we have an IP address or a subnet
+            if (strpos($proxyIP, '/') === false) {
+                // An IP address (and not a subnet) is specified.
+                // We can compare right away.
+                if ($proxyIP === $this->ipAddress) {
+                    $spoof = $this->getClientIP($header);
 
-						continue;
-					}
+                    if ($spoof !== null) {
+                        $this->ipAddress = $spoof;
+                        break;
+                    }
+                }
 
-					// We have a subnet ... now the heavy lifting begins
-					if (! isset($separator))
-					{
-						$separator = $ipValidator($this->ipAddress, 'ipv6') ? ':' : '.';
-					}
+                continue;
+            }
 
-					// If the proxy entry doesn't match the IP protocol - skip it
-					if (strpos($proxyIP, $separator) === false)
-					{
-						continue;
-					}
+            // We have a subnet ... now the heavy lifting begins
+            if (! isset($separator)) {
+                $separator = $ipValidator($this->ipAddress, 'ipv6') ? ':' : '.';
+            }
 
-					// Convert the REMOTE_ADDR IP address to binary, if needed
-					if (! isset($ip, $sprintf))
-					{
-						if ($separator === ':')
-						{
-							// Make sure we're have the "full" IPv6 format
-							$ip = explode(':', str_replace('::', str_repeat(':', 9 - substr_count($this->ipAddress, ':')), $this->ipAddress));
+            // If the proxy entry doesn't match the IP protocol - skip it
+            if (strpos($proxyIP, $separator) === false) {
+                continue;
+            }
 
-							for ($j = 0; $j < 8; $j ++)
-							{
-								$ip[$j] = intval($ip[$j], 16);
-							}
+            // Convert the REMOTE_ADDR IP address to binary, if needed
+            if (! isset($ip, $sprintf)) {
+                if ($separator === ':') {
+                    // Make sure we're having the "full" IPv6 format
+                    $ip = explode(':', str_replace('::', str_repeat(':', 9 - substr_count($this->ipAddress, ':')), $this->ipAddress));
 
-							$sprintf = '%016b%016b%016b%016b%016b%016b%016b%016b';
-						}
-						else
-						{
-							$ip      = explode('.', $this->ipAddress);
-							$sprintf = '%08b%08b%08b%08b';
-						}
+                    for ($j = 0; $j < 8; $j++) {
+                        $ip[$j] = intval($ip[$j], 16);
+                    }
 
-						$ip = vsprintf($sprintf, $ip);
-					}
+                    $sprintf = '%016b%016b%016b%016b%016b%016b%016b%016b';
+                } else {
+                    $ip      = explode('.', $this->ipAddress);
+                    $sprintf = '%08b%08b%08b%08b';
+                }
 
-					// Split the netmask length off the network address
-					sscanf($proxyIP, '%[^/]/%d', $netaddr, $masklen);
+                $ip = vsprintf($sprintf, $ip);
+            }
 
-					// Again, an IPv6 address is most likely in a compressed form
-					if ($separator === ':')
-					{
-						$netaddr = explode(':', str_replace('::', str_repeat(':', 9 - substr_count($netaddr, ':')), $netaddr));
-						for ($i = 0; $i < 8; $i++)
-						{
-							$netaddr[$i] = intval($netaddr[$i], 16);
-						}
-					}
-					else
-					{
-						$netaddr = explode('.', $netaddr);
-					}
+            // Split the netmask length off the network address
+            sscanf($proxyIP, '%[^/]/%d', $netaddr, $masklen);
 
-					// Convert to binary and finally compare
-					if (strncmp($ip, vsprintf($sprintf, $netaddr), $masklen) === 0)
-					{
-						$this->ipAddress = $spoof;
-						break;
-					}
-				}
-			}
-		}
+            // Again, an IPv6 address is most likely in a compressed form
+            if ($separator === ':') {
+                $netaddr = explode(':', str_replace('::', str_repeat(':', 9 - substr_count($netaddr, ':')), $netaddr));
 
-		if (! $ipValidator($this->ipAddress))
-		{
-			return $this->ipAddress = '0.0.0.0';
-		}
+                for ($i = 0; $i < 8; $i++) {
+                    $netaddr[$i] = intval($netaddr[$i], 16);
+                }
+            } else {
+                $netaddr = explode('.', $netaddr);
+            }
 
-		return empty($this->ipAddress) ? '' : $this->ipAddress;
-	}
+            // Convert to binary and finally compare
+            if (strncmp($ip, vsprintf($sprintf, $netaddr), $masklen) === 0) {
+                $spoof = $this->getClientIP($header);
 
-	//--------------------------------------------------------------------
+                if ($spoof !== null) {
+                    $this->ipAddress = $spoof;
+                    break;
+                }
+            }
+        }
 
-	/**
-	 * Fetch an item from the $_SERVER array.
-	 *
-	 * @param string|array|null $index  Index for item to be fetched from $_SERVER
-	 * @param integer|null      $filter A filter name to be applied
-	 * @param null              $flags
-	 *
-	 * @return mixed
-	 */
-	public function getServer($index = null, $filter = null, $flags = null)
-	{
-		return $this->fetchGlobal('server', $index, $filter, $flags);
-	}
+        if (! $ipValidator($this->ipAddress)) {
+            return $this->ipAddress = '0.0.0.0';
+        }
 
-	//--------------------------------------------------------------------
+        return $this->ipAddress;
+    }
 
-	/**
-	 * Fetch an item from the $_ENV array.
-	 *
-	 * @param null $index  Index for item to be fetched from $_ENV
-	 * @param null $filter A filter name to be applied
-	 * @param null $flags
-	 *
-	 * @return mixed
-	 */
-	public function getEnv($index = null, $filter = null, $flags = null)
-	{
-		return $this->fetchGlobal('env', $index, $filter, $flags);
-	}
+    /**
+     * Gets the client IP address from the HTTP header.
+     */
+    private function getClientIP(string $header): ?string
+    {
+        $ipValidator = [
+            new FormatRules(),
+            'valid_ip',
+        ];
+        $spoof     = null;
+        $headerObj = $this->header($header);
 
-	//--------------------------------------------------------------------
+        if ($headerObj !== null) {
+            $spoof = $headerObj->getValue();
 
-	/**
-	 * Allows manually setting the value of PHP global, like $_GET, $_POST, etc.
-	 *
-	 * @param string $method
-	 * @param mixed  $value
-	 *
-	 * @return $this
-	 */
-	public function setGlobal(string $method, $value)
-	{
-		$this->globals[$method] = $value;
+            // Some proxies typically list the whole chain of IP
+            // addresses through which the client has reached us.
+            // e.g. client_ip, proxy_ip1, proxy_ip2, etc.
+            sscanf($spoof, '%[^,]', $spoof);
 
-		return $this;
-	}
+            if (! $ipValidator($spoof)) {
+                $spoof = null;
+            }
+        }
 
-	//--------------------------------------------------------------------
+        return $spoof;
+    }
 
-	/**
-	 * Fetches one or more items from a global, like cookies, get, post, etc.
-	 * Can optionally filter the input when you retrieve it by passing in
-	 * a filter.
-	 *
-	 * If $type is an array, it must conform to the input allowed by the
-	 * filter_input_array method.
-	 *
-	 * http://php.net/manual/en/filter.filters.sanitize.php
-	 *
-	 * @param string            $method Input filter constant
-	 * @param string|array|null $index
-	 * @param integer|null      $filter Filter constant
-	 * @param mixed             $flags
-	 *
-	 * @return mixed
-	 */
-	public function fetchGlobal($method, $index = null, $filter = null, $flags = null)
-	{
-		$method = strtolower($method);
+    /**
+     * Fetch an item from the $_SERVER array.
+     *
+     * @param array|string|null $index  Index for item to be fetched from $_SERVER
+     * @param int|null          $filter A filter name to be applied
+     * @param array|int|null    $flags
+     *
+     * @return mixed
+     */
+    public function getServer($index = null, $filter = null, $flags = null)
+    {
+        return $this->fetchGlobal('server', $index, $filter, $flags);
+    }
 
-		if (! isset($this->globals[$method]))
-		{
-			$this->populateGlobals($method);
-		}
+    /**
+     * Fetch an item from the $_ENV array.
+     *
+     * @param array|string|null $index  Index for item to be fetched from $_ENV
+     * @param int|null          $filter A filter name to be applied
+     * @param array|int|null    $flags
+     *
+     * @return mixed
+     */
+    public function getEnv($index = null, $filter = null, $flags = null)
+    {
+        return $this->fetchGlobal('env', $index, $filter, $flags);
+    }
 
-		// Null filters cause null values to return.
-		if (is_null($filter))
-		{
-			$filter = FILTER_DEFAULT;
-		}
+    /**
+     * Allows manually setting the value of PHP global, like $_GET, $_POST, etc.
+     *
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function setGlobal(string $method, $value)
+    {
+        $this->globals[$method] = $value;
 
-		// Return all values when $index is null
-		if (is_null($index))
-		{
-			$values = [];
-			foreach ($this->globals[$method] as $key => $value)
-			{
-				$values[$key] = is_array($value)
-					? $this->fetchGlobal($method, $key, $filter, $flags)
-					: filter_var($value, $filter, $flags);
-			}
+        return $this;
+    }
 
-			return $values;
-		}
+    /**
+     * Fetches one or more items from a global, like cookies, get, post, etc.
+     * Can optionally filter the input when you retrieve it by passing in
+     * a filter.
+     *
+     * If $type is an array, it must conform to the input allowed by the
+     * filter_input_array method.
+     *
+     * http://php.net/manual/en/filter.filters.sanitize.php
+     *
+     * @param string            $method Input filter constant
+     * @param array|string|null $index
+     * @param int|null          $filter Filter constant
+     * @param array|int|null    $flags  Options
+     *
+     * @return array|bool|float|int|object|string|null
+     */
+    public function fetchGlobal(string $method, $index = null, ?int $filter = null, $flags = null)
+    {
+        $method = strtolower($method);
 
-		// allow fetching multiple keys at once
-		if (is_array($index))
-		{
-			$output = [];
+        if (! isset($this->globals[$method])) {
+            $this->populateGlobals($method);
+        }
 
-			foreach ($index as $key)
-			{
-				$output[$key] = $this->fetchGlobal($method, $key, $filter, $flags);
-			}
+        // Null filters cause null values to return.
+        $filter ??= FILTER_DEFAULT;
+        $flags = is_array($flags) ? $flags : (is_numeric($flags) ? (int) $flags : 0);
 
-			return $output;
-		}
+        // Return all values when $index is null
+        if ($index === null) {
+            $values = [];
 
-		// Does the index contain array notation?
-		if (($count = preg_match_all('/(?:^[^\[]+)|\[[^]]*\]/', $index, $matches)) > 1)
-		{
-			$value = $this->globals[$method];
-			for ($i = 0; $i < $count; $i++)
-			{
-				$key = trim($matches[0][$i], '[]');
+            foreach ($this->globals[$method] as $key => $value) {
+                $values[$key] = is_array($value)
+                    ? $this->fetchGlobal($method, $key, $filter, $flags)
+                    : filter_var($value, $filter, $flags);
+            }
 
-				if ($key === '') // Empty notation will return the value as array
-				{
-					break;
-				}
+            return $values;
+        }
 
-				if (isset($value[$key]))
-				{
-					$value = $value[$key];
-				}
-				else
-				{
-					return null;
-				}
-			}
-		}
+        // allow fetching multiple keys at once
+        if (is_array($index)) {
+            $output = [];
 
-		if (! isset($value))
-		{
-			$value = $this->globals[$method][$index] ?? null;
-		}
+            foreach ($index as $key) {
+                $output[$key] = $this->fetchGlobal($method, $key, $filter, $flags);
+            }
 
-		// @phpstan-ignore-next-line
-		if (is_array($value) && ($filter !== null || $flags !== null))
-		{
-			// Iterate over array and append filter and flags
-			array_walk_recursive($value, function (&$val) use ($filter, $flags) {
-				$val = filter_var($val, $filter, $flags);
-			});
+            return $output;
+        }
 
-			return $value;
-		}
+        // Does the index contain array notation?
+        if (($count = preg_match_all('/(?:^[^\[]+)|\[[^]]*\]/', $index, $matches)) > 1) {
+            $value = $this->globals[$method];
 
-		// Cannot filter these types of data automatically...
-		if (is_array($value) || is_object($value) || is_null($value))
-		{
-			return $value;
-		}
+            for ($i = 0; $i < $count; $i++) {
+                $key = trim($matches[0][$i], '[]');
 
-		return filter_var($value, $filter, $flags);
-	}
+                if ($key === '') { // Empty notation will return the value as array
+                    break;
+                }
 
-	//--------------------------------------------------------------------
+                if (isset($value[$key])) {
+                    $value = $value[$key];
+                } else {
+                    return null;
+                }
+            }
+        }
 
-	/**
-	 * Saves a copy of the current state of one of several PHP globals
-	 * so we can retrieve them later.
-	 *
-	 * @param string $method
-	 */
-	protected function populateGlobals(string $method)
-	{
-		if (! isset($this->globals[$method]))
-		{
-			$this->globals[$method] = [];
-		}
+        if (! isset($value)) {
+            $value = $this->globals[$method][$index] ?? null;
+        }
 
-		// Don't populate ENV as it might contain
-		// sensitive data that we don't want to get logged.
-		switch($method)
-		{
-			case 'get':
-				$this->globals['get'] = $_GET;
-				break;
-			case 'post':
-				$this->globals['post'] = $_POST;
-				break;
-			case 'request':
-				$this->globals['request'] = $_REQUEST;
-				break;
-			case 'cookie':
-				$this->globals['cookie'] = $_COOKIE;
-				break;
-			case 'server':
-				$this->globals['server'] = $_SERVER;
-				break;
-		}
-	}
+        if (is_array($value)
+            && (
+                $filter !== FILTER_DEFAULT
+                || (
+                    (is_numeric($flags) && $flags !== 0)
+                    || is_array($flags) && $flags !== []
+                )
+            )
+        ) {
+            // Iterate over array and append filter and flags
+            array_walk_recursive($value, static function (&$val) use ($filter, $flags) {
+                $val = filter_var($val, $filter, $flags);
+            });
+
+            return $value;
+        }
+
+        // Cannot filter these types of data automatically...
+        if (is_array($value) || is_object($value) || $value === null) {
+            return $value;
+        }
+
+        return filter_var($value, $filter, $flags);
+    }
+
+    /**
+     * Saves a copy of the current state of one of several PHP globals
+     * so we can retrieve them later.
+     *
+     * @return void
+     */
+    protected function populateGlobals(string $method)
+    {
+        if (! isset($this->globals[$method])) {
+            $this->globals[$method] = [];
+        }
+
+        // Don't populate ENV as it might contain
+        // sensitive data that we don't want to get logged.
+        switch ($method) {
+            case 'get':
+                $this->globals['get'] = $_GET;
+                break;
+
+            case 'post':
+                $this->globals['post'] = $_POST;
+                break;
+
+            case 'request':
+                $this->globals['request'] = $_REQUEST;
+                break;
+
+            case 'cookie':
+                $this->globals['cookie'] = $_COOKIE;
+                break;
+
+            case 'server':
+                $this->globals['server'] = $_SERVER;
+                break;
+        }
+    }
 }
