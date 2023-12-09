@@ -12,12 +12,10 @@ class SerialPorts extends Migration
 			'id'			=> ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
 			'port'			=> ['type' => 'VARCHAR', 'constraint' => 20],
 			'description'	=> ['type' => 'VARCHAR', 'constraint' => 100],
-			'is_used'		=> ['type' => 'tinyint', 'default' => 0],
+			'is_used'		=> ['type' => 'smallint', 'default' => 0],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', TRUE);
-		$this->forge->addKey('ispu_at');
-		$this->forge->addKey('parameter_id');
 		$this->forge->createTable('serial_ports', TRUE);
 	}
 
