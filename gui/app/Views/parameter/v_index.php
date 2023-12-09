@@ -98,8 +98,8 @@
                     render:function(data,type,row){
                         return `
                             <div style="font-size:smaller; column-gap: 5px" class="d-flex align-items-center">
-                                <button type="button" class="btn-show btn btn-sm p-0 px-1 btn-info"><i class="fas fa-eye"></i></button>
-                                <button type="button" class="btn-edit btn btn-sm p-0 px-1 btn-primary"><i class="fas fa-pen"></i></button>
+                                <button type="button" data-id="${row.id}" class="btn-show btn btn-sm p-0 px-1 btn-info"><i class="fas fa-eye"></i></button>
+                                <button type="button" data-id="${row.id}" class="btn-edit btn btn-sm p-0 px-1 btn-primary"><i class="fas fa-pen"></i></button>
                             </div>
                         `
                     }
@@ -162,13 +162,50 @@
             table.ajax.reload()
             $('#modal-filter').modal('hide')
         })
-
+        $(document).delegate('.btn-edit','click',function(){
+            const id = $(this).data('id')
+            $.ajax({
+                type: "GET",
+                url: `<?= base_url('parameter/') ?>${id}`,
+                dataType:'json',
+                success: function(data) {
+                    if(data?.success){
+                        const parameter = data?.data
+                        $('#form-edit input[name="id"]').val(parameter?.id)
+                        $('#form-edit input[name="code"]').val(parameter?.code)
+                        $('#form-edit input[name="caption_id"]').val(parameter?.caption_id)
+                        $('#form-edit input[name="molecular_mass"]').val(parameter?.molecular_mass)
+                        $('#form-edit select[name="is_view"]').val(parameter?.is_view)
+                        $('#form-edit textarea[name="formula"]').val(parameter?.formula)
+                        $('#modal-edit').modal('show')
+                    }
+                }
+            })
+        })
         $(document).delegate('.btn-copy','click',function(){
             const sibling = $(this).siblings('textarea')
             if(!navigator.clipboard.writeText(sibling.val())){
                 toastr.error(`Cant copy formula`)
             }
         })
+
+        $('#form-edit').submit(function(e){
+            e.preventDefault()
+            $.ajax({
+                type: "POST",
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType:'json',
+                success: function(data) {
+                    if(data?.success){
+                        table.ajax.reload()
+                        return toastr.success(data?.message)
+                    }
+                }
+            })
+        })
+
+        
     })
 
 </script>

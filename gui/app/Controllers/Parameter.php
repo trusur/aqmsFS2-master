@@ -30,6 +30,19 @@ class Parameter extends BaseController
 		return view("parameter/v_index", $data);
 	}
 
+	public function get($id){
+		try{
+			return response()->setJSON([
+				'success' => true,
+				'data' => $this->parameter->find($id),
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+
 	public function datatable(){
 		try{
 			$start = request()->getGet('start') ?? 0;
