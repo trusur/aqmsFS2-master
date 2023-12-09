@@ -26,7 +26,7 @@
                     <div class="col-md-6">
                         <div class="mb-1">
                             <label>Molecular Mass</label>
-                            <input type="number" inputmode="numeric" id="molecular_mass" name="molecular_mass" value="<?= old('molecular_mass') ?>" placeholder="Molecular Mass" class="form-control form-contorl-sm">
+                            <input type="number" step="0.00001" inputmode="numeric" id="molecular_mass" name="molecular_mass" value="<?= old('molecular_mass') ?>" placeholder="Molecular Mass" class="form-control form-contorl-sm">
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -44,6 +44,9 @@
                             <label>Sensor Value</label>
                             <select id="sensor_value_id" name="sensor_value_id" class="form-control">
                                 <option value="" selected disabled>Select Sensor Value</option>
+                                <?php foreach($sensor_values as $sensor_value):?>
+                                    <option value="<?=$sensor_value->id?>">$sensor[<?=$sensor_value->sensor_reader_id?>][<?=$sensor_value->pin?>]</option>
+                                <?php endforeach;?>
                             </select>
                             <div class="invalid-feedback">
 
@@ -54,7 +57,7 @@
                         <div class="mb-1">
                             <label>Current Sensor Value</label>
                             <div class="input-group">
-                                <textarea type="text" id="voltage" class="form-control" readonly></textarea>
+                                <textarea type="text" id="current_sensor_value" class="form-control" readonly></textarea>
                             </div>
                             <input type="hidden" name="" id="sensor_pin">
                             <input type="hidden" name="" id="sensor_reader_id">
@@ -67,7 +70,8 @@
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-end">
-                        <button class="btn btn-sm btn-success">Save Changes</button>
+                        <button type="reset" class="d-none">Reset</button>
+                        <button type="submit" class="btn btn-sm btn-success">Save Changes</button>
                     </div>
                 </form>
 

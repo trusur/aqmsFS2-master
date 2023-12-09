@@ -37,6 +37,9 @@ $routes->post('configuration/raw/add', 'ConfigurationRaw::add');
 
 $routes->get('parameters', 'Parameter::index');
 $routes->get('parameter/(:num)', 'Parameter::get/$1');
+$routes->post('parameter/edit', 'Parameter::edit');
+$routes->get('parameter/sensor-value', 'Parameter::sensor_value');
+
 $routes->get('calibrations', 'Calibration::index');
 $routes->get('calibration/zero/{:num}', 'Calibration::zero');
 $routes->get('calibration/span/{:num}', 'Calibration::span');

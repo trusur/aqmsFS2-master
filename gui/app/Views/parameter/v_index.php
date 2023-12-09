@@ -98,7 +98,6 @@
                     render:function(data,type,row){
                         return `
                             <div style="font-size:smaller; column-gap: 5px" class="d-flex align-items-center">
-                                <button type="button" data-id="${row.id}" class="btn-show btn btn-sm p-0 px-1 btn-info"><i class="fas fa-eye"></i></button>
                                 <button type="button" data-id="${row.id}" class="btn-edit btn btn-sm p-0 px-1 btn-primary"><i class="fas fa-pen"></i></button>
                             </div>
                         `
@@ -176,7 +175,11 @@
                         $('#form-edit input[name="caption_id"]').val(parameter?.caption_id)
                         $('#form-edit input[name="molecular_mass"]').val(parameter?.molecular_mass)
                         $('#form-edit select[name="is_view"]').val(parameter?.is_view)
+                        $('#form-edit select[name="sensor_value_id"]').val(parameter?.sensor_value_id)
                         $('#form-edit textarea[name="formula"]').val(parameter?.formula)
+                        if(parameter?.sensor_value_id){
+                            $('#sensor_value_id').trigger('change')
+                        }
                         $('#modal-edit').modal('show')
                     }
                 }
@@ -199,11 +202,52 @@
                 success: function(data) {
                     if(data?.success){
                         table.ajax.reload()
+                        $('#form-edit').find('.btn-reset').trigger('click')
+                        $('#modal-edit').modal('hide')
+                        if(interval_sensor_value){
+                            clearInterval(interval_sensor_value)
+                        }
                         return toastr.success(data?.message)
                     }
+                },
+                error: function(xhr, status, err) {
+                    return toastr.error(xhr.responseJSON?.message)
                 }
             })
         })
+        let interval_sensor_value
+        $('#sensor_value_id').change(function() {
+            if(interval_sensor_value){
+                clearInterval(interval_sensor_value)
+            }
+            interval_sensor_value = setInterval(() => {
+                getCurrentSensorValue()
+            }, 1000)
+        })
+
+        function getCurrentSensorValue() {
+            let sensor_value_id = $('#sensor_value_id').val();
+            if(sensor_value_id){
+                $.ajax({
+                    url: '<?= base_url('parameter/sensor-value') ?>',
+                    data: {
+                        sensor_value_id: sensor_value_id
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data?.success) {
+                            const values = data?.data
+                            $('#current_sensor_value').val(values.value);
+                            $('#sensor_pin').val(values.pin);
+                            $('#sensor_reader_id').val(values.sensor_reader_id);
+                        }
+                    },
+                    error: function(xhr, status, err) {
+                        return toastr.error(xhr.responseJSON?.message)
+                    }
+                })
+            }
+        }
 
         
     })

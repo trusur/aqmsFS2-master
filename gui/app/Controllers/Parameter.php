@@ -20,13 +20,10 @@ class Parameter extends BaseController
 	}
 	public function index()
 	{
-		if (!$this->session->get("loggedin")) return redirect()->to(base_url() . '/login?url_direction=parameter');
-
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-			return $this->saving();
-		}
+		if (!$this->session->get("loggedin")) return redirect()->to(base_url("login?url_direction=parameter") );
 		$data['__modulename'] = 'Parameters'; /* Title */
 		$data['__routename'] = 'parameter'; /* Route for check menu */
+		$data['sensor_values'] = $this->sensor_value->findALL();
 		return view("parameter/v_index", $data);
 	}
 
@@ -70,29 +67,34 @@ class Parameter extends BaseController
 	}
 
 
-	public function saving()
+	public function edit()
 	{
 		try {
 			$id = request()->getPost('id');
+			$this->validate([
+				'code' => 'required',
+				'caption_id' => 'required',
+				'molecular_mass' => 'required',
+				'is_view' => 'required',
+				'sensor_value_id' => 'permit_empty',
+				'formula' => 'permit_empty',
+			]);
 			$data['code'] = request()->getPost('code');
 			$data['caption_id'] = request()->getPost('caption_id');
+			$data['caption_en'] = $data['caption_id'];
 			$data['molecular_mass'] = request()->getPost('molecular_mass');
 			$data['is_view'] = request()->getPost('is_view');
-			$data['is_graph'] = request()->getPost('is_graph');
-			$data['sensor_value_id'] = request()->getPost('sensor_value_id') * 1;
-			$data['voltage1'] = request()->getPost('voltage1') * 1;
-			$data['voltage2'] = request()->getPost('voltage2') * 1;
-			$data['concentration1'] = request()->getPost('concentration1') * 1;
-			$data['concentration2'] = request()->getPost('concentration2') * 1;
+			$data['sensor_value_id'] = (int) request()->getPost('sensor_value_id') ;
 			$data['formula'] = request()->getPost('formula');
 			$this->parameter->update($id, $data);
-			$data['success'] = true;
-			$data['message'] = 'Parameter berhasil diubah';
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Parameter has been updated',
+			]);
 		} catch (Exception $e) {
-			$data['success'] = false;
-			$data['message'] = 'Error : ' . $e->getMessage();
+			return response()->setStatusCode(500)->setJSON($e->getMessage());
+
 		}
-		return $this->response->setJSON($data);
 	}
 	public function detail()
 	{
@@ -106,16 +108,17 @@ class Parameter extends BaseController
 		}
 		return $this->response->setJSON($data);
 	}
-	public function voltage()
+	public function sensor_value()
 	{
 		try {
 			$id = request()->getGet('sensor_value_id');
-			$data['success'] = true;
-			$data['data'] = @$this->sensor_value->select('value,pin,sensor_reader_id')->find($id);
+			return response()->setJSON([
+				'success' => true,
+				'data' => $this->sensor_value->select('value,pin,sensor_reader_id')->find($id)
+			]);
 		} catch (Exception $e) {
-			$data['success'] = false;
-			$data['message'] = $e->getMessage();
+			return response()->setStatusCode(500)->setJSON($e->getMessage());
+
 		}
-		return $this->response->setJSON($data);
 	}
 }
