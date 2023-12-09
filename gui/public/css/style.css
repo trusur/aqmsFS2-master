@@ -1,21 +1,13 @@
 @font-face {
-  font-family: "Montserrat Medium";
-  src: url("../webfont/Montserrat-Medium.ttf");
+  font-family: "Poppins Medium";
+  src: url("../fonts/Poppins-Medium.ttf");
 }
 @font-face {
-  font-family: "Montserrat Bold";
-  src: url("../webfont/Montserrat-Bold.ttf");
-}
-@font-face {
-  font-family: "Lato Bold";
-  src: url("../webfont/Lato-Bold.ttf");
-}
-@font-face {
-  font-family: "Lato Regular";
-  src: url("../webfont/Lato-Regular.ttf");
+  font-family: "Poppins Bold";
+  src: url("../fonts/Poppins-Bold.ttf");
 }
 body {
-  font-family: "Lato Regular";
+  font-family: "Poppins Medium";
   background-color: #000000;
 }
 .badge-success,
