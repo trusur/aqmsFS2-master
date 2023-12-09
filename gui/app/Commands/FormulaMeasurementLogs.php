@@ -115,7 +115,6 @@ class FormulaMeasurementLogs extends BaseCommand
 							$raw = -1;
 						}
 					}
-					CLI::write("[$parameter->code] : ".$measured);
 					$this->insert_logs([
 						"parameter_id" => $parameter->id,
 						"value" => $measured,
