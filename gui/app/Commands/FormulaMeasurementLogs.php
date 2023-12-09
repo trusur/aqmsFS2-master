@@ -101,7 +101,6 @@ class FormulaMeasurementLogs extends BaseCommand
 			foreach ($this->sensor_values->findAll() as $sensor_value) {
 				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
 			}
-			print_r($sensor);
 			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
 				try{
 					$measured = 0;
