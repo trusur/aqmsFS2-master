@@ -109,7 +109,8 @@
             let begindate = $('#form-filter-date input[name="begindate"]').val()
             let enddate = $('#form-filter-date input[name="enddate"]').val()
             let data_source = $('#form-filter-date input[name="data_source"]').val() ?? 'measurements'
-            return window.location.href = `<?= base_url('export/csv') ?>?begindate=${begindate}&enddate=${enddate}&data_source=${data_source}`
+            window.location.href = `<?= base_url('export/csv') ?>?begindate=${begindate}&enddate=${enddate}&data_source=${data_source}`
+            return $(this).html(`<i class="fas fa-file"></i> Export Filtered`)
         })
     });
 </script>
