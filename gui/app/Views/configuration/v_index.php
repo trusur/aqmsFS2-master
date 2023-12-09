@@ -59,10 +59,11 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive overflow-hidden">
-                            <table id="table-drivers" style="font-size:small" class="table table-sm table-hover table-stirpped">
+                            <table id="table-drivers" style="font-size:small;width: 100%;" class="table table-sm table-hover table-stirpped">
                                 <thead>
                                     <th>Action</th>
                                     <th>ID</th>
+                                    <th>Status</th>
                                     <th>Driver</th>
                                     <th>Sensor Code</th>
                                     <th>Baud Rate / Protocol</th>
@@ -325,6 +326,12 @@
                     data : 'id',
                 },
                 {
+                    data : 'sensor_code',
+                    render: function (data, type, row) {
+                        return row?.sensor_code ? `<span class="badge badge-success">Active</span>` : `<span class="badge badge-dark">Not Use</span>`
+                    }
+                },
+                {
                     data : 'driver',
                 },
                 {
@@ -353,6 +360,25 @@
                     }
                 }
             })
+        })
+        $(document).delegate('.btn-delete', 'click', function(e){
+            e.preventDefault()
+            const id = $(this).data('id')
+            if(confirm(`Delete driver may cause data loss & re-configuration. Are you sure?`)){
+                $.ajax({
+                    url : `<?= base_url('configuration/delete-driver/') ?>${id}`,
+                    type : 'post',
+                    dataType : 'json',
+                    success:function(data){
+                        if(data?.success){
+                            return table.ajax.reload()
+                        }
+                    },
+                    error: function(xhr, status, err) {
+                        return toastr.error(xhr.responseJSON?.message)
+                    }
+                })
+            }
         })
 
         $("#form-add-driver, #form-edit-driver").submit(function(e){

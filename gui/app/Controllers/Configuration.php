@@ -36,12 +36,10 @@ class Configuration extends BaseController
 		try{
 			$id = request()->getPost('id');
 			$this->validate([
-				'driver' => 'required',
 				'sensor_code' => 'required',
 				'baud_rate' => 'permit_empty',
 			]);
 			$data = [
-				'driver' => request()->getPost('driver'),
 				'sensor_code' => request()->getPost('sensor_code'),
 				'baud_rate' => request()->getPost('baud_rate'),
 			];
@@ -62,6 +60,19 @@ class Configuration extends BaseController
 			return response()->setJSON([
 				'success' => true,
 				'data' => $this->sensor_reader->find($id)
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+	public function delete_driver($id){
+		try{
+			$this->sensor_reader->delete($id);
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Driver has been deleted',
 			]);
 		}catch(Exception $e){
 			return response()->setStatusCode(500)->setJSON([

@@ -28,6 +28,7 @@ $routes->get('configuration/drivers/datatable', 'Configuration::datatable_driver
 $routes->get('configuration/get-driver/(:num)', 'Configuration::get_driver/$1');
 $routes->post('configuration/add-driver', 'Configuration::add_driver');
 $routes->post('configuration/edit-driver', 'Configuration::edit_driver');
+$routes->post('configuration/delete-driver/(:num)', 'Configuration::delete_driver/$1');
 // 
 $routes->get('configuration/raw', 'ConfigurationRaw::index');
 $routes->get('configuration/raw/datatable', 'ConfigurationRaw::datatable');
