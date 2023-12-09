@@ -24,6 +24,7 @@ class MeasurementAveraging extends BaseCommand
 	protected $sensor_values;
 	protected $measurement_logs;
 	protected $configurations;
+	protected $measurements;
 
 	public function __construct()
 	{
@@ -103,6 +104,8 @@ class MeasurementAveraging extends BaseCommand
 		$data_interval = $this->configurations->where("name", "data_interval")->findAll()[0]->content;
 		$measurement_logs = $this->get_measurement_logs_range($data_interval);
 		if ($measurement_logs != 0) {
+			$total = [];
+			$numdata = [];
 			foreach ($measurement_logs["data"] as $measurement_log) {
 				@$total[$measurement_log->parameter_id] += $measurement_log->value;
 				@$lastdata[$measurement_log->parameter_id] = $measurement_log->value;
