@@ -1,5 +1,6 @@
 #!/bin/bash
-echo "Reading devices... Please wait!!"
+echo "Starting AQMS EFS-1 2023"
 sleep 1s
+cls
 cd ~/aqms-efs1/ && python3 aqms_start.py
 $SHELL
