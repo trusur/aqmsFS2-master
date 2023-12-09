@@ -104,7 +104,6 @@ class FormulaMeasurementLogs extends BaseCommand
 			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
 				try{
 					$measured = 0;
-					CLI::write("[$parameter->code] : ".$parameter->formula);
 					$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
 					// Check Is Raw Value From Motherboard Sensor
 					if(count(explode($sensor_value->value,";")) == 1){
