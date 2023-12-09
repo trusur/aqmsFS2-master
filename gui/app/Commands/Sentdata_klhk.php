@@ -23,6 +23,7 @@ class Sentdata_klhk extends BaseCommand
 	protected $measurement_logs;
 	protected $configurations;
 	protected $lastPutData;
+	protected $measurements;
 
 	public function __construct()
 	{
@@ -118,7 +119,6 @@ class Sentdata_klhk extends BaseCommand
 					$arr["stat_o3"] = @$this->parameters->where(["code" => "o3"])->findAll()[0]->is_view * 1;
 					$arr["stat_no2"] = @$this->parameters->where(["code" => "no2"])->findAll()[0]->is_view * 1;
 					$arr["stat_hc"] = @$this->parameters->where(["code" => "hc"])->findAll()[0]->is_view * 1;
-					print_r($arr);
 
 					$token = "";
 					$data = json_encode(["username" => $klhk_api_username, "password" => $klhk_api_password]);

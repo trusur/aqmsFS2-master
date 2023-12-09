@@ -23,7 +23,7 @@
                             </div>
                             <div class="mb-1 col-6">
                                 <label>Station Name </label>
-                                <input type="text" placeholder="Name" name="name[name_stasiun]" value="<?= $__this->getConfiguration('name_stasiun') ?>" class="form-control form-control-sm">
+                                <input type="text" placeholder="Name" name="name[nama_stasiun]" value="<?= $__this->getConfiguration('nama_stasiun') ?>" class="form-control form-control-sm">
                             </div>
                             <div class="mb-1 col-6">
                                 <label>City</label>

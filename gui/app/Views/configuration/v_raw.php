@@ -48,8 +48,31 @@
                 <label>Content</label>
                 <input type="text" name="content" required placeholder="Content" class="form-control form-control-sm">
             </div>
-            <button type="reset" class="d-none btn-reset">Add New Configuration</button>
+            <button type="reset" class="d-none btn-reset">Reset</button>
             <button type="submit" class="btn btn-sm btn-success w-100">Add New Configuration</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-addLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-addLabel">Edit Configuration</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="form-edit">
+            <div class="form-group">
+                <label id="label-name">Content</label>
+                <input type="text" id="content" name="" required placeholder="Content" class="form-control form-control-sm">
+            </div>
+            <button type="reset" class="d-none btn-reset">Reset</button>
+            <button type="submit" class="btn btn-sm btn-success w-100">Save Changes</button>
         </form>
 
       </div>
@@ -76,13 +99,22 @@
                     data: 'id',
                     name: 'id',
                     render: function (data, type, row) {
-                        return `<span class="badge badge-primary p-1" style="cursor:pointer" onclick="edit(${data})"><i class="fas fa-pen"></i<</button>`
+                        return `<span data-name="${row.name}" data-content="${row.content}" class="btn-edit badge badge-primary p-1" style="cursor:pointer"><i class="fas fa-pen"></i<</button>`
                     }
                 },
                 {data: 'name', name: 'name'},
                 {data: 'content', name: 'content'},
             ]
 
+        })
+
+        $(document).delegate(".btn-edit", "click", function() {
+            $('#modal-edit').modal("show")
+            let name = $(this).data('name')
+            let content = $(this).data('content')
+            $('#label-name').html(name)
+            $('#content').attr("name",`name[${name}]`)
+            $('#content').val(content)
         })
         $("#form-add").submit(function(e) {
             e.preventDefault();
@@ -99,6 +131,27 @@
                         return toastr.success(`Configuration added!`)
                     }
                     return toastr.error(`Failed when adding configuration!`)
+                },
+                error: function(xhr, status, err) {
+                    return toastr.error(xhr.responseJSON?.message)
+                }
+            })
+        })
+        $("#form-edit").submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "<?= base_url('configuration/update') ?>",
+                data: $(this).serialize(),
+                dataType:'json',
+                success: function(data) {
+                    if(data?.success){
+                        table.ajax.reload()
+                        $('#modal-edit').modal('hide')
+                        $(this).find('.btn-reset').trigger('click')
+                        return toastr.success(`Configuration updated!`)
+                    }
+                    return toastr.error(`Failed when update configuration!`)
                 },
                 error: function(xhr, status, err) {
                     return toastr.error(xhr.responseJSON?.message)

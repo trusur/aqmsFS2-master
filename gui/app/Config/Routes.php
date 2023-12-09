@@ -24,6 +24,8 @@ $routes->get('/', 'Home::index');
 $routes->get('lang/(:any)', 'Language::index');
 // Configuration Route
 $routes->get('configurations', 'Configuration::index');
+$routes->post('configuration/update', 'Configuration::update');
+
 $routes->get('configuration/drivers/datatable', 'Configuration::datatable_drivers');
 $routes->get('configuration/get-driver/(:num)', 'Configuration::get_driver/$1');
 $routes->post('configuration/add-driver', 'Configuration::add_driver');
