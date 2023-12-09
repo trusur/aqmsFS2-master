@@ -63,11 +63,11 @@ class Export extends BaseController
 			$headers[] = "is_sent_klhk";
 			$headers[] = "is_sent_cloud";
 			// Outfile CSV
-			if(!is_dir(getcwd()."\\export")){
-				mkdir(getcwd()."\\export",077, true);
+			if(!is_dir(getcwd()."/export")){
+				mkdir(getcwd()."/export",077, true);
 			}
 			$filename = "export-".date("YmdHis");
-			$output = fopen(getcwd()."\\export\\{$filename}.csv", "w"); 
+			$output = fopen(getcwd()."/export/{$filename}.csv", "w"); 
 			fputcsv($output, $headers);
 			foreach ($tGroups as $key => $tGroup) {
 				$data['id_stasiun'] = $id_station;
