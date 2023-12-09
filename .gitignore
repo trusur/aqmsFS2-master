@@ -1,10 +1,6 @@
-/gui/writable/cache/*
-/gui/writable/debugbar/*
-/gui/writable/logs/*
-/gui/writable/session/*
-/gui/vendor
-/gui/vendor/*
-/gui/tests/*
-/gui/.env
-*.bak
-__pycache__
+gui/vendor/*
+gui/writable/debugbar/*
+gui/writable/logs/*
+gui/writable/cache/*
+gui/writable/session/*
+*.pyc
