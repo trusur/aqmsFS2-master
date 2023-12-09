@@ -7,23 +7,34 @@
                 <div class="card-body">
                     <h3 class="h5">Filter</h3>
                     <div class="d-flex justify-content-between mb-3">
-                        <form id="form-filter-date" class="form-inline">
+                        <form id="form-filter-date" class="form-inline" style="gap:5px">
                             <label class="sr-only">Begin Time</label>
-                            <input type="date" name="begindate" class="form-control mr-1" title="Begin Time">
+                            <select name="data_source" class="form-control form-control-sm">
+                                <option value="">measurements</option>
+                                <?php foreach($data_sources as $table):?>
+                                    <option value="<?=$table?>"><?=$table?></option>
+                                <?php endforeach;?>
+                            </select>
+                            <label class="sr-only">Begin Time</label>
+                            <input type="datetime-local" name="begindate" class="form-control form-control-sm" title="Begin Time">
                             <label class="sr-only">End Time</label>
-                            <input type="date" name="enddate" class="form-control mr-1" title="End Time">
-                            <button type="button" id="btn-filter" class="btn btn-outline-primary" title="Filter">
+                            <input type="datetime-local" name="enddate" class="form-control form-control-sm" title="End Time">
+                            <button type="button" id="btn-filter" class="btn btn-sm btn-outline-primary" title="Filter">
                                 <i class="fas fa-search"></i>
+                            </button>
+                            <button type="button" id="btn-export" class="btn btn-sm btn-outline-success" title="Export">
+                                <i class="fas fa-file"></i> Export Filtered
                             </button>
                         </form>
 
                     </div>
                     <div class="table-responsive">
-                        <table id="export-tbl" class="table stripped">
+                        <table id="export-tbl" style="width: 100%;font-size:x-small" class="table table-sm stripped">
                             <thead>
                                 <tr>
-                                    <th>ID STASIUN</th>
+                                    <th>STASIUN</th>
                                     <th>WAKTU</th>
+                                    <th>STATUS</th>
                                     <?php foreach ($parameters as $parameter) : ?>
                                         <th><?= $parameter->caption_en; ?></th>
                                     <?php endforeach ?>
@@ -43,57 +54,43 @@
 <?= $this->endSection() ?>
 <?= $this->section('css') ?>
 <!-- Custom CSS Here -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="<?=base_url("plugins/datatables-bs4/css/dataTables.bootstrap4.min.css")?>">
 <?= $this->endSection() ?>
 <?= $this->section('js') ?>
 <!-- Custom JS Here -->
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.print.min.js"></script>
+<script src="<?= base_url('plugins/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') ?>"></script>
 <script>
-    function requestDatatable(filter = "none") {
-        let datatable;
-        datatable = $('table[id="export-tbl"]').DataTable({
+    $(document).ready(function() {
+        <?php if(session()->get("error")):?>
+            toastr.error(`<?= session()->get("error") ?>`);
+        <?php endif;?>
+        
+        const table = $('table[id="export-tbl"]').DataTable({
             "pageLength": 4,
-            'bDestroy': true,
             searching: false,
             dom: 'Bfrtip',
-            buttons: [{
-                    text: 'Excel',
-                    extend: 'excelHtml5',
-                    className: 'btn btn-sm btn-info mb-3',
-                    exportOptions: {
-                        modifier: {
-                            page: 'all',
-                            search: 'none'
-                        }
-                    }
-                },
-                {
-                    text: 'PDF',
-                    extend: 'pdf',
-                    className: 'btn btn-sm btn-danger mb-3',
-                    exportOptions: {
-                        modifier: {
-                            page: 'all',
-                            search: 'none'
-                        }
-                    }
-                },
-            ],
-            ajax: `<?= base_url('export/datatable') ?>?${filter=="none"?"":filter}`,
+            ajax: {
+                url: '<?= site_url('export/datatable') ?>',
+                data : function(d) {
+                    d.begindate = $('#form-filter-date input[name="begindate"]').val();
+                    d.enddate = $('#form-filter-date input[name="enddate"]').val();
+                }
+            },  
             processing: true,
             serverSide: true,
-            columns: [{
-                    data: 'id_stasiun'
+            columns: [
+                {
+                    data: 'id_stasiun',
                 },
                 {
                     data: 'waktu'
+                },
+                {
+                    data: 'is_sent_klhk',
+                    render: function(data,type,row) {
+                        return row?.is_sent_klhk == 1 ? `<span class="badge badge-success">Sent</span>` : `<span class="badge badge-danger">Not Sent</span>`
+                    }
                 },
                 <?php foreach ($parameters as $parameter) : ?> {
                         data: '<?= $parameter->code; ?>'
@@ -101,24 +98,19 @@
                 <?php endforeach ?>
             ]
         });
-    }
-    try {
-        requestDatatable();
-    } catch (er) {
-        console.log(er);
-    }
-</script>
-<script>
-    $(document).ready(function() {
+
         $('#btn-filter').click(function() {
-            let form = $(this).closest('form');
-            if (form.find('input').eq(0).val() === "" || form.find('input').eq(1).val() === "") {
-                toastr.error('Anda harus menentukan range waktu!');
-            } else {
-                let filter = form?.serialize();
-                requestDatatable(filter);
-            }
-        });
+            table.ajax.reload()
+        })
+
+        $('#btn-export').click(function() {
+            toastr.info(`Processing...`)
+            $(this).html(`<i class="fas fa-spinner fa-spin"></i> Exporting...`)
+            let begindate = $('#form-filter-date input[name="begindate"]').val()
+            let enddate = $('#form-filter-date input[name="enddate"]').val()
+            let data_source = $('#form-filter-date input[name="data_source"]').val() ?? 'measurements'
+            return window.location.href = `<?= base_url('export/csv') ?>?begindate=${begindate}&enddate=${enddate}&data_source=${data_source}`
+        })
     });
 </script>
 <?= $this->endSection() ?>

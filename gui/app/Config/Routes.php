@@ -47,5 +47,6 @@ $routes->get('calibration/zero/{:num}', 'Calibration::zero');
 $routes->get('calibration/span/{:num}', 'Calibration::span');
 $routes->get('calibration/datatable', 'Calibration::datatable');
 $routes->get('exports', 'Export::index');
+$routes->get('export/csv', 'Export::export');
 
 $routes->add('/switch/pump', 'Home::pump');
