@@ -9,6 +9,9 @@ use App\Models\m_sensor_value_log;
 class Rht extends BaseController
 {
 
+	protected $sensor_values;
+	protected $configurations;
+	protected $sensor_value_logs;
 	public function __construct()
 	{
 		parent::__construct();

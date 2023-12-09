@@ -83,7 +83,7 @@ class Parameter extends BaseController
 	public function detail()
 	{
 		try {
-			$id = $this->request->getGet('id');
+			$id = request()->getGet('id');
 			$data['success'] = true;
 			$data['data'] = @$this->parameter->find($id);
 		} catch (Exception $e) {
@@ -95,7 +95,7 @@ class Parameter extends BaseController
 	public function voltage()
 	{
 		try {
-			$id = $this->request->getGet('sensor_value_id');
+			$id = request()->getGet('sensor_value_id');
 			$data['success'] = true;
 			$data['data'] = @$this->sensor_value->select('value,pin,sensor_reader_id')->find($id);
 		} catch (Exception $e) {
