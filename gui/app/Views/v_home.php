@@ -18,6 +18,9 @@
                                     l/mnt
                                 </div>
                             </div>
+                            <div class="row text-right text-light d-none p-0 m-0">
+                                <small class="col-12 xtimestamp" id="time_<?= $particulate->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
+                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -40,31 +43,12 @@
                                 <h3 class="h3 mr-1 text-light" id="value_<?= $gas->code ?>">0</h3>
                             </div>
                         </div>
+                        <div class="row text-right text-light d-none p-0 m-0">
+                            <small class="col-12 xtimestamp" id="time_<?= $particulate->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <!--div class="card mt-1">
-                <div class="p-2">
-                    <h1 class="h5" data-intro="Tekanan Gas"><?= lang('Global.GasesPressure') ?></h1>
-                    <div id="gas-content">
-                        <?php foreach ($flow_meters as $f_meter) : ?>
-                            <div class="my-1 mx-n4 shadow px-3 rounded" style="background-color:RGBA(124,122,243,0.6);">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="py-0 font-weight-bold"><?= $f_meter->caption_id ?></span>
-                                    <span class="py-0 small font-weight-bold sensor d-none" id="svalue_<?= $f_meter->code ?>">0</span>
-                                </div>
-                                <div class="m-0 d-flex justify-content-center ">
-                                    <div class="d-flex align-items-center">
-                                        <h3 class="h3 mr-1" id="value_<?= $f_meter->code ?>">0</h3>
-                                        <small><?= $f_meter->default_unit ?></small>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-
-                    </div>
-                </div>
-            </div-->
         </div>
         <div class="col-sm mx-2">
             <h1 class="h4 mt-2 text-light" data-intro="Cuaca"><?= lang('Global.Meteorology') ?></h1>
@@ -78,6 +62,9 @@
                                 <?= $wheather->default_unit ?>
                             </div>
                         </div>
+                        <div class="row text-right text-light d-none p-0 m-0">
+                            <small class="col-12 xtimestamp" id="time_<?= $particulate->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -88,11 +75,9 @@
             <div class="px-3 mb-md-0 mb-3 overflow-hidden">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center align-sm-items-start">
                     <div id="location">
-                        <div id="aqm_voltage">
-                            <?php if (!$is_cems) : ?>
-                                <h2 class="h4 text-light" style="display:inline-block;" data-intro="<?= lang('Global.intro_aqms_location') ?>" style="cursor: pointer;" unselectable="on" onselectstart="return false;" onmousedown="return false;"><?= @$stationname ?></h2>
-                            <?php endif ?>
-                            <h2 class="h4 text-light" id="date"></h2>
+                        <div id="location">
+                            <h2 class="h4 text-light p-0 m-0" style="display:inline-block;" style="cursor: pointer;" unselectable="on" onselectstart="return false;" onmousedown="return false;"><?= $stationname ?? 'AQMS' ?></h2>
+                            <h2 class="h6 text-light p-0 m-0" id="date"></h2>
                         </div>
 
                     </div>
@@ -151,7 +136,6 @@
                                 let default_unit = cleanStr(value?.default_unit);
                                 let molecular_mass = cleanStr(value?.molecular_mass);
                                 let p_type = value?.p_type
-                                console.log(p_type,default_unit)
                                 if (p_type == 'gas' && default_unit == "µg/m<sup>3") {
                                     let unit_id = parseInt(localStorage.getItem('unit_id'));
                                     switch (unit_id) {
@@ -168,6 +152,8 @@
                                     }
                                 }
                                 $(`#value_${value?.code}`).html(param_value)
+                                $(`#value_${value?.code}`).attr("title",value.xtimestamp)
+                                $(`#time_${value?.code}`).html(value.xtimestamp)
                             } catch (err) {
                                 console.log(err)
                             }
@@ -247,6 +233,18 @@
                     }
                 }
             })
+        })
+
+        // Trigger Show Last 
+        let is_show_time = 0
+        $('#location').click(function(e) {
+            is_show_time += 1
+            if(is_show_time > 2){
+                $('.xtimestamp').parent().removeClass('d-none')
+                is_show_time = 0
+            }else{
+                $('.xtimestamp').parent().addClass('d-none')
+            }
         })
 
         function calculatePpm(ug, molecular_mass) {
