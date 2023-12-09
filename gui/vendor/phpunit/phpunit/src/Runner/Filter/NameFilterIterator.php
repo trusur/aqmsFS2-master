@@ -15,6 +15,7 @@ use function preg_match;
 use function sprintf;
 use function str_replace;
 use Exception;
+use PHPUnit\Framework\ErrorTestCase;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\WarningTestCase;
 use PHPUnit\Util\RegularExpression;
@@ -64,7 +65,7 @@ final class NameFilterIterator extends RecursiveFilterIterator
 
         $tmp = \PHPUnit\Util\Test::describe($test);
 
-        if ($test instanceof WarningTestCase) {
+        if ($test instanceof ErrorTestCase || $test instanceof WarningTestCase) {
             $name = $test->getMessage();
         } elseif ($tmp[0] !== '') {
             $name = implode('::', $tmp);
@@ -95,7 +96,7 @@ final class NameFilterIterator extends RecursiveFilterIterator
                 if (isset($matches[3]) && $matches[2] < $matches[3]) {
                     $filter = sprintf(
                         '%s.*with data set #(\d+)$',
-                        $matches[1]
+                        $matches[1],
                     );
 
                     $this->filterMin = (int) $matches[2];
@@ -104,7 +105,7 @@ final class NameFilterIterator extends RecursiveFilterIterator
                     $filter = sprintf(
                         '%s.*with data set #%s$',
                         $matches[1],
-                        $matches[2]
+                        $matches[2],
                     );
                 }
             } // Handles:
@@ -114,7 +115,7 @@ final class NameFilterIterator extends RecursiveFilterIterator
                 $filter = sprintf(
                     '%s.*with data set "%s"$',
                     $matches[1],
-                    $matches[2]
+                    $matches[2],
                 );
             }
 
@@ -125,8 +126,8 @@ final class NameFilterIterator extends RecursiveFilterIterator
                 str_replace(
                     '/',
                     '\\/',
-                    $filter
-                )
+                    $filter,
+                ),
             );
         }
 

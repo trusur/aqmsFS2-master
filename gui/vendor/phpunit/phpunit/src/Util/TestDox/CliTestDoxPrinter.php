@@ -27,6 +27,7 @@ use PHPUnit\Framework\TestResult;
 use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Runner\PhptTestCase;
 use PHPUnit\Util\Color;
+use SebastianBergmann\Timer\ResourceUsageFormatter;
 use SebastianBergmann\Timer\Timer;
 use Throwable;
 
@@ -113,8 +114,25 @@ class CliTestDoxPrinter extends TestDoxPrinter
     private $nonSuccessfulTestResults = [];
 
     /**
-     * @throws \SebastianBergmann\Timer\RuntimeException
+     * @var Timer
      */
+    private $timer;
+
+    /**
+     * @param null|resource|string $out
+     * @param int|string           $numberOfColumns
+     *
+     * @throws \PHPUnit\Framework\Exception
+     */
+    public function __construct($out = null, bool $verbose = false, string $colors = self::COLOR_DEFAULT, bool $debug = false, $numberOfColumns = 80, bool $reverse = false)
+    {
+        parent::__construct($out, $verbose, $colors, $debug, $numberOfColumns, $reverse);
+
+        $this->timer = new Timer;
+
+        $this->timer->start();
+    }
+
     public function printResult(TestResult $result): void
     {
         $this->printHeader($result);
@@ -124,12 +142,9 @@ class CliTestDoxPrinter extends TestDoxPrinter
         $this->printFooter($result);
     }
 
-    /**
-     * @throws \SebastianBergmann\Timer\RuntimeException
-     */
     protected function printHeader(TestResult $result): void
     {
-        $this->write("\n" . Timer::resourceUsage() . "\n\n");
+        $this->write("\n" . (new ResourceUsageFormatter)->resourceUsage($this->timer->stop()) . "\n\n");
     }
 
     protected function formatClassName(Test $test): string
@@ -190,7 +205,7 @@ class CliTestDoxPrinter extends TestDoxPrinter
             ' %s %s%s' . PHP_EOL,
             $this->colorizeTextBox($style['color'], $style['symbol']),
             $testName,
-            $this->verbose ? ' ' . $this->formatRuntime($result['time'], $style['color']) : ''
+            $this->verbose ? ' ' . $this->formatRuntime($result['time'], $style['color']) : '',
         );
 
         $this->write($line);
