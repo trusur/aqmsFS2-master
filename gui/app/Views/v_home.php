@@ -2,45 +2,42 @@
 <?= $this->section('content') ?>
 <div class="container-md py-1">
     <div class="row mt-2 justify-content-start bg-dark">
-        <?php if (!$is_cems) : ?>
-            <div class="col-sm mx-2">
-                <?php if (count($particulates) > 0) : ?>
-                    <h1 class="h4 mt-2 text-light" data-intro="Partikulat"><?= lang('Global.Particulate') ?></h1>
-                    <div id="particulate">
-                        <?php foreach ($particulates as $particulate) : ?>
-                            <div class="my-1 mx-n2 shadow px-3 py-2 rounded" style="border:5px solid RGBA(28,183,160,1);background: RGBA(28,183,160,0.7);">
-                                <span class="h6 py-0 font-weight-bold text-light"><?= $particulate->caption_id ?></span>
-                                <div class="m-0 d-flex justify-content-between">
-                                    <div class="d-flex align-items-center text-light">
-                                        <h3 class="h1 mr-1 text-light" id="value_<?= $particulate->code ?>">0</h3>
-                                        <p><?= $particulate->default_unit ?></p>
-                                    </div>
-                                    <div class="d-flex align-items-center" style="color:#FFFF00">
-                                        <h3 class="h5 mr-1" id="value_<?= $particulate->code ?>_flow" style="color:#FFFF00"></h3>
-                                        l/mnt
-                                    </div>
+        <div class="col-sm-4 mx-2" style="overflow: hidden">
+            <?php if (count($particulates) > 0) : ?>
+                <h1 class="h4 mt-2 text-light" data-intro="Partikulat"><?= lang('Global.Particulate') ?></h1>
+                <div id="particulate">
+                    <?php foreach ($particulates as $particulate) : ?>
+                        <div class="my-1 mx-n2 shadow px-3 py-2 rounded" style="border:5px solid RGBA(28,183,160,1);background: RGBA(28,183,160,0.7);">
+                            <span class="h6 py-0 font-weight-bold text-light"><?= $particulate->caption_id ?> <small style="font-size: smaller;">(<?= $particulate->default_unit ?>)</small></span>
+                            <div class="m-0 row">
+                                <div class="col-auto d-flex align-items-center justify-content-start text-light">
+                                    <h3 class="h1 mr-1 text-light" id="value_<?= $particulate->code ?>">0</h3>
+                                </div>
+                                <div class="col d-flex align-items-center justify-content-end" style="color:#FFFF00">
+                                    <h3 class="h5 mr-1" id="value_<?= $particulate->code ?>_flow" style="color:#FFFF00"></h3>
+                                    l/mnt
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif ?>
-            </div>
-        <?php endif ?>
-        <div class="col-sm mx-2">
-            <?php if (!$is_cems) : ?>
-                <h1 class="h4 mt-2 text-light" data-intro="Gas"><?= lang('Global.Gases') ?></h1>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             <?php endif ?>
+        </div>
+        <div class="col-sm mx-2">
+            <h1 class="h4 mt-2 text-light" data-intro="Gas"><?= lang('Global.Gases') ?></h1>
             <div id="gas-content">
                 <?php foreach ($gases as $gas) : ?>
                     <div class="my-1 mx-n2 shadow px-3 rounded" style="border:5px solid RGB(124,122,243);background: RGBA(124,122,243,0.7);">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h5 py-0 font-weight-bold text-light"><?= $gas->caption_id ?></span>
+                        <div class="">
+                            <div class="py-0 font-weight-bold text-light">
+                                <span class="h5"><?= $gas->caption_id ?></span>
+                                <small style="color:#FFFF00;font-size: smaller">(<i <?php if ($gas->default_unit == "µg/m<sup>3") : ?> class="switch-unit"> <?php endif ?><?= $gas->default_unit ?></i>)</small>
+                            </div>
                             <span class="py-0 small font-weight-bold sensor d-none text-light" id="svalue_<?= $gas->code ?>">0</span>
                         </div>
                         <div class="m-0 d-flex justify-content-center">
                             <div class="d-flex align-items-center">
                                 <h3 class="h3 mr-1 text-light" id="value_<?= $gas->code ?>">0</h3>
-                                &nbsp;&nbsp;<p <?php if ($gas->default_unit == "µg/m<sup>3") : ?> class="switch-unit" <?php endif ?> style="color:#FFFF00"><?= $gas->default_unit ?></p>
                             </div>
                         </div>
                     </div>
@@ -69,24 +66,22 @@
                 </div>
             </div-->
         </div>
-        <?php if (!$is_cems) : ?>
-            <div class="col-sm mx-2">
-                <h1 class="h4 mt-2 text-light" data-intro="Cuaca"><?= lang('Global.Meteorology') ?></h1>
-                <div id="meteorologi-content">
-                    <?php foreach ($weathers as $wheather) : ?>
-                        <div class="my-1 mx-n2 shadow px-3 rounded" style="border:5px solid RGB(99,173,252);background: RGBA(99,173,252,0.7);">
-                            <span class="h6 font-weight-bold text-light"><?= $wheather->caption_id ?></span>
-                            <div class="m-0 d-flex justify-content-center text-light">
-                                <div class="d-flex align-items-center">
-                                    <h3 class="h4 mr-1 text-light" id="value_<?= $wheather->code ?>">0</h3>
-                                    <?= $wheather->default_unit ?>
-                                </div>
+        <div class="col-sm mx-2">
+            <h1 class="h4 mt-2 text-light" data-intro="Cuaca"><?= lang('Global.Meteorology') ?></h1>
+            <div id="meteorologi-content">
+                <?php foreach ($weathers as $wheather) : ?>
+                    <div class="my-1 mx-n2 shadow px-3 rounded" style="border:5px solid RGB(99,173,252);background: RGBA(99,173,252,0.7);">
+                        <span class="h6 font-weight-bold text-light"><?= $wheather->caption_id ?></span>
+                        <div class="m-0 d-flex justify-content-center text-light">
+                            <div class="d-flex align-items-center">
+                                <h3 class="h4 mr-1 text-light" id="value_<?= $wheather->code ?>">0</h3>
+                                <?= $wheather->default_unit ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endif ?>
+        </div>
     </div>
     <div class="row">
         <div class="col-md-12 my-2">
@@ -107,7 +102,7 @@
                                 <h7 class="text-light" style="display:inline-block;"><b><?= lang('Global.Unit') ?></b></h7>
                             </div>
                             <div>
-                                <span class="text-light" id="unit-content" style="font-weight:bolder;font-size:18px;">(µg/m3)</span>
+                                <span class="text-light" id="unit-content" style="font-weight:bolder;font-size:18px;">(µg/m<sup>3</sup>)</span>
                                 <button type="button" class="btn-dark rounded border border-light btn btn-sm btn-info" id="btn-unit" data-intro="<?= lang('Global.intro_change_unit') ?>">
                                     <?= lang('Global.Switch') ?>
                                 </button>
@@ -156,8 +151,10 @@
                                 let default_unit = cleanStr(value?.default_unit);
                                 let molecular_mass = cleanStr(value?.molecular_mass);
                                 let p_type = value?.p_type
+                                console.log(p_type,default_unit)
                                 if (p_type == 'gas' && default_unit == "µg/m<sup>3") {
-                                    switch (beginUnit) {
+                                    let unit_id = parseInt(localStorage.getItem('unit_id'));
+                                    switch (unit_id) {
                                         case 2:
                                             param_value = calculatePpm(param_value, molecular_mass);
                                             break;
@@ -210,7 +207,13 @@
             if (beginUnit > 3) {
                 beginUnit = 1;
             }
-            switch (beginUnit) {
+            localStorage.setItem('unit_id', beginUnit)
+            switchUnit(beginUnit)
+        });
+
+        function switchUnit(id) {
+            id = parseInt(id)
+            switch (id) {
                 case 2: //ppm
                     $('#unit-content').html(`(ppm)`);
                     unit = `ppm`;
@@ -226,8 +229,11 @@
                     break;
             }
             $('.switch-unit').html(unit)
+        }
 
-        });
+        if(localStorage.getItem('unit_id')){
+            switchUnit(localStorage.getItem('unit_id'))
+        }
 
         // Trigger Switch Pump
         $("#switch_pump").click(function() {
@@ -246,14 +252,11 @@
         function calculatePpm(ug, molecular_mass) {
 
             try {
+                console.log(ug)
                 ug = parseFloat(ug);
                 molecular_mass = parseFloat(molecular_mass);
                 let value = (ug * 24.45) / (1000 * molecular_mass);
-                <?php if (!$is_cems) : ?>
-                    return value.toFixed(3);
-                <?php else : ?>
-                    return value.toFixed(1);
-                <?php endif ?>
+                return value.toFixed(3);
             } catch (err) {
                 toastr.error(`Error while calculating ppm`);
                 return 0;

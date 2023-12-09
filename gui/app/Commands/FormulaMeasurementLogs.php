@@ -11,6 +11,7 @@ use App\Models\m_measurement_log;
 use App\Models\m_measurement_history;
 use App\Models\m_parameter;
 use App\Models\m_formula_reference;
+use App\Models\m_realtime_value;
 use Exception;
 
 class FormulaMeasurementLogs extends BaseCommand
@@ -30,6 +31,7 @@ class FormulaMeasurementLogs extends BaseCommand
 	protected $configurations;
 	protected $lastPutData;
 	protected $measurements;
+	protected $realtime_value;
 
 	public function __construct()
 	{
@@ -40,6 +42,7 @@ class FormulaMeasurementLogs extends BaseCommand
 		$this->measurement_histories =  new m_measurement_history();
 		$this->configurations =  new m_configuration();
 		$this->measurements =  new m_measurement();
+		$this->realtime_value = new m_realtime_value();
 		$this->lastPutData = "0000-00-00 00:00";
 	}
 
@@ -95,72 +98,61 @@ class FormulaMeasurementLogs extends BaseCommand
 	public function run(array $params)
 	{
 		while (true) {
-			// $now = date("Y-m-d H:i:s");
-			// $this->measurement_logs->where("(is_averaged = 1 AND xtimestamp < ('{$now}' - INTERVAL 48 HOUR))")->delete();
-
 			foreach ($this->sensor_values->findAll() as $sensor_value) {
 				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
 			}
-
-			foreach ($this->parameters->where("is_view", 1)->findAll() as $parameter) {
-				if ($parameter->formula) {
-					if (substr($parameter->formula, 0, 21) != "formula_references==>") {
-						try {
-							@eval("\$data[$parameter->id] = $parameter->formula;");
-						} catch (Exception $e) {
-							log_message('error', "Formula Error [{$parameter->code}]: ".$e->getMessage());
+			print_r($sensor);
+			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
+				try{
+					$measured = 0;
+					CLI::write("[$parameter->code] : ".$parameter->formula);
+					$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
+					// Check Is Raw Value From Motherboard Sensor
+					if(count(explode($sensor_value->value,";")) == 1){
+						try{
+							eval("\$measured = $parameter->formula ?? -1;");
+							$raw = $measured;
+						}catch(Exception $e){
+							$measured = -1;
+							$raw = -1;
 						}
-						$sensor_value = $this->sensor_values->where("id", $parameter->sensor_value_id)->first();
-						$sensor_check = $sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] ?? null;
-						if (strpos(" " . $sensor_check, "FS2_MEMBRASENS") > 0) {
-							try {
-								$arr_sensor_value = explode('$sensor[' . $sensor_value->sensor_reader_id . '][' . $sensor_value->pin . '])[', $parameter->formula)[1];
-								$arr_sensor_value = explode("])", $arr_sensor_value)[0];
-								$sensor_value = explode(";", $sensor_check)[$arr_sensor_value + 4];
-							} catch (Exception $e) {
-								$sensor_value = (float) $sensor_check * 1;
-							}
-						} elseif ((count(explode(",", $sensor_check)) == 7) && (count(explode(";", $sensor_check)) == 2)) {
-							// Check PM AQMS FS1 Value
-							try {
-								$sensor_value = @eval("\$parameter->formula;");
-							} catch (Exception $e) {
-							}
-						} else {
-							$sensor_value = (float) $sensor_check * 1;
-						}
-					} else {
-						$parameter_formulas = explode("==>", $parameter->formula);
-						$x = 0;
-						$data[$parameter->id] = 0;
-						$sensor_value = 0;
-						try {
-							@eval("\$x = $parameter_formulas[1];");
-						} catch (Exception $e) {
-							log_message('error', "Formula Error [{$parameter->code}]: ".$e->getMessage());
-						}
-						$formula_references = @$this->formula_references->where("parameter_id", $parameter->id)->where("(" . $x . ") BETWEEN min_value AND max_value")->findAll()[0];
-						if (@$formula_references->id > 0) {
-							try {
-								@eval("\$data[$parameter->id] = $formula_references->formula;");
-							} catch (Exception $e) {
-							}
-						}
-						$sensor_value = $x;
 					}
-				} else {
-					$data[$parameter->id] = 0;
-					$sensor_value = 0;
+					CLI::write("[$parameter->code] : ".$measured);
+					$this->insert_logs([
+						"parameter_id" => $parameter->id,
+						"value" => $measured,
+						"sensor_value" => $raw,
+						"is_averaged" => 0,
+					]);
+				}catch(Exception $e){
+					log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
 				}
-				$measurement_logs = [
-					"parameter_id" => $parameter->id,
-					"value" => ($data[$parameter->id] < 0) ? 0 : $data[$parameter->id],
-					"sensor_value" => $sensor_value,
-					"is_averaged" => 0
-				];
-				$this->measurement_logs->save($measurement_logs);
 			}
 			sleep(1);
+		}
+	}
+	public function insert_logs($logs){
+		try{
+			$this->measurement_logs->insert($logs);
+			// Check is parameter exist
+			$parameterId = $logs["parameter_id"];
+			$isParameterExist = $this->realtime_value->where("parameter_id={$parameterId}")->countAllResults() > 0 ? true : false;
+			if($isParameterExist){
+				// Update value is parameter exist
+				return $this->realtime_value->where("parameter_id={$parameterId}")
+				->set([
+					"measured" => $logs["value"],
+				])->update();
+			}
+			// Insert parameter
+			return $this->realtime_value->insert([
+				"parameter_id" => $parameterId,
+				"measured" => $logs["value"],
+			]);
+
+		}catch(Exception $e){
+			log_message("error","Insert Logs : ".$e->getMessage());
+			return false;
 		}
 	}
 }

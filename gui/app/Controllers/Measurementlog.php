@@ -33,7 +33,7 @@ class Measurementlog extends BaseController
 				'now' => date('Y-m-d H:i:s'),
 			];
 			$data['logs'] = $this->realtime_value
-				->select("parameters.code as code,parameters.caption_id as parameter_caption_id,parameters.caption_en as parameter_caption_en, parameters.default_unit as parameter_unit, realtime_values.*")
+				->select("parameters.code as code, parameters.default_unit,parameters.p_type,parameters.molecular_mass, realtime_values.*")
 				->join("parameters","realtime_values.parameter_id = parameters.id","left")
 				->findAll();
 			return $this->response->setJSON($data);
