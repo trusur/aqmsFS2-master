@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\m_configuration;
 use App\Models\m_sensor_reader;
+use Exception;
 
 class Configuration extends BaseController
 {
@@ -28,6 +29,14 @@ class Configuration extends BaseController
 		$data['__routename'] = 'configuration'; /* Route for check menu */
 		$data['sensor_readers'] = $this->sensor_reader->findALL();
 		return view("configuration/v_index", $data);
+	}
+
+	public function getConfiguration($name){
+		try{
+			return $this->configuration->where('name', $name)->first()->content ?? null;
+		}catch(Exception $e){
+			return null;
+		}
 	}
 
 	public function saving_edit()
