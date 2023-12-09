@@ -28,8 +28,101 @@ class Configuration extends BaseController
 		$data['__modulename'] = 'Configurations'; /* Title */
 		$data['__routename'] = 'configuration'; /* Route for check menu */
 		$data['sensor_readers'] = $this->sensor_reader->findALL();
+		$data['drivers'] = $this->getDrivers();
 		return view("configuration/v_index", $data);
 	}
+
+	public function edit_driver(){
+		try{
+			$id = request()->getPost('id');
+			$this->validate([
+				'driver' => 'required',
+				'sensor_code' => 'required',
+				'baud_rate' => 'permit_empty',
+			]);
+			$data = [
+				'driver' => request()->getPost('driver'),
+				'sensor_code' => request()->getPost('sensor_code'),
+				'baud_rate' => request()->getPost('baud_rate'),
+			];
+			$this->sensor_reader->update($id, $data);
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Driver has been updated',
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+	
+	public function get_driver($id){
+		try{
+			return response()->setJSON([
+				'success' => true,
+				'data' => $this->sensor_reader->find($id)
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+	public function add_driver(){
+		try{
+			$this->validate([
+				'driver' => 'required',
+				'sensor_code' => 'required',
+				'baud_rate' => 'permit_empty',
+			]);
+			$data = [
+				'driver' => request()->getPost('driver'),
+				'sensor_code' => request()->getPost('sensor_code'),
+				'baud_rate' => request()->getPost('baud_rate'),
+			];
+			$this->sensor_reader->insert($data);
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Driver has been added',
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+	
+	public function datatable_drivers(){
+		try{
+			$start = request()->getGet("start") ?? 0;
+			$length = request()->getGet("length") ?? 10;
+			$search = request()->getGet("search")["value"] ?? "";
+
+			$where = "1=1";
+			if($search) $where.=" and (driver like '%{$search}%')";
+			$data['draw'] = request()->getGet("draw");
+			$data['recordsTotal'] = $this->sensor_reader->countAllResults();
+			$data['recordsFiltered'] = $this->sensor_reader->where($where)->countAllResults();
+			$data['data'] = $this->sensor_reader->where($where)->orderBy('id', 'desc')->findAll($length, $start);
+			return response()->setJSON($data);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON(['message' => $e->getMessage()]);
+		}
+	}
+
+	public function getDrivers(){
+		try{
+			$files = scandir("../../drivers");
+			return array_filter($files, function($file){
+				return !in_array($file, ['.', '..','db_connect.py']) && substr($file, -3) == ".py";
+			});
+		}catch(Exception $e){
+			log_message('error', "Cant scan drivers: ".$e->getMessage());
+			return [];
+		}
+	}
+
 
 	public function getConfiguration($name){
 		try{

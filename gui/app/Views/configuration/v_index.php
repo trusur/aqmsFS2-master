@@ -46,6 +46,33 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-12 mx-auto d-none" id="config-driver">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <h1 class="card-title h6 p-0 m-0">Drivers</h1>
+                            <div>
+                                <button type="button" data-target="#modal-add" data-toggle="modal" class="btn btn-sm btn-primary">Add New</button>
+                                <button type="button" class="btn btn-sm btn-info">Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive overflow-hidden">
+                            <table id="table-drivers" style="font-size:small" class="table table-sm table-hover table-stirpped">
+                                <thead>
+                                    <th>Action</th>
+                                    <th>ID</th>
+                                    <th>Driver</th>
+                                    <th>Sensor Code</th>
+                                    <th>Baud Rate / Protocol</th>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-6 mx-auto d-none" id="config-automation">
                 <div class="card">
                     <div class="card-header">
@@ -175,289 +202,89 @@
                
             </div>
         </div>
-         <!-- <div class="row">
-           <div class="col-md-6">
-                <div class="card">
-                    <div class="bg-light px-3 py-2">
-                        <h2 class="h4">AQMS INFO</h2>
-                        <div class="form-group">
-                            <label><?= lang('Global.Station Name') ?></label>
-                            <input type="text" name="nama_stasiun" placeholder="<?= lang('Global.Station Name') ?>" value="<?= $__this->findConfig('nama_stasiun') ?>" class="form-control">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Station ID</label>
-                                    <input type="text" name="id_stasiun" placeholder="Station ID" value="<?= $__this->findConfig('id_stasiun') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label><?= lang('Global.City') ?></label>
-                                    <input type="text" name="city" value="<?= $__this->findConfig('city') ?>" placeholder="<?= lang('Global.City') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label><?= lang('Global.Province') ?></label>
-                                    <input type="text" name="province" value="<?= $__this->findConfig('province') ?>" placeholder="<?= lang('Global.Province') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label><?= lang('Global.Full Address') ?></label>
-                            <textarea name="address" rows="2" placeholder="<?= lang('Global.Full Address') ?>" class="form-control"><?= $__this->findConfig('address') ?></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Latitude</label>
-                                    <input type="text" name="latitude" placeholder="Latitude" value="<?= $__this->findConfig('latitude') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Longitude</label>
-                                    <input type="text" name="longitude" placeholder="Longitude" value="<?= $__this->findConfig('longitude') ?>" class="form-control">
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="bg-light px-3 py-2">
-                        <h2 class="h4">AUTOMATION</h2>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small"><?= lang('Global.pump_speed') ?> <small>(%)</small></label>
-                                    <input type="text" name="pump_speed" value="<?= $__this->findConfig('pump_speed') ?>" placeholder="<?= lang('Global.pump_speed') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small"><?= lang('Global.Interval') ?> <?= lang('Global.Pump') ?> <small>(<?= lang('Global.Minutes') ?>)</small></label>
-                                    <input type="text" name="pump_interval" value="<?= $__this->findConfig('pump_interval') ?>" placeholder="<?= lang('Global.Interval') ?> <?= lang('Global.Pump') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small"><?= lang('Global.Collect Data Interval') ?> <small>(<?= lang('Global.Minutes') ?>)</small></label>
-                                    <input type="text" name="data_interval" value="<?= $__this->findConfig('data_interval') ?>" placeholder="<?= lang('Global.Collect Data Interval') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small"><?= lang('Global.Graphic Refresh Interval') ?> <small>(<?= lang('Global.Minutes') ?>)</small></label>
-                                    <input type="text" name="graph_interval" value="<?= $__this->findConfig('graph_interval') ?>" placeholder="<?= lang('Global.Graphic Refresh Interval') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">Is Auto Restart? (0 => No ; 1 => Yes)</label>
-                                    <input type="text" name="is_auto_restart" value="<?= $__this->findConfig('is_auto_restart') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">Restart Schedule</label>
-                                    <input type="time" name="restart_schedule" value="<?= $__this->findConfig('restart_schedule') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="card mt-3">
-                    <div class="bg-light px-3 py-2">
-                        <h2 class="h4">SERVERS</h2>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">Is Sent To KLHK? (0 => No ; 1 => Yes)</label>
-                                    <input type="text" name="is_sentto_klhk" value="<?= $__this->findConfig('is_sentto_klhk') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">KLHK API Server</label>
-                                    <input type="text" name="klhk_api_server" value="<?= $__this->findConfig('klhk_api_server') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">KLHK API Key</small></label>
-                                    <input type="text" name="klhk_api_key" value="<?= $__this->findConfig('klhk_api_key') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">KLHK API Username</small></label>
-                                    <input type="text" name="klhk_api_username" value="<?= $__this->findConfig('klhk_api_username') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">KLHK API Password</small></label>
-                                    <input type="text" name="klhk_api_password" value="<?= $__this->findConfig('klhk_api_password') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">Is Sent To TRUSUR? (0 => No ; 1 => Yes)</label>
-                                    <input type="text" name="is_sentto_trusur" value="<?= $__this->findConfig('is_sentto_trusur') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">TRUSUR API Server</label>
-                                    <input type="text" name="trusur_api_server" value="<?= $__this->findConfig('trusur_api_server') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">TRUSUR API Key</small></label>
-                                    <input type="text" name="trusur_api_key" value="<?= $__this->findConfig('trusur_api_key') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">TRUSUR API Username</small></label>
-                                    <input type="text" name="trusur_api_username" value="<?= $__this->findConfig('trusur_api_username') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">TRUSUR API Password</small></label>
-                                    <input type="text" name="trusur_api_password" value="<?= $__this->findConfig('trusur_api_password') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="bg-light px-3 py-2">
-                        <h2 class="h4">DEVICE</h2>
-                        <div class="alert alert-info">
-                            <div class="d-flex justify-content-between">
-                                <h3 class="h6">PORTS:</h3>
-                                <span class="btn-show-all" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse-sensor" aria-expanded="true" aria-controls="collapse-sensor">
-                                    Show All
-                                </span>
-                            </div>
-                            <?php foreach ($sensor_readers as $key => $sensor_reader) : ?>
-                                <?php if ($key > 0) : ?>
-                                    <div id="collapse-sensor" class="collapse">
-                                        <p class="mb-1 small">
-                                            <button type="button" class="btn btn-sm btn-outline-primary btn-copy" data-id="<?= $key ?>"><i class="fas fa-xs fa-copy"></i></button>
-                                            <?= "<span data-id='{$key}'>{$sensor_reader->sensor_code}</span>  => " . str_replace(".py", "", $sensor_reader->driver) ?>
-                                        </p>
-                                    </div>
-                                <?php else : ?>
-                                    <p class="mb-1 small">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-copy" data-id="<?= $key ?>"><i class="fas fa-xs fa-copy"></i></button>
-                                        <?= "<span data-id='{$key}'>{$sensor_reader->sensor_code}</span>  => " . str_replace(".py", "", $sensor_reader->driver) ?>
-                                    </p>
-                                <?php endif; ?>
-                            <?php endforeach ?>
-                        </div>
-                        <table id="export-tbl" class="table stripped">
-                            <thead>
-                                <tr>
-                                    <th>Driver</th>
-                                    <th>Port</th>
-                                    <th>Baud Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($sensor_readers as $sensor_reader) : ?>
-                                    <tr>
-                                        <td><b><?= $sensor_reader->driver; ?></b></td>
-                                        <td>
-                                            <input type="text" name="sensor_code[<?= $sensor_reader->id ?>]" placeholder="Port" class="form-control" value="<?= $sensor_reader->sensor_code ?>">
-                                        </td>
-                                        <td>
-                                            <select name="baud_rate[<?= $sensor_reader->id ?>]" class="form-control">
-                                                <option value="">Baud Rate</option>
-                                                <option value="110" <?= $sensor_reader->baud_rate == 110 ? 'selected' : '' ?>> 110 </option>
-                                                <option value="300" <?= $sensor_reader->baud_rate == 300 ? 'selected' : '' ?>> 300 </option>
-                                                <option value="1200" <?= $sensor_reader->baud_rate == 1200 ? 'selected' : '' ?>> 1200 </option>
-                                                <option value="2400" <?= $sensor_reader->baud_rate == 2400 ? 'selected' : '' ?>> 2400 </option>
-                                                <option value="4800" <?= $sensor_reader->baud_rate == 4800 ? 'selected' : '' ?>> 4800 </option>
-                                                <option value="9600" <?= $sensor_reader->baud_rate == 9600 ? 'selected' : '' ?>> 9600 </option>
-                                                <option value="19200" <?= $sensor_reader->baud_rate == 19200 ? 'selected' : '' ?>> 19200 </option>
-                                                <option value="38400" <?= $sensor_reader->baud_rate == 38400 ? 'selected' : '' ?>> 38400 </option>
-                                                <option value="57600" <?= $sensor_reader->baud_rate == 57600 ? 'selected' : '' ?>> 57600 </option>
-                                                <option value="115200" <?= $sensor_reader->baud_rate == 115200 ? 'selected' : '' ?>> 115200 </option>
-                                                <option value="230400" <?= $sensor_reader->baud_rate == 230400 ? 'selected' : '' ?>> 230400 </option>
-                                                <option value="460800" <?= $sensor_reader->baud_rate == 460800 ? 'selected' : '' ?>> 460800 </option>
-                                                <option value="921600" <?= $sensor_reader->baud_rate == 921600 ? 'selected' : '' ?>> 921600 </option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card mt-3">
-                    <div class="bg-light px-3 py-2">
-                        <h2 class="h4">CALIBRATION</h2>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small">With Auto Zero Valve (0 => No ; 1 => Yes)</label>
-                                    <input type="text" name="is_valve_calibrator" value="<?= $__this->findConfig('is_valve_calibrator') ?>" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small"><?= lang('Global.zerocal_schedule') ?></label>
-                                    <input type="text" name="zerocal_schedule" value="<?= $__this->findConfig('zerocal_schedule') ?>" placeholder="<?= lang('Global.zerocal_schedule') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small"><?= lang('Global.zerocal_duration') ?> <small>(<?= lang('Global.Seconds') ?>)</small></label>
-                                    <input type="number" name="zerocal_duration" value="<?= $__this->findConfig('zerocal_duration') ?>" placeholder="<?= lang('Global.zerocal_duration') ?>" class="form-control" min="60">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div> 
-        </div>-->
-        <div class="position-fixed" style="z-index: 999;right:11vw;bottom:20px;">
-            <button type="submit" name="Save" class="btn btn-info" id="btn-save"><?= lang('Global.Save Changes') ?></button>
-        </div>
     </form>
 </div>
 <?= $this->endSection() ?>
+<?= $this->section('modal') ?>
+<div class="modal" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="modal-editTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header py-1 my-0">
+                <h2 class="modal-title py-0 m-0 h6" id="exampleModalLongTitle">Edit Driver</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body my-0">
+                <form id="form-edit-driver" action="<?= base_url('configuration/edit-driver') ?>" method="post">
+                    <div class="row">
+                        <div class="mb-1 col-12">
+                            <input name="id" type="hidden">
+                            <label class="small">Driver</label>
+                            <input name="driver" type="text" readonly class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-1 col-6">
+                            <label class="small">Sensor Code</label>
+                            <input name="sensor_code" required placeholder="ttyUSB* or 192.168.*.*"  class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-1 col-6">
+                            <label class="small">Baudrate / Protocol</label>
+                            <input name="baud_rate" placeholder="Baudrate / Protocol"  class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-1 col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-sm btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal-add" tabindex="-1" role="dialog" aria-labelledby="modal-addTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header py-1 my-0">
+                <h2 class="modal-title py-0 m-0 h6" id="exampleModalLongTitle">Add Driver</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body my-0">
+                <form id="form-add-driver" action="<?= base_url('configuration/add-driver') ?>" method="post">
+                    <div class="row">
+                        <div class="mb-1 col-12">
+                            <label class="small">Driver</label>
+                            <select name="driver" required class="form-control form-control-sm">
+                                <option value="">Select Driver</option>
+                                <?php foreach($drivers as $driver):?>
+                                    <option value="<?= $driver ?>"><?= $driver ?></option>    
+                                <?php endforeach;?>
+                            </select>
+                        </div>
+                        <div class="mb-1 col-6">
+                            <label class="small">Sensor Code</label>
+                            <input name="sensor_code" required placeholder="ttyUSB* or 192.168.*.*"  class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-1 col-6">
+                            <label class="small">Baudrate / Protocol</label>
+                            <input name="baud_rate" placeholder="Baudrate / Protocol"  class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-1 col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-sm btn-primary">Add New Driver</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<?= $this->endSection() ?>
 <?= $this->section('css') ?>
+<link rel="stylesheet" href="<?= base_url("plugins/datatables-bs4/css/dataTables.bootstrap4.min.css")?>">
 <?= $this->endSection() ?>
 <?= $this->section('js') ?>
-
+<script src="<?= base_url("plugins/datatables/jquery.dataTables.min.js") ?>"></script>
+<script src="<?= base_url("plugins/datatables-bs4/js/dataTables.bootstrap4.min.js")?>"></script>
 <script>
     $(document).ready(function(){
         $('#btn-group button').click(function(){
@@ -469,6 +296,87 @@
             $('#content-overlay > div').addClass('d-none')
             $(`#${target}`).removeClass('d-none')
         })
+
+        const table = $('#table-drivers').DataTable({
+            theme : 'bootstrap4',
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '<?= base_url('configuration/datatable_drivers') ?>',
+                data : function (d) {
+                    d.active = $('#active').val();
+                },
+            },
+            columns: [
+                {
+                    data : 'id',
+                    render: function (data, type, row) {
+                        return `
+                        <span class="btn-edit badge badge-primary p-1" style="cursor:pointer" data-id="${row.id}">
+                            <i class="fas fa-pen"></i>
+                        </span>
+                        <span class="btn-delete badge badge-danger p-1" style="cursor:pointer" data-id="${row.id}">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                        `
+                    }
+                },
+                {
+                    data : 'id',
+                },
+                {
+                    data : 'driver',
+                },
+                {
+                    data : 'sensor_code',
+                },
+                {
+                    data : 'baud_rate',
+                },
+            ]
+        })
+        
+        $(document).delegate('.btn-edit', 'click', function(e){
+            e.preventDefault()
+            const id = $(this).data('id')
+            $.ajax({
+                url : `<?= base_url('configuration/get-driver/') ?>${id}`,
+                dataType : 'json',
+                success:function(data){
+                    if(data?.success){
+                        const driver = data?.data
+                        $('#modal-edit').modal('show')
+                        $('#form-edit-driver input[name="id"]').val(driver?.id)
+                        $('#form-edit-driver input[name="driver"]').val(driver?.driver)
+                        $('#form-edit-driver input[name="sensor_code"]').val(driver?.sensor_code)
+                        $('#form-edit-driver input[name="baud_rate"]').val(driver?.baud_rate)
+                    }
+                }
+            })
+        })
+
+        $("#form-add-driver, #form-edit-driver").submit(function(e){
+            e.preventDefault()
+            $.ajax({
+                type: "POST",
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType:'json',
+                success: function(data){
+                    if(data?.success){
+                        toastr.success(data?.message)
+                        $(this).find('.btn-reset').trigger('click')
+                        $('#modal-add').modal('hide')
+                        $('#modal-edit').modal('hide')
+                        return table.ajax.reload()
+                    }
+                },
+                error: function(xhr, status, err) {
+                    return toastr.error(xhr.responseJSON?.message)
+                }
+            })
+        })
+
     })
 </script>
 <?= $this->endSection() ?>
