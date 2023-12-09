@@ -139,7 +139,7 @@
                 {
                     data : 'is_view',
                     render: function(data,type,row){
-                        return row.is_view ? `<span class="badge badge-success">Active</span>` : `<span class="badge badge-danger">No</span>`
+                        return row.is_view ==1 ? `<span class="badge badge-success">Active</span>` : `<span class="badge badge-dark">Inactive</span>`
                     }
                 },
                 {
