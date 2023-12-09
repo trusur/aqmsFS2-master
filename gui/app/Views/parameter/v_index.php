@@ -6,7 +6,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="card-title py-0 my-0 h6">Parameter</h1>
                 <div>
-                    <button type="button" class="btn btn-sm btn-secondary">Filter</button>
+                    <button type="button" data-toggle="modal" data-target="#modal-filter" class="btn btn-sm btn-secondary">Filter</button>
                 </div>
             </div>
         </div>
@@ -31,6 +31,43 @@
     </div>
 
 </div>
+<div class="modal" id="modal-filter" tabindex="-1" role="dialog" aria-labelledby="modal-editTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header py-1 my-0">
+                <h2 class="modal-title py-0 m-0 h6" id="exampleModalLongTitle">Filter</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body my-0">
+                <div class="row" id="filter-form">
+                    <div class="mb-1 col-6">
+                        <label class="small">Type</label>
+                        <select name="p_type" class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="gas">Gas</option>
+                            <option value="weather">Weather</option>
+                            <option value="particulate">Particulate</option>
+                            <option value="particulate_flow">Particulate Flow</option>
+                        </select>
+                    </div>
+                    <div class="mb-1 col-6">
+                        <label class="small">Status</label>
+                        <select name="is_view" class="form-control form-control-sm">
+                            <option value="">All</option>
+                            <option value="1">Active</option>
+                            <option value="0">Not Active</option>
+                        </select>
+                    </div>
+                    <div class="mb-1 col-12 d-flex justify-content-end">
+                        <button type="button" id="btn-filter" class="btn btn-sm btn-primary">Set Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <?= $this->include("parameter/modal_edit_parameter")?>
 <!-- Span Calibraton -->
 <?= $this->include("parameter/modal_span_calibration")?>
@@ -51,7 +88,8 @@
             ajax: {
                 url: '<?= base_url('parameter/datatable') ?>',
                 data : function (d) {
-                    d.type = $('#type').val();
+                    d.type = $('#filter-form select[name="p_type"]').val();
+                    d.is_view = $('#filter-form select[name="is_view"]').val();
                 }
             },
             columns: [
@@ -108,17 +146,21 @@
                 {
                     data : 'formula',
                     render: function(data,type,row){
-                        return `
+                        return row?.formula ? `
                             <div class="d-flex align-items-center" style="gap:5px">
                                 <button type="button" class="btn-copy btn p-1 btn-primary btn-edit" style="font-size:smaller"><i class="fas fa-copy"></i></button>
                                 <textarea class="form-control" readonly style="resize:none">${row.formula ?? 'Not Set'}</textarea>
-                            </div>
-                        `
+                            </div>` : `<span class="badge badge-secondary">Not Set</span>`
                     }
                 },
 
             ]
 
+        })
+        $('#btn-filter').click(function(e){
+            e.preventDefault()
+            table.ajax.reload()
+            $('#modal-filter').modal('hide')
         })
 
         $(document).delegate('.btn-copy','click',function(){

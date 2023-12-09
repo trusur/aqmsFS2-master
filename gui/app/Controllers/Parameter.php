@@ -44,6 +44,7 @@ class Parameter extends BaseController
 			if($is_view) $where.=" and is_view = '{$is_view}'";
 
 			$data['draw'] = request()->getGet('draw') ?? 1;
+			$data['where'] = $where;
 			$data['recordsTotal'] = $this->parameter->countAllResults();
 			$data['recordsFiltered'] = $this->parameter->where($where)->countAllResults();
 			$data['data'] = $this->parameter->select('id, caption_en,molecular_mass, code, default_unit, p_type, is_view, formula')

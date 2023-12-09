@@ -53,7 +53,6 @@
                             <h1 class="card-title h6 p-0 m-0">Drivers</h1>
                             <div>
                                 <button type="button" data-target="#modal-add" data-toggle="modal" class="btn btn-sm btn-primary">Add New</button>
-                                <button type="button" class="btn btn-sm btn-info">Filter</button>
                             </div>
                         </div>
                     </div>
