@@ -1,208 +1,206 @@
 <?= $this->extend('layouts/layouts') ?>
 <?= $this->section('content') ?>
 <div class="container-md py-3">
-    <form action="<?= base_url('configuration') ?>" method="POST">
-        <div class="btn-group" id="btn-group" role="group" aria-label="Configuration Button">
-            <button type="button" data-target="config-general" class="btn btn-info">General</button>
-            <button type="button" data-target="config-driver" class="btn btn-secondary">Drivers</button>
-            <button type="button" data-target="config-automation" class="btn btn-secondary">Automation</button>
-            <button type="button" data-target="config-integration" class="btn btn-secondary">Integration Data</button>
-            <a href="<?= base_url('configuration/raw') ?>" class="btn btn-secondary">Full Configuration</a>
-        </div>
-        <div class="row pt-3" id="content-overlay">
-            <div class="col-md-6 mx-auto" id="config-general">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title h6 p-0 m-0">General Configuration</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="<?=base_url("configuration/update")?>" method="post">
-                           <div class="row p-0">
-                                <div class="mb-1 col-6">
-                                    <label>Station ID</label>
-                                    <input type="text" placeholder="Stasiun ID" name="name[id_stasiun]" value="<?= $__this->getConfiguration('id_stasiun') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="mb-1 col-6">
-                                    <label>Station Name </label>
-                                    <input type="text" placeholder="Name" name="name[name_stasiun]" value="<?= $__this->getConfiguration('name_stasiun') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="mb-1 col-6">
-                                    <label>City</label>
-                                    <input type="text" placeholder="City" name="name[city]" value="<?= $__this->getConfiguration('city') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="mb-1 col-6">
-                                    <label>Province</label>
-                                    <input type="text" placeholder="Province" name="name[province]" value="<?= $__this->getConfiguration('province') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="mb-1 col-12">
-                                    <label>Address</label>
-                                    <textarea name="name[address]" class="form-control form-control-sm"><?= $__this->getConfiguration('address') ?></textarea>
-                                </div>
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-info">Save Changes</button>
-                                </div>
-                           </div>
-                        </form>
-                    </div>
+    <div class="btn-group" id="btn-group" role="group" aria-label="Configuration Button">
+        <button type="button" data-target="config-general" class="btn btn-info">General</button>
+        <button type="button" data-target="config-driver" class="btn btn-secondary">Drivers</button>
+        <button type="button" data-target="config-automation" class="btn btn-secondary">Automation</button>
+        <button type="button" data-target="config-integration" class="btn btn-secondary">Integration Data</button>
+        <a href="<?= base_url('configuration/raw') ?>" class="btn btn-secondary">Full Configuration</a>
+    </div>
+    <div class="row pt-3" id="content-overlay">
+        <div class="col-md-6 mx-auto" id="config-general">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title h6 p-0 m-0">General Configuration</h5>
                 </div>
-            </div>
-            <div class="col-md-12 mx-auto d-none" id="config-driver">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between">
-                            <h1 class="card-title h6 p-0 m-0">Drivers</h1>
-                            <div>
-                                <button type="button" data-target="#modal-add" data-toggle="modal" class="btn btn-sm btn-primary">Add New</button>
+                <div class="card-body">
+                    <form class="form-config" action="<?=base_url("configuration/update")?>" method="post">
+                        <div class="row p-0">
+                            <div class="mb-1 col-6">
+                                <label>Station ID</label>
+                                <input type="text" placeholder="Stasiun ID" name="name[id_stasiun]" value="<?= $__this->getConfiguration('id_stasiun') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label>Station Name </label>
+                                <input type="text" placeholder="Name" name="name[name_stasiun]" value="<?= $__this->getConfiguration('name_stasiun') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label>City</label>
+                                <input type="text" placeholder="City" name="name[city]" value="<?= $__this->getConfiguration('city') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label>Province</label>
+                                <input type="text" placeholder="Province" name="name[province]" value="<?= $__this->getConfiguration('province') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-1 col-12">
+                                <label>Address</label>
+                                <textarea name="name[address]" class="form-control form-control-sm"><?= $__this->getConfiguration('address') ?></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-info">Save Changes</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive overflow-hidden">
-                            <table id="table-drivers" style="font-size:small;width: 100%;" class="table table-sm table-hover table-stirpped">
-                                <thead>
-                                    <th>Action</th>
-                                    <th>ID</th>
-                                    <th>Status</th>
-                                    <th>Driver</th>
-                                    <th>Sensor Code</th>
-                                    <th>Baud Rate / Protocol</th>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
+                    </form>
                 </div>
-            </div>
-            <div class="col-md-6 mx-auto d-none" id="config-automation">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title h6 p-0 m-0">Automation</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="<?=base_url("configuration/update")?>" method="post">
-                           <div class="row p-0">
-                                <div class="mb-1 col-6">
-                                    <label class="small">Interval Data Avg. <small class="text-muted" style="font-size: smaller;">(mins)</small></label>
-                                    <input type="number" min="1" inputmode="numeric" placeholder="Interval in mins" name="name[data_interval]" value="<?= $__this->getConfiguration('data_interval') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="mb-1 col-6">
-                                    <label class="small">Pump Speed. <small class="text-muted" style="font-size: smaller;">(%)</small></label>
-                                    <input type="number" min="1" inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= $__this->getConfiguration('pump_speed') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="mb-1 col-6">
-                                    <label class="d-block small">Auto Restart?</label>
-                                    <select name="name[is_auto_restart]" class="form-control form-control-sm">
-                                        <option value="1" <?= $__this->getConfiguration('is_auto_restart') == 1 ? 'selected' : '' ?>>Yes</option>
-                                        <option value="1" <?= $__this->getConfiguration('is_auto_restart') == 1 ? 'selected' : '' ?>>No</option>
-                                    </select>
-                                </div>
-                                <div class="mb-1 col-6">
-                                    <label class="small">Restart Schedule</label>
-                                    <input type="time" name="restart_schedule" value="<?= $__this->getConfiguration('restart_schedule') ?>" class="form-control form-control-sm">
-                                </div>
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-info">Save Changes</button>
-                                </div>
-                           </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-12 mx-auto d-none" id="config-integration">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title h6 p-0 m-0">Integration Configuration</h5>
-                            </div>
-                            <div class="card-body">
-                                <form action="<?=base_url("configuration/update")?>" method="post">
-                                <div class="row p-0">
-                                        <div class="col-12">
-                                            <label class="text-muted small" style="font-size: smaller;">Server KLHK Configuration</label>
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="d-block small">Sent to KLHK?</label>
-                                            <select name="name[is_sentto_klhk]" class="form-control form-control-sm">
-                                                <option value="1" <?= $__this->getConfiguration('is_sentto_klhk') == 1 ? 'selected' : '' ?>>Yes</option>
-                                                <option value="1" <?= $__this->getConfiguration('is_sentto_klhk') == 1 ? 'selected' : '' ?>>No</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="small">Base URL</label>
-                                            <input type="text" placeholder="Base URL" name="name[klhk_api_server]" value="<?= $__this->getConfiguration('klhk_api_server') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="small">Username</label>
-                                            <input type="text" placeholder="Username" name="name[klhk_api_username]" value="<?= $__this->getConfiguration('klhk_api_username') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="small">Password</label>
-                                            <input type="password" placeholder="Password" name="name[klhk_api_password]" value="<?= $__this->getConfiguration('klhk_api_password') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="mb-1 col-12">
-                                            <label class="small">API-Key</label>
-                                            <input type="password" placeholder="API-Key" name="name[klhk_api_key]" value="<?= $__this->getConfiguration('klhk_api_key') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="text-muted small" style="font-size: smaller;">Server Trusur Configuration</label>
-                                        </div>
-                                        
-                                        <div class="col-12 d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-info">Save Changes</button>
-                                        </div>
-                                </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title h6 p-0 m-0">Integration Configuration</h5>
-                            </div>
-                            <div class="card-body">
-                                <form action="<?=base_url("configuration/update")?>" method="post">
-                                <div class="row p-0">
-                                        <div class="col-12">
-                                            <label class="text-muted small" style="font-size: smaller;">Server Trusur Configuration</label>
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="d-block small">Sent to TRUSUR?</label>
-                                            <select name="name[is_sent_to_trusur]" class="form-control form-control-sm">
-                                                <option value="1" <?= $__this->getConfiguration('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>Yes</option>
-                                                <option value="1" <?= $__this->getConfiguration('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>No</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="small">Base URL</label>
-                                            <input type="text" placeholder="Base URL" name="name[trusur_api_server]" value="<?= $__this->getConfiguration('trusur_api_server') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="small">Username</label>
-                                            <input type="text" placeholder="Username" name="name[trusur_api_username]" value="<?= $__this->getConfiguration('trusur_api_username') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="mb-1 col-6">
-                                            <label class="small">Password</label>
-                                            <input type="password" placeholder="Password" name="name[trusur_api_password]" value="<?= $__this->getConfiguration('trusur_api_password') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="mb-1 col-12">
-                                            <label class="small">API-Key</label>
-                                            <input type="password" placeholder="API-Key" name="name[trusur_api_key]" value="<?= $__this->getConfiguration('trusur_api_key') ?>" class="form-control form-control-sm">
-                                        </div>
-                                        <div class="col-12 d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-info">Save Changes</button>
-                                        </div>
-                                </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-               
             </div>
         </div>
-    </form>
+        <div class="col-md-12 mx-auto d-none" id="config-driver">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <h1 class="card-title h6 p-0 m-0">Drivers</h1>
+                        <div>
+                            <button type="button" data-target="#modal-add" data-toggle="modal" class="btn btn-sm btn-primary">Add New</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive overflow-hidden">
+                        <table id="table-drivers" style="font-size:small;width: 100%;" class="table table-sm table-hover table-stirpped">
+                            <thead>
+                                <th>Action</th>
+                                <th>ID</th>
+                                <th>Status</th>
+                                <th>Driver</th>
+                                <th>Sensor Code</th>
+                                <th>Baud Rate / Protocol</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mx-auto d-none" id="config-automation">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title h6 p-0 m-0">Automation</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-config" action="<?=base_url("configuration/update")?>" method="post">
+                        <div class="row p-0">
+                            <div class="mb-1 col-6">
+                                <label class="small">Interval Data Avg. <small class="text-muted" style="font-size: smaller;">(mins)</small></label>
+                                <input type="number" min="1" inputmode="numeric" placeholder="Interval in mins" name="name[data_interval]" value="<?= $__this->getConfiguration('data_interval') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label class="small">Pump Speed. <small class="text-muted" style="font-size: smaller;">(%)</small></label>
+                                <input type="number" min="1" inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= $__this->getConfiguration('pump_speed') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label class="d-block small">Auto Restart?</label>
+                                <select name="name[is_auto_restart]" class="form-control form-control-sm">
+                                    <option value="1" <?= $__this->getConfiguration('is_auto_restart') == 1 ? 'selected' : '' ?>>Yes</option>
+                                    <option value="1" <?= $__this->getConfiguration('is_auto_restart') == 1 ? 'selected' : '' ?>>No</option>
+                                </select>
+                            </div>
+                            <div class="mb-1 col-6">
+                                <label class="small">Restart Schedule</label>
+                                <input type="time" name="restart_schedule" value="<?= $__this->getConfiguration('restart_schedule') ?>" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-info">Save Changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 mx-auto d-none" id="config-integration">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title h6 p-0 m-0">Integration Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <form class="form-config" action="<?=base_url("configuration/update")?>" method="post">
+                                <div class="row p-0">
+                                    <div class="col-12">
+                                        <label class="text-muted small" style="font-size: smaller;">Server KLHK Configuration</label>
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="d-block small">Sent to KLHK?</label>
+                                        <select name="name[is_sentto_klhk]" class="form-control form-control-sm">
+                                            <option value="1" <?= $__this->getConfiguration('is_sentto_klhk') == 1 ? 'selected' : '' ?>>Yes</option>
+                                            <option value="1" <?= $__this->getConfiguration('is_sentto_klhk') == 1 ? 'selected' : '' ?>>No</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="small">Base URL</label>
+                                        <input type="text" placeholder="Base URL" name="name[klhk_api_server]" value="<?= $__this->getConfiguration('klhk_api_server') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="small">Username</label>
+                                        <input type="text" placeholder="Username" name="name[klhk_api_username]" value="<?= $__this->getConfiguration('klhk_api_username') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="small">Password</label>
+                                        <input type="password" placeholder="Password" name="name[klhk_api_password]" value="<?= $__this->getConfiguration('klhk_api_password') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-1 col-12">
+                                        <label class="small">API-Key</label>
+                                        <input type="password" placeholder="API-Key" name="name[klhk_api_key]" value="<?= $__this->getConfiguration('klhk_api_key') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="text-muted small" style="font-size: smaller;">Server Trusur Configuration</label>
+                                    </div>
+                                    
+                                    <div class="col-12 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-info">Save Changes</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title h6 p-0 m-0">Integration Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <form class="form-config" action="<?=base_url("configuration/update")?>" method="post">
+                            <div class="row p-0">
+                                    <div class="col-12">
+                                        <label class="text-muted small" style="font-size: smaller;">Server Trusur Configuration</label>
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="d-block small">Sent to TRUSUR?</label>
+                                        <select name="name[is_sent_to_trusur]" class="form-control form-control-sm">
+                                            <option value="1" <?= $__this->getConfiguration('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>Yes</option>
+                                            <option value="1" <?= $__this->getConfiguration('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>No</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="small">Base URL</label>
+                                        <input type="text" placeholder="Base URL" name="name[trusur_api_server]" value="<?= $__this->getConfiguration('trusur_api_server') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="small">Username</label>
+                                        <input type="text" placeholder="Username" name="name[trusur_api_username]" value="<?= $__this->getConfiguration('trusur_api_username') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-1 col-6">
+                                        <label class="small">Password</label>
+                                        <input type="password" placeholder="Password" name="name[trusur_api_password]" value="<?= $__this->getConfiguration('trusur_api_password') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="mb-1 col-12">
+                                        <label class="small">API-Key</label>
+                                        <input type="password" placeholder="API-Key" name="name[trusur_api_key]" value="<?= $__this->getConfiguration('trusur_api_key') ?>" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-info">Save Changes</button>
+                                    </div>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
 </div>
 <?= $this->endSection() ?>
 <?= $this->section('modal') ?>
@@ -396,6 +394,23 @@
                         return table.ajax.reload()
                     }
                 },
+                error: function(xhr, status, err) {
+                    return toastr.error(xhr.responseJSON?.message)
+                }
+            })
+        })
+        $(".form-config").submit(function(e){
+            e.preventDefault()
+            $.ajax({
+                type: "POST",
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType:'json',
+                success: function(data){
+                    if(data?.success){
+                        toastr.success(data?.message)
+                    }
+                },  
                 error: function(xhr, status, err) {
                     return toastr.error(xhr.responseJSON?.message)
                 }
