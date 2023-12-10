@@ -67,7 +67,7 @@
         <?php endif;?>
         
         const table = $('table[id="export-tbl"]').DataTable({
-            "pageLength": 4,
+            pageLength: 5,
             searching: false,
             dom: 'Bfrtip',
             ajax: {

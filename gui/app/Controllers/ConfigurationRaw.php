@@ -61,8 +61,8 @@ class ConfigurationRaw extends BaseController
             if($search) $where.=" and ( name like '%".$search."%' or content like '%".$search."%' )";
             
             $data['draw'] = request()->getGet('draw') ?? 1;
-            $data['recordsTotal'] = $this->m_config->countAll();
-            $data['recordsFiltered'] = $this->m_config->where($where)->countAll();
+            $data['recordsTotal'] = $this->m_config->countAllResults();
+            $data['recordsFiltered'] = $this->m_config->where($where)->countAllResults();
             $data['data'] = $this->m_config->where($where)->orderBy("id","desc")->findAll($length, $start);
             return response()->setJSON($data);
         }catch(Exception $e){
