@@ -49,4 +49,7 @@ $routes->get('calibration/datatable', 'Calibration::datatable');
 $routes->get('exports', 'Export::index');
 $routes->get('export/csv', 'Export::export');
 
+$routes->get('rht', 'Rht::index');
+$routes->get('rht/realtime', 'Rht::get_all');
+
 $routes->add('/switch/pump', 'Home::pump');

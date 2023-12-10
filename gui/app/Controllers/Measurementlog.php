@@ -7,7 +7,6 @@ use App\Models\m_configuration;
 use App\Models\m_measurement_log;
 use App\Models\m_parameter;
 use App\Models\m_realtime_value;
-use CodeIgniter\Database\BaseBuilder;
 use Exception;
 
 class Measurementlog extends BaseController

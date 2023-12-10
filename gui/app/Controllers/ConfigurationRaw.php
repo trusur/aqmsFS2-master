@@ -58,7 +58,7 @@ class ConfigurationRaw extends BaseController
             $search = request()->getGet('search')['value'] ?? "";
 
             $where = "1=1";
-            if($search) $where.=" and ( name like '%".$search."%' or content like '%".$search."%' )";
+            if($search) $where.=" and ( lower(name) like '%".$search."%' or content like '%".$search."%' )";
             
             $data['draw'] = request()->getGet('draw') ?? 1;
             $data['recordsTotal'] = $this->m_config->countAllResults();
