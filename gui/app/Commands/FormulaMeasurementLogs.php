@@ -98,32 +98,36 @@ class FormulaMeasurementLogs extends BaseCommand
 	public function run(array $params)
 	{
 		while (true) {
-			foreach ($this->sensor_values->findAll() as $sensor_value) {
-				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
-			}
-			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
-				try{
-					$measured = 0;
-					$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
-					// Check Is Raw Value From Motherboard Sensor
-					if(count(explode($sensor_value->value,";")) == 1){
-						try{
-							eval("\$measured = $parameter->formula ?? -1;");
-							$raw = $measured;
-						}catch(Exception $e){
-							$measured = -1;
-							$raw = -1;
-						}
-					}
-					$this->insert_logs([
-						"parameter_id" => $parameter->id,
-						"value" => $measured,
-						"sensor_value" => $raw,
-						"is_averaged" => 0,
-					]);
-				}catch(Exception $e){
-					log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
+			try{
+				foreach ($this->sensor_values->findAll() as $sensor_value) {
+					$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
 				}
+				foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
+					try{
+						$measured = 0;
+						$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
+						// Check Is Raw Value From Motherboard Sensor
+						if(count(explode($sensor_value->value,";")) == 1){
+							try{
+								eval("\$measured = $parameter->formula ?? -1;");
+								$raw = $measured;
+							}catch(Exception $e){
+								$measured = -1;
+								$raw = -1;
+							}
+						}
+						$this->insert_logs([
+							"parameter_id" => $parameter->id,
+							"value" => $measured,
+							"sensor_value" => $raw,
+							"is_averaged" => 0,
+						]);
+					}catch(Exception $e){
+						log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
+					}
+				}
+			}catch(Exception $e){
+				log_message("error","Formula Convertion Service Error : ".$e->getMessage());
 			}
 			sleep(1);
 		}
