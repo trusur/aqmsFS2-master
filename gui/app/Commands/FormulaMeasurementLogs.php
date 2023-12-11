@@ -12,7 +12,9 @@ use App\Models\m_measurement_history;
 use App\Models\m_parameter;
 use App\Models\m_formula_reference;
 use App\Models\m_realtime_value;
+use Error;
 use Exception;
+use ParseError;
 
 class FormulaMeasurementLogs extends BaseCommand
 {
@@ -106,12 +108,12 @@ class FormulaMeasurementLogs extends BaseCommand
 					try{
 						$measured = 0;
 						$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
-						// Check Is Raw Value From Motherboard Sensor
+						// Check Is Raw Value bhFrom Motherboard Sensor
 						if(count(explode($sensor_value->value,";")) == 1){
 							try{
 								eval("\$measured = $parameter->formula ?? -1;");
 								$raw = $measured;
-							}catch(Exception $e){
+							}catch(ParseError | Error $e){
 								$measured = -1;
 								$raw = -1;
 							}
