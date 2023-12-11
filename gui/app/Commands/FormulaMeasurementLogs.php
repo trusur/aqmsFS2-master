@@ -116,6 +116,9 @@ class FormulaMeasurementLogs extends BaseCommand
 							}catch(ParseError | Error $e){
 								$measured = -1;
 								$raw = -1;
+							}catch(Exception $e){
+								$measured = -1;
+								$raw = -1;
 							}
 						}
 						$this->insert_logs([
