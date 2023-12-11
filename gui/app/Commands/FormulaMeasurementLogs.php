@@ -148,6 +148,7 @@ class FormulaMeasurementLogs extends BaseCommand
 				return $this->realtime_value->where("parameter_id={$parameterId}")
 				->set([
 					"measured" => $logs["value"],
+					"xtimestamp" => date("Y-m-d H:i:s"),
 				])->update();
 			}
 			// Insert parameter
