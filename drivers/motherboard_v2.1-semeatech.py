@@ -41,7 +41,7 @@ def dectofloat(dec0, dec1):
         hexvalue1 = str(hex(int(dec0))).replace("0x", "")
         hexvalue2 = str(hex(int(dec1))).replace("0x", "")
         hexvalue = hexvalue1.rjust(4, "0") + hexvalue2.rjust(4, "0")
-        # print(str(hexvalue1) + ":" + str(hexvalue2) + " ==> " + hexvalue)
+        print(str(hexvalue1) + ":" + str(hexvalue2) + " ==> " + hexvalue)
         if (len(hexvalue) == 8):
             # print("   ===> " +str(struct.unpack('!f', bytes.fromhex(hexvalue))[0]))
             return str(struct.unpack('!f', bytes.fromhex(hexvalue))[0])
@@ -96,9 +96,12 @@ def read_sensors():
     try:
         regs = socket.read_input_registers(30000, 25)
         data = []
-        # PM & Gas
-        for i in range(0, 18, 2):
+        # PM
+        for i in range(0, 4, 2):
             data.insert(i, dectofloat(regs[i], regs[i+1]))
+        # Gas
+        for i in range(4, 18, 2):
+            data.insert(i, dectofloat(regs[i+1],regs[i]))
         # Meteorology
         for i in range(18, 25, 1):
             data.insert(i, regs[i])
