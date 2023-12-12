@@ -98,7 +98,7 @@ def read_sensors():
         data = []
         # PM & Gas
         for i in range(0, 18, 2):
-            data.insert(i, dectofloat(regs[i+1], regs[i]))
+            data.insert(i, dectofloat(regs[i], regs[i+1]))
         # Meteorology
         for i in range(18, 25, 1):
             data.insert(i, regs[i])
