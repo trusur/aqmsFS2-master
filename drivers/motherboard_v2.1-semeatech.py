@@ -96,11 +96,10 @@ def read_sensors():
     try:
         regs = socket.read_input_registers(30000, 25)
         data = []
+        # PM & Gas
         for i in range(0, 18, 2):
-            if (i >= 4):
-                data.insert(i, regs[i+1])
-            else:
-                data.insert(i, dectofloat(regs[i+1], regs[i]))
+            data.insert(i, dectofloat(regs[i+1], regs[i]))
+        # Meteorology
         for i in range(18, 25, 1):
             data.insert(i, regs[i])
         regs = socket.read_input_registers(31006, 2)
