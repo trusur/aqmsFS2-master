@@ -3,3 +3,4 @@ pyvantagepro
 mysql_connector
 crcmod
 minimalmodbus
+pyModbusTCP
