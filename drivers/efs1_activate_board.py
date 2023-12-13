@@ -15,6 +15,7 @@ def main():
             board.open()
             # Activate Semeatech
             print(board.write_single_coil(303,1))
+            print(board.write_holding_registers(303,1))
             print(board.read_input_registers(303,1))
         else:
             print("Motherboard connection error")
