@@ -30,7 +30,7 @@ class ConfigurationRaw extends BaseController
                 'name' => request()->getPost('name'),
                 'content' => request()->getPost('content'),
             ];
-            $isExist = $this->m_config->where('name', $data['name'])->countAll() > 0;
+            $isExist = $this->m_config->where('name', $data['name'])->countAllResults() > 0;
             if(!$isExist){
                 $this->m_config->save($data);
                 return response()->setJSON([
