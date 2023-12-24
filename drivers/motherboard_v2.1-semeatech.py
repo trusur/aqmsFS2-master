@@ -131,7 +131,7 @@ def set_pump():
     try:
         mycursor.execute("SELECT content FROM configurations WHERE name = 'pump_test'")
         configuration = mycursor.fetchone()
-        if (configuration[0] != "" and configuration[0] == "1"):
+        if (configuration and configuration[0] != "" and configuration[0] == "1"):
             print("Start Manual Pump")
             mycursor.execute("UPDATE configurations SET content='0' WHERE name = 'pump_test'")
             mydb.commit()
@@ -328,7 +328,7 @@ try:
                             dt_string += "," + str(data[i])
                             update_sensor_value(str(sys.argv[1]), i, sensors[i] + ";" + str(data[i]))
                         dt_string += "]"
-                        print(dt_string)
+                        # print(dt_string)
 
                         set_pump()
                         set_zero()
