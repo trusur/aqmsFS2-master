@@ -121,12 +121,17 @@ class FormulaMeasurementLogs extends BaseCommand
 								$raw = -1;
 							}
 						}
+						$acceptedValue = $measured * 500/100; // 500%
+						// Check is Spike
+						$isSpike = $measured > $acceptedValue ? true : false;
+
 						$this->insert_logs([
 							"parameter_id" => $parameter->id,
 							"value" => $measured,
 							"sensor_value" => $raw,
 							"is_averaged" => 0,
-						]);
+						], !$isSpike);
+						
 					}catch(Exception $e){
 						log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
 					}
@@ -137,9 +142,11 @@ class FormulaMeasurementLogs extends BaseCommand
 			sleep(1);
 		}
 	}
-	public function insert_logs($logs){
+	public function insert_logs($logs, $insertLogs = true){
 		try{
-			$this->measurement_logs->insert($logs);
+			if($insertLogs){
+				$this->measurement_logs->insert($logs);
+			}
 			// Check is parameter exist
 			$parameterId = $logs["parameter_id"];
 			$isParameterExist = $this->realtime_value->where("parameter_id={$parameterId}")->countAllResults() > 0 ? true : false;
