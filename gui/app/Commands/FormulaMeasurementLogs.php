@@ -121,17 +121,23 @@ class FormulaMeasurementLogs extends BaseCommand
 								$raw = -1;
 							}
 						}
-						$acceptedValue = $measured * 500/100; // 500%
-						// Check is Spike
-						$isSpike = $measured > $acceptedValue ? true : false;
+						$isInsertLog = true;
+						if($parameter->p_type == "gas"){
+							$lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->find()->measured ?? 0; 
+							$acceptedValue = $lastValue * 500/100; // 500%
+							// Check is Spike
+							$isSpike = $measured > $acceptedValue ? true : false;
+							$isInsertLog = !$isSpike; // is not spike
+						}
+						
 
 						$this->insert_logs([
 							"parameter_id" => $parameter->id,
 							"value" => $measured,
 							"sensor_value" => $raw,
 							"is_averaged" => 0,
-						], !$isSpike);
-						
+						], $isInsertLog);
+
 					}catch(Exception $e){
 						log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
 					}
