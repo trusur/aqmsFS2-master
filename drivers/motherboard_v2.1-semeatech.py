@@ -41,7 +41,7 @@ def dectofloat(dec0, dec1):
         hexvalue1 = str(hex(int(dec0))).replace("0x", "")
         hexvalue2 = str(hex(int(dec1))).replace("0x", "")
         hexvalue = hexvalue1.rjust(4, "0") + hexvalue2.rjust(4, "0")
-        print(str(hexvalue1) + ":" + str(hexvalue2) + " ==> " + hexvalue)
+        # print(str(hexvalue1) + ":" + str(hexvalue2) + " ==> " + hexvalue)
         if (len(hexvalue) == 8):
             # print("   ===> " +str(struct.unpack('!f', bytes.fromhex(hexvalue))[0]))
             return str(struct.unpack('!f', bytes.fromhex(hexvalue))[0])
