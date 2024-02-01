@@ -123,11 +123,12 @@ class FormulaMeasurementLogs extends BaseCommand
 						}
 						$isInsertLog = true;
 						if($parameter->p_type == "gas"){
-							$lastValue = $this->measurement_logs
-								->select("id,value")
-								->where("parameter_id={$parameter->id}")
-								->orderBy("id","desc")
-								->first()->value ?? 0;
+							// $lastValue = $this->measurement_logs
+							// 	->select("id,value")
+							// 	->where("parameter_id={$parameter->id}")
+							// 	->orderBy("id","desc")
+							// 	->first()->value ?? 0;
+							$lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
 							switch ($parameter->code) {
 								case 'co':
 									$acceptedValue = $lastValue * 10/100; // 10%
@@ -144,7 +145,6 @@ class FormulaMeasurementLogs extends BaseCommand
 									$acceptedValue = $lastValue * 40/100; // 40%
 									break;
 							}
-							// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
 							// Check is Spike
 							$isSpike = $measured > $acceptedValue ? true : false;
 							$isInsertLog = !$isSpike; // is not spike
