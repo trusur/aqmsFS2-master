@@ -134,6 +134,7 @@ class FormulaMeasurementLogs extends BaseCommand
 									break;
 								case 'so2':
 								case 'hc':
+								default:
 									$acceptedValue = $lastValue * 50/100; // 50%
 									break;
 								case 'o3':
@@ -142,10 +143,8 @@ class FormulaMeasurementLogs extends BaseCommand
 								case 'no2':
 									$acceptedValue = $lastValue * 40/100; // 40%
 									break;
-								default:
-									break;
 							}
-							$lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
+							// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
 							// Check is Spike
 							$isSpike = $measured > $acceptedValue ? true : false;
 							$isInsertLog = !$isSpike; // is not spike
