@@ -128,6 +128,9 @@ class FormulaMeasurementLogs extends BaseCommand
 								->where("parameter_id={$parameter->id}")
 								->orderBy("id","desc")
 								->first()->value ?? 0;
+							if($lastValue < 0){
+								$lastValue = 0;
+							}
 							// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
 							switch ($parameter->code) {
 								case 'co':
