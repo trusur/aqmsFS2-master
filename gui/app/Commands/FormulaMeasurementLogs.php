@@ -148,6 +148,7 @@ class FormulaMeasurementLogs extends BaseCommand
 							// Check is Spike
 							$isSpike = $measured > $acceptedValue ? true : false;
 							$isInsertLog = !$isSpike; // is not spike
+							CLI::write("[{$parameter->code}] {$measured} > {$acceptedValue} : {$isSpike}");
 						}
 						
 
