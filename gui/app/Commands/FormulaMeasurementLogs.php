@@ -127,32 +127,37 @@ class FormulaMeasurementLogs extends BaseCommand
 								->select("id,value")
 								->where("parameter_id={$parameter->id}")
 								->orderBy("id","desc")
-								->first()->value ?? 0;
-							if($lastValue < 0){
-								$lastValue = 0;
+								->first()->value;
+							if($lastValue){
+								if($lastValue < 0){
+									$lastValue = 0;
+								}
+								$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
+								// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
+								switch ($parameter->code) {
+									case 'co':
+										$acceptedValue = $lastValue + ($lastValue * 10/100); // 10%
+										break;
+									case 'so2':
+									case 'hc':
+									default:
+										$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
+										break;
+									case 'o3':
+										$acceptedValue = $lastValue + ($lastValue * 30/100); // 30%
+										break;
+									case 'no2':
+										$acceptedValue = $lastValue +  ($lastValue * 40/100); // 40%
+										break;
+								}
+								// Check is Spike
+								$isSpike = $measured > $acceptedValue ? true : false;
+								$isInsertLog = !$isSpike; // is not spike
+								CLI::write("[{$parameter->code}] (last val : {$lastValue}) | {$measured} > {$acceptedValue} : {$isSpike}");
+							}else{
+								$isInsertLog = true;
 							}
-							$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
-							// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
-							switch ($parameter->code) {
-								case 'co':
-									$acceptedValue = $lastValue + ($lastValue * 10/100); // 10%
-									break;
-								case 'so2':
-								case 'hc':
-								default:
-									$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
-									break;
-								case 'o3':
-									$acceptedValue = $lastValue + ($lastValue * 30/100); // 30%
-									break;
-								case 'no2':
-									$acceptedValue = $lastValue +  ($lastValue * 40/100); // 40%
-									break;
-							}
-							// Check is Spike
-							$isSpike = $measured > $acceptedValue ? true : false;
-							$isInsertLog = !$isSpike; // is not spike
-							CLI::write("[{$parameter->code}] (last val : {$lastValue}) | {$measured} > {$acceptedValue} : {$isSpike}");
+							
 						}
 						
 
