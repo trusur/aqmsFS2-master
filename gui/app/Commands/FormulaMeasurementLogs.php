@@ -131,6 +131,7 @@ class FormulaMeasurementLogs extends BaseCommand
 							if($lastValue < 0){
 								$lastValue = 0;
 							}
+							$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
 							// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
 							switch ($parameter->code) {
 								case 'co':
