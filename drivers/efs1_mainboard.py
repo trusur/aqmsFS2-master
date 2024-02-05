@@ -137,7 +137,7 @@ def pump_speed():
     if pump_speed != current_speed:
         current_speed = pump_speed
         time.sleep(1)
-        print("pump.speed." + str(current_speed) + "#")
+        # print("pump.speed." + str(current_speed) + "#")
         ser.write(bytes('pump.speed.' + str(current_speed) + "#",'utf-8'))
     data = ser.readline().decode('utf-8').strip('/r/n')
 
@@ -145,9 +145,9 @@ def pump_speed():
 def membrasens_zero():
     global is_zero_calibrating
     try:        
-        print("Zeroing...")
+        # print("Zeroing...")
         is_zero_calibrating = False
-        print("data.membrasens.zero#")
+        # print("data.membrasens.zero#")
         ser.write(bytes("data.membrasens.zero#",'utf-8'))
                 
         mycursor.execute("SELECT content FROM configurations WHERE name LIKE 'calibrator_name'")
@@ -197,7 +197,7 @@ def membrasens_span():
             print("Spaning...")
             print("Port : " + str(port))
             print("Span Concentration: " + str(span))
-            print("data.membrasens.span." + str(port) + "." + str(span) + "#")
+            # print("data.membrasens.span." + str(port) + "." + str(span) + "#")
             ser.write(bytes("data.membrasens.span." + str(port) + "." + str(span) + "#",'utf-8'))
             time.sleep(1)
         
