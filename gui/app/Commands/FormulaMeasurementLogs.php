@@ -121,7 +121,17 @@ class FormulaMeasurementLogs extends BaseCommand
 						}
 						$isInsertLog = true;
 						if($parameter->p_type == "gas"){
-							
+							try{
+								$last10data = $this->measurement_logs->where("parameter_id={$parameter->id}")->orderBy("id DESC")->limit(10)->findAll();
+								$dataset = [$measured];
+								foreach($last10data as $data){
+									$dataset[] = $data->value;
+								}
+								$dataset = $this->remove_outliers($dataset);
+								$measured = array_sum($dataset) / count($dataset);
+							}catch(Exception $e){
+								CLI::write("Error Applying Remove Outliers: ".$e->getMessage());
+							}
 						}					
 
 						$this->insert_logs([
@@ -168,4 +178,13 @@ class FormulaMeasurementLogs extends BaseCommand
 			return false;
 		}
 	}
+	public function remove_outliers($dataset, $magnitude = 1) {
+		function sd_square($x, $mean) {
+			return pow($x - $mean, 2);
+		}
+        $count = count($dataset);
+        $mean = array_sum($dataset) / $count; // Calculate the mean
+        $deviation = sqrt(array_sum(array_map("sd_square", $dataset, array_fill(0, $count, $mean))) / $count) * $magnitude; // Calculate standard deviation and times by magnitude
+        return array_filter($dataset, function($x) use ($mean, $deviation) { return ($x <= $mean + $deviation && $x >= $mean - $deviation); }); // Return filtered array of values that lie within $mean +- $deviation.
+    }
 }
