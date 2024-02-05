@@ -109,55 +109,20 @@ class FormulaMeasurementLogs extends BaseCommand
 					try{
 						$measured = 0;
 						$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
-						// Check Is Raw Value from Motherboard Sensor
-						// if(count(explode($sensor_value->value,";")) == 1){
 						try{
 							eval("\$measured = $parameter->formula ?? -1;");
 							$raw = $measured;
 						}catch(ParseError | Error | DivisionByZeroError $e){
-							$measured = -1;
-							$raw = -1;
+							$measured = 0;
+							$raw = 0;
 						}catch(Exception $e){
-							$measured = -1;
-							$raw = -1;
+							$measured = 0;
+							$raw = 0;
 						}
-						// }
 						$isInsertLog = true;
 						if($parameter->p_type == "gas"){
-							$lastValue = $this->measurement_logs
-								->select("id,value")
-								->where("parameter_id={$parameter->id}")
-								->orderBy("id","desc")
-								->first()->value ?? null;
-							if($lastValue){
-								$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
-								// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
-								switch ($parameter->code) {
-									case 'co':
-										$acceptedValue = $lastValue + ($lastValue * 10/100); // 10%
-										break;
-									case 'so2':
-									case 'hc':
-									default:
-										$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
-										break;
-									case 'o3':
-										$acceptedValue = $lastValue + ($lastValue * 30/100); // 30%
-										break;
-									case 'no2':
-										$acceptedValue = $lastValue +  ($lastValue * 40/100); // 40%
-										break;
-								}
-								// Check is Spike
-								$isSpike = $measured > $acceptedValue ? true : false;
-								$isInsertLog = !$isSpike; // is not spike
-								CLI::write("[{$parameter->code}] (last val : {$lastValue}) | {$measured} > {$acceptedValue} : {$isSpike}");
-							}else{
-								$isInsertLog = true;
-							}
 							
-						}
-						
+						}					
 
 						$this->insert_logs([
 							"parameter_id" => $parameter->id,
