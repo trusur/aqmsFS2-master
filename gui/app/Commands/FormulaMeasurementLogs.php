@@ -12,6 +12,7 @@ use App\Models\m_measurement_history;
 use App\Models\m_parameter;
 use App\Models\m_formula_reference;
 use App\Models\m_realtime_value;
+use DivisionByZeroError;
 use Error;
 use Exception;
 use ParseError;
@@ -108,30 +109,27 @@ class FormulaMeasurementLogs extends BaseCommand
 					try{
 						$measured = 0;
 						$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
-						// Check Is Raw Value bhFrom Motherboard Sensor
-						if(count(explode($sensor_value->value,";")) == 1){
-							try{
-								eval("\$measured = $parameter->formula ?? -1;");
-								$raw = $measured;
-							}catch(ParseError | Error $e){
-								$measured = -1;
-								$raw = -1;
-							}catch(Exception $e){
-								$measured = -1;
-								$raw = -1;
-							}
+						// Check Is Raw Value from Motherboard Sensor
+						// if(count(explode($sensor_value->value,";")) == 1){
+						try{
+							eval("\$measured = $parameter->formula ?? -1;");
+							$raw = $measured;
+						}catch(ParseError | Error | DivisionByZeroError $e){
+							$measured = -1;
+							$raw = -1;
+						}catch(Exception $e){
+							$measured = -1;
+							$raw = -1;
 						}
+						// }
 						$isInsertLog = true;
 						if($parameter->p_type == "gas"){
 							$lastValue = $this->measurement_logs
 								->select("id,value")
 								->where("parameter_id={$parameter->id}")
 								->orderBy("id","desc")
-								->first()->value;
+								->first()->value ?? null;
 							if($lastValue){
-								if($lastValue < 0){
-									$lastValue = 0;
-								}
 								$acceptedValue = $lastValue + ($lastValue * 50/100); // 50%
 								// $lastValue = $this->realtime_value->where("parameter_id={$parameter->id}")->first()->measured ?? 0; 
 								switch ($parameter->code) {
