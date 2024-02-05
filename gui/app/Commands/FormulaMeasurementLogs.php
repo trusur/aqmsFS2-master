@@ -122,19 +122,22 @@ class FormulaMeasurementLogs extends BaseCommand
 						$isInsertLog = true;
 						if($parameter->p_type == "gas"){
 							try{
-								// print("{$parameter->code}\n");
+								$dataset = [];
+								print("{$parameter->code}\n");
 								$last3data = $this->measurement_logs->where("parameter_id={$parameter->id}")
 									->orderBy("id","desc")->findAll(3);
 								$dataset[] = $measured;
 								foreach($last3data as $data){
-									$dataset[] = $data->value;
+									if(array_search($data->value, $dataset) === false){
+										$dataset[] = $data->value;
+									}
 								}
-								// print("Dataset0: [".implode(', ',$dataset)."]\n");
+								print("Dataset0: [".implode(', ',$dataset)."]\n");
 								$dataset = $this->remove_outliers($dataset);
 								$measured = round(array_sum($dataset) / count($dataset),3);
 								$raw = $measured;
-								// print("Dataset1: [".implode(', ',$dataset)."]\n");
-								// print("Measured : $measured\n");
+								print("Removed: [".implode(', ',$dataset)."]\n");
+								print("Measured : $measured\n");
 							}catch(Exception $e){
 								CLI::write("Error Applying Remove Outliers: ".$e->getMessage());
 							}
