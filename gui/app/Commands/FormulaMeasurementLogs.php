@@ -135,7 +135,7 @@ class FormulaMeasurementLogs extends BaseCommand
 								}
 								print("Dataset0: [".implode(', ',$dataset)."]\n");
 								$dataset = $this->remove_outliers($dataset);
-								$measured = round(array_sum($dataset) / count($dataset),0);
+								$measured = round(array_sum($dataset) / count($dataset),1);
 								$raw = $measured;
 								print("Removed: [".implode(', ',$dataset)."]\n");
 								print("Measured : $measured\n");
