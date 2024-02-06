@@ -122,10 +122,11 @@ class FormulaMeasurementLogs extends BaseCommand
 						$isInsertLog = true;
 						if($parameter->p_type == "gas"){
 							try{
+								$measured = $measured < 0 ? 0 : $measured;
 								$dataset = [];
 								print("{$parameter->code}\n");
 								$last3data = $this->measurement_logs->where("parameter_id={$parameter->id}")
-									->orderBy("id","desc")->findAll(3);
+									->orderBy("id","desc")->findAll(2);
 								$dataset[] = $measured;
 								foreach($last3data as $data){
 									if(array_search($data->value, $dataset) === false){
