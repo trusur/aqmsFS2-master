@@ -135,8 +135,14 @@ class FormulaMeasurementLogs extends BaseCommand
 								}
 								print("Dataset0: [".implode(', ',$dataset)."]\n");
 								$dataset = $this->remove_outliers($dataset);
-								$measured = round(array_sum($dataset) / count($dataset),1);
-								$raw = $measured;
+								try{
+									$measured = round(array_sum($dataset) / count($dataset),1);
+									$raw = $measured;
+								}catch(DivisionByZeroError | Exception $e){
+									CLI::write("Error Averaging: ".$e->getMessage());
+									$measured = 0;
+									$raw = 0;
+								}
 								print("Removed: [".implode(', ',$dataset)."]\n");
 								print("Measured : $measured\n");
 							}catch(Exception $e){
