@@ -135,7 +135,7 @@ class MeasurementAveraging extends BaseCommand
 			}
 			// $this->measurement_logs->set(["is_averaged" => 1])->where("id BETWEEN '" . $measurement_logs["id_start"] . "' AND '" . $measurement_logs["id_end"] . "'")->update();
 			// $this->measurement_logs->where("id BETWEEN '" . $measurement_logs["id_start"] . "' AND '" . $measurement_logs["id_end"] . "'")->delete();
-			$this->measurement_logs->truncate();
+			// $this->measurement_logs->truncate();
 		}
 	}
 
