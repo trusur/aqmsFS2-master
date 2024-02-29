@@ -134,7 +134,7 @@ class Sentdata1min extends BaseCommand
 						} else {
 							if (strpos(" " . $response, "success") > 0) {
 								$this->measurements->where(["time_group" => $time_group->time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-								$this->measurements->where(["time_group" => $time_group])->delete();
+								// $this->measurements->where(["time_group" => $time_group])->delete();
 							} else {
 								echo $response;
 							}
