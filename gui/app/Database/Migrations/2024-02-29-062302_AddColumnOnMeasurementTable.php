@@ -13,7 +13,7 @@ class AddColumnOnMeasurementTable extends Migration
                 "type" => "INT",
                 "default" => 0,
                 "null" => true,
-                "after" => "ppm_value",
+                "after" => "sensor_value",
             ],
             "total_valid" => [
                 "type" => "INT",
