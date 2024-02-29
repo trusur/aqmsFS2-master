@@ -59,7 +59,7 @@ class Average30Min extends BaseCommand
     public function run(array $params)
     {
         $Mmeasurement1Min = new \App\Models\m_measurement_1min();
-        $Mmeasurement = new \App\Models\m_measurement_log();
+        $Mmeasurement = new \App\Models\m_measurement();
         $Mparameter = new \App\Models\m_parameter();
         $Mconfiguration = new \App\Models\m_configuration();
 
