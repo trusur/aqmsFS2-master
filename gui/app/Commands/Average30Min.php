@@ -167,7 +167,7 @@ class Average30Min extends BaseCommand
                     "sensor_value" => $avg,
                     "is_valid" => $this->isValid($parameter->code, $avg),
                     "total_data" => $totalData,
-                    "total_invalid" => $totalInvalid,
+                    "total_valid" => ($totalData - $totalInvalid),
                     "time_group" => date("Y-m-d $hour:$minute:00"),
                 ];
                 $isExist = $Mmeasurement->where("parameter_id = {$parameter->id} AND time_group = '{$measurement['time_group']}'")->first();
