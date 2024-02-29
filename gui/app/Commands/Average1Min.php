@@ -114,6 +114,7 @@ class Average1Min extends BaseCommand
                 try{
                     $avgFilter = round(array_sum($valueArr) / count($valueArr),2);
                 }catch(DivisionByZeroError | Exception $e){
+                    CLI::write("Error Average:". $e->getMessage(), 'red');
                     $avgFilter = null;
                 }
                 if(!$avgFilter){

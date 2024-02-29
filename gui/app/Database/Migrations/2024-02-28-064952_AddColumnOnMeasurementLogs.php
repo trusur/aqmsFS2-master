@@ -42,6 +42,6 @@ class AddColumnOnMeasurementLogs extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('measurement_logs', ['is_valid','remark','time_group']);
+        $this->forge->dropColumn('measurement_logs', ['is_valid','remark','time_group', 'is_sent_cloud','sent_cloud_at']);
     }
 }
