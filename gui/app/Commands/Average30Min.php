@@ -78,7 +78,7 @@ class Average30Min extends BaseCommand
         foreach ($parameters as $parameter) {
             /* Get value from specific parameter */
             $data[$parameter->id] = [];
-            $invalidData[$parameter->id] = [];
+            $invalidData[$parameter->id]['value'] = [];
             $values = $Mmeasurement1Min
                 ->select("id,value")
                 ->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group <= '{$endAt}'")
@@ -104,6 +104,7 @@ class Average30Min extends BaseCommand
                     $invalidData[$parameter->id]['id'][] = $value->id;
                     $invalidData[$parameter->id]['value'][] = $value->value;
                     $invalidData[$parameter->id]['code'][] = 13;
+                    continue;
                 }
 
                 /*4. Validate flat data */
@@ -133,7 +134,7 @@ class Average30Min extends BaseCommand
             }catch(DivisionByZeroError | Exception $e){
                 $percentageValid = 0;
             }
-            foreach ($data as $valueArr) {
+            foreach ($data[$parameter->id] as $valueArr) {
                 try{
                     if(empty($valueArr['all'])){
                         continue;
