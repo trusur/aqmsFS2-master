@@ -36,13 +36,13 @@ class CreateTableMeasurement1mins extends Migration
                 'null' => true
             ],
             'is_averaged' => [
-                'type' => 'tinyint',
-                'constraint' => 1,
+                'type' => 'smallint',
+                'constraint' => 2,
                 'default' => 0
             ],
             'is_valid' => [
-                'type' => 'tinyint',
-                'constraint' => 1,
+                'type' => 'smallint',
+                'constraint' => 2,
                 'default' => 0
             ],
             'time_group' => [
