@@ -60,6 +60,7 @@ class Average30Min extends BaseCommand
     {
         $Mmeasurement1Min = new \App\Models\m_measurement_1min();
         $Mmeasurement = new \App\Models\m_measurement();
+        $MmeasurementLog = new \App\Models\m_measurement_log();
         $Mparameter = new \App\Models\m_parameter();
         $Mconfiguration = new \App\Models\m_configuration();
 
@@ -73,7 +74,7 @@ class Average30Min extends BaseCommand
 
         $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate') and is_view = 1")->findAll();
         $data = [];
-        /* Get All Parameters */
+        /* Get All Parameters Gas & Particulate*/
         foreach ($parameters as $parameter) {
             /* Get value from specific parameter */
             $data[$parameter->id] = [];
@@ -168,8 +169,8 @@ class Average30Min extends BaseCommand
                 if($avg){
                     $measurement = [
                         "parameter_id" => $parameter->id,
-                        "value" => $avg,
-                        "sensor_value" => $avg,
+                        "value" => round($avg,0),
+                        "sensor_value" => round($avg,0),
                         "is_valid" => $this->isValid($parameter->code, $avg),
                         "total_data" => $totalData,
                         "total_valid" => ($totalData - $totalInvalid),
@@ -183,6 +184,25 @@ class Average30Min extends BaseCommand
                     }
                 }
 
+            }
+        }
+        $meteorologies = $Mparameter->where("p_type = 'weather'")->findAll();
+        foreach ($meteorologies as $parameter) {
+            $value = $MmeasurementLog->where("parameter_id = {$parameter->id} AND time_group = '{$startAt}'")->first();
+            $measurement = [
+                "parameter_id" => $parameter->id,
+                "value" => round($value->value,0),
+                "sensor_value" => round($value->value,0),
+                "is_valid" => 1,
+                "total_data" => 1,
+                "total_valid" => 1,
+                "time_group" => date("Y-m-d $hour:$minute:00"),
+            ];
+            $isExist = $Mmeasurement->where("parameter_id = {$parameter->id} AND time_group = '{$measurement['time_group']}'")->first();
+            if($isExist){
+                $Mmeasurement->update($isExist->id, $measurement);
+            }else{
+                $Mmeasurement->insert($measurement);
             }
         }
         /*
