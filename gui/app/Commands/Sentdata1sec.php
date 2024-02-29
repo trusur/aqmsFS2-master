@@ -94,7 +94,6 @@ class Sentdata1sec extends BaseCommand
 						$arr[$parameter->code] = $measurement->value;
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
-							$arr["total_{$parameter->code}"] = $measurement->total_data;
 						}
 						$measurement_ids[] = $measurement->id; 
 					}
@@ -132,7 +131,6 @@ class Sentdata1sec extends BaseCommand
 						if ($err) {
 							echo "cURL Error #:" . $err;
 						} else {
-							dd($response);
 							if (strpos(" " . $response, "success") > 0) {
 								$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
 								$this->measurements->where(["time_group" => $time_group])->delete();
