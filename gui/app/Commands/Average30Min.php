@@ -88,7 +88,7 @@ class Average30Min extends BaseCommand
                 $data[$parameter->id]['all'][] = $value->value;
                 /*1. Validate Nol atau Minus */
                 if($value->value <= 0){
-                    $Mmeasurement1Min->update($value->id, ['invalid' => 12]);
+                    $Mmeasurement1Min->update($value->id, ['is_valid' => 12]);
                     $invalidData[$parameter->id][]['id'] = $value->id;
                     $invalidData[$parameter->id][]['value'] = $value->value;
                     $invalidData[$parameter->id][]['code'] = 12;
@@ -98,7 +98,7 @@ class Average30Min extends BaseCommand
 
                 /*3. Validate with baku mutu */
                 if($value->value > (2*$parameter->bakumutu)){
-                    $Mmeasurement1Min->update($value->id, ['invalid' => 13]);
+                    $Mmeasurement1Min->update($value->id, ['is_valid' => 13]);
                     $invalidData[$parameter->id][]['id'] = $value->id;
                     $invalidData[$parameter->id][]['value'] = $value->value;
                     $invalidData[$parameter->id][]['code'] = 13;
@@ -112,14 +112,14 @@ class Average30Min extends BaseCommand
                     }
                 }
                 if($isFlat){
-                    $Mmeasurement1Min->update($value->id, ['invalid' => 14]);
+                    $Mmeasurement1Min->update($value->id, ['is_valid' => 14]);
                     $invalidData[$parameter->id][]['id'] = $value->value;
                     $invalidData[$parameter->id][]['value'] = $value->value;
                     $invalidData[$parameter->id][]['code'] = 14;
                     continue;
                 }
                 /* Add value to array */
-                $Mmeasurement1Min->update($value->id, ['invalid' => 15]);
+                $Mmeasurement1Min->update($value->id, ['is_valid' => 15]);
                 $data[$parameter->id]['valid'][] = $value->value;
             }
             $totalData = count($values);
