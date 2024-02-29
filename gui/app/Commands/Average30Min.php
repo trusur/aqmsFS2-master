@@ -186,9 +186,38 @@ class Average30Min extends BaseCommand
 
             }
         }
-        $meteorologies = $Mparameter->where("p_type = 'weather'")->findAll();
+        /* Meteorology */
+        $meteorologies = $Mparameter->where("p_type = 'weather' and is_view = 1")->findAll();
         foreach ($meteorologies as $parameter) {
-            $value = $MmeasurementLog->where("parameter_id = {$parameter->id} AND time_group = '{$startAt}'")->first();
+            $value = $MmeasurementLog->where("parameter_id = {$parameter->id} AND time_group = '{$endAt}'")->first();
+            if(!$value){
+                continue;
+            }
+            $measurement = [
+                "parameter_id" => $parameter->id,
+                "value" => round($value->value,0),
+                "sensor_value" => round($value->value,0),
+                "is_valid" => 1,
+                "total_data" => 1,
+                "total_valid" => 1,
+                "time_group" => date("Y-m-d $hour:$minute:00"),
+            ];
+            $isExist = $Mmeasurement->where("parameter_id = {$parameter->id} AND time_group = '{$measurement['time_group']}'")->first();
+            if($isExist){
+                $Mmeasurement->update($isExist->id, $measurement);
+            }else{
+                $Mmeasurement->insert($measurement);
+            }
+        }
+        /* Particulate Flow */
+        $pmFlows = $Mparameter->where("p_type = 'particulate_flow' and is_view = 1")->findAll();
+        foreach ($pmFlows as $parameter) {
+            $value = $MmeasurementLog->select("avg(value) as value")
+                ->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group <= '{$endAt}'")
+                ->first();
+            if(!$value){
+                continue;
+            }
             $measurement = [
                 "parameter_id" => $parameter->id,
                 "value" => round($value->value,0),
