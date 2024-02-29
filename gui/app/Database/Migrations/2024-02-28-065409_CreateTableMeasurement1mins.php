@@ -35,6 +35,16 @@ class CreateTableMeasurement1mins extends Migration
                 'default' => 0,
                 'null' => true
             ],
+            'is_sent_cloud' => [
+                'type' => 'smallint',
+                'constraint' => 2,
+                'default' => 0
+            ],
+            'sent_cloud_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'default' => null
+            ],
             'is_averaged' => [
                 'type' => 'smallint',
                 'constraint' => 2,

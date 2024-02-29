@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Models\m_configuration;
 use App\Models\m_measurement;
+use App\Models\m_measurement_1min;
 use App\Models\m_measurement_log;
 use App\Models\m_parameter;
 use App\Models\m_sensor_value;
@@ -21,6 +22,7 @@ class Sentdata extends BaseCommand
 	protected $parameters;
 	protected $sensor_values;
 	protected $measurement_logs;
+	protected $measurements;
 	protected $configurations;
 	protected $lastPutData;
 
@@ -52,7 +54,7 @@ class Sentdata extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'command:name [arguments] [options]';
+	protected $usage = 'command:sentdata';
 
 	/**
 	 * The Command's Arguments
@@ -76,39 +78,34 @@ class Sentdata extends BaseCommand
 	public function run(array $params)
 	{
 		while (true) {
-			$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->findAll()[0]->content;
+			$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
 			if ($is_sentto_trusur == "1") {
-				$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->findAll()[0]->content;
+				$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
 				$measurement_ids = "";
 				$is_exist = false;
-				$arr["id_stasiun"] = @$this->configurations->where("name", "id_stasiun")->findAll()[0]->content;
+				$arr["id_stasiun"] = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 
-				$time_group = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->findAll()[0]->time_group;
+				$time_group = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
 				if ($time_group) {
 					$is_exist = true;
 					$arr["waktu"] = $time_group;
 					$measurements = @$this->measurements->where(["time_group" => $time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll();
 					foreach ($measurements as $measurement) {
-						$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->findAll()[0];
+						$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
 						$arr[$parameter->code] = $measurement->value;
+						if($parameter->p_type == "particulate" || $parameter->p_type == "gas"){
+							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
+							$arr["total_{$parameter->code}"] = $measurement->total_data;
+							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
+						}
 						$measurement_ids .= $measurement->id . ",";
 					}
 				}
-
-				// foreach ($this->parameters->where("is_view", 1)->findAll() as $parameter) {
-				// 	$measurement = @$this->measurements->where(["parameter_id" => $parameter->id, "is_sent_cloud" => 0])->orderBy("id")->findAll()[0];
-				// 	if ($measurement) {
-				// 		$arr["waktu"] = date("Y-m-d H:i:00", strtotime($measurement->xtimestamp));
-				// 		$arr[$parameter->code] = $measurement->value;
-				// 		if ($measurement->value) $is_exist = true;
-				// 		$measurement_ids .= $measurement->id . ",";
-				// 	}
-				// }
 				$measurement_ids = substr($measurement_ids, 0, -1);
 				if ($is_exist) {
-					$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->findAll()[0]->content;
-					$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->findAll()[0]->content;
-					$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->findAll()[0]->content;
+					$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
+					$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
+					$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
 					$data = json_encode($arr);
 					$curl = curl_init();
 					curl_setopt_array($curl, array(
@@ -139,7 +136,6 @@ class Sentdata extends BaseCommand
 					} else {
 						if (strpos(" " . $response, "success") > 0) {
 							$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-							// $this->measurements->where("id IN (" . $measurement_ids . ")")->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
 						} else {
 							echo $response;
 						}

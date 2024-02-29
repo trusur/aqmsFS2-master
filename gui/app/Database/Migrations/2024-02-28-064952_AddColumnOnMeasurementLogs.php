@@ -21,6 +21,16 @@ class AddColumnOnMeasurementLogs extends Migration
                 'null' => true,
                 'after' => 'is_valid',
            ],
+           'is_sent_cloud' => [
+                'type' => 'smallint',
+                'constraint' => 2,
+                'default' => 0
+            ],
+            'sent_cloud_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'default' => null
+            ],
            'time_group' => [
                'type' => 'DATETIME',
                'null' => true,

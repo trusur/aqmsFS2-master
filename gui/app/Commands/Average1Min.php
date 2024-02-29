@@ -67,8 +67,6 @@ class Average1Min extends BaseCommand
         $endAt = date("Y-m-d H:i:00");
 
         $interval = $Mconfiguration->where("name", "data_interval")->first()->content ?? 30;
-        $hour = date('H');
-        $minute = (date('i')>$interval)? $interval :'00';
 
 
         $parameters = $Mparameter->select("id,name,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
@@ -123,7 +121,7 @@ class Average1Min extends BaseCommand
                     "total_valid" => count($valueArr),
                     "total_data" => count($values),
                     "is_averaged" => 0,
-                    "time_group" => date("Y-m-d $hour:$minute:00"),
+                    "time_group" => $endAt,
                 ];
                 $Mmeasurement1Min->insert($measurement1min);
             }

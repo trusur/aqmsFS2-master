@@ -119,50 +119,14 @@ class FormulaMeasurementLogs extends BaseCommand
 							$measured = 0;
 							$raw = 0;
 						}
-						$isInsertLog = true;
-						if($parameter->p_type == "particulate"){
-							if($measured <= 0){
-								$lastValue = $this->measurement_logs
-									->where("parameter_id='{$parameter->id}' and value != 0")
-									->orderBy("id","desc")->first();
-								$measured = $lastValue->value ?? 0;
-							}
-						}
-						if($parameter->p_type == "gas"){
-							// try{
-							// 	$measured = $measured < 0 ? 0 : $measured;
-							// 	$dataset = [];
-							// 	// print("{$parameter->code}\n");
-							// 	$last3data = $this->measurement_logs->where("parameter_id={$parameter->id}")
-							// 		->orderBy("id","desc")->findAll(2);
-							// 	$dataset[] = $measured;
-							// 	foreach($last3data as $data){
-							// 		if(array_search($data->value, $dataset) === false){
-							// 			$dataset[] = $data->value;
-							// 		}
-							// 	}
-							// 	// print("Dataset0: [".implode(', ',$dataset)."]\n");
-							// 	$dataset = $this->remove_outliers($dataset);
-							// 	try{
-							// 		$measured = round(array_sum($dataset) / count($dataset),1);
-							// 		$raw = $measured;
-							// 	}catch(DivisionByZeroError | Exception $e){
-							// 		CLI::write("Error Averaging: ".$e->getMessage());
-							// 		$measured = 0;
-							// 		$raw = 0;
-							// 	}
-							// 	// print("Removed: [".implode(', ',$dataset)."]\n");
-							// 	// print("Measured : $measured\n");
-							// }catch(Exception $e){
-							// 	CLI::write("Error Applying Remove Outliers: ".$e->getMessage());
-							// }
-						}					
+						$isInsertLog = true;		
 
 						$this->insert_logs([
 							"parameter_id" => $parameter->id,
 							"value" => $measured,
 							"sensor_value" => $raw,
 							"is_averaged" => 0,
+							"time_group" => date("Y-m-d H:i:s"),
 						], $isInsertLog);
 
 					}catch(Exception $e){
