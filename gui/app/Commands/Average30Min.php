@@ -125,7 +125,7 @@ class Average30Min extends BaseCommand
             $totalData = count($values);
             $totalInvalid = count(array_map(function($arr){
                 return $arr['value'];
-            }, $invalidData));
+            }, $invalidData[$parameter->id]));
             $percentageValid = round(($totalData - $totalInvalid) / $totalData * 100, 2);
             foreach ($data as $valueArr) {
                 try{
