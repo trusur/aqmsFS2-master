@@ -69,7 +69,7 @@ class Average1Min extends BaseCommand
         $interval = $Mconfiguration->where("name", "data_interval")->first()->content ?? 30;
 
 
-        $parameters = $Mparameter->select("id,name,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
+        $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
         $data = [];
         $invalidID = [];
         /* Get All Parameters */

@@ -71,7 +71,7 @@ class Average30Min extends BaseCommand
         $minute = (date('i')>$interval)? $interval :'00';
 
 
-        $parameters = $Mparameter->select("id,name,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
+        $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
         $data = [];
         /* Get All Parameters */
         foreach ($parameters as $parameter) {
