@@ -159,7 +159,7 @@ class Average30Min extends BaseCommand
                                 $id = $invalidData[$parameter->id]['id'][$i];
                                 $code = $invalidData[$parameter->id]['code'][$i];
                                 $Mmeasurement1Min->update($id, ['is_valid' => $code]);
-                            }                            
+                            }                           
                         }
                     }
                 }catch(DivisionByZeroError | Exception $e){

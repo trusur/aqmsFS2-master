@@ -94,6 +94,7 @@ class Average1Min extends BaseCommand
                 /*3. Validate with baku mutu */
                 if($value->value > (2*$parameter->bakumutu)){
                     $invalidID[] = $value->id;
+                    continue;
                 }
 
                 /*4. Validate flat data */
