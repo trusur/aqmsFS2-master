@@ -159,6 +159,7 @@ class Average30Min extends BaseCommand
                     }
                 }catch(DivisionByZeroError | Exception $e){
                     $avg = null;
+                    CLI::error("Error Average 30 min : ".$e->getMessage());
                     log_message("error","Error Average 30 min : ".$e->getMessage());
                 }
                 $measurement = [
