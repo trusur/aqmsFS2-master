@@ -165,7 +165,7 @@ class Average30Min extends BaseCommand
                     "parameter_id" => $parameter->id,
                     "value" => $avg,
                     "sensor_value" => $avg,
-                    "is_invalid" => $this->isValid($parameter->code, $avg),
+                    "is_valid" => $this->isValid($parameter->code, $avg),
                     "total_data" => $totalData,
                     "total_invalid" => $totalInvalid,
                     "time_group" => date("Y-m-d $hour:$minute:00"),
