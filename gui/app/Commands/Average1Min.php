@@ -69,7 +69,7 @@ class Average1Min extends BaseCommand
         $interval = $Mconfiguration->where("name", "data_interval")->first()->content ?? 30;
 
 
-        $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
+        $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate') and is_view = 1")->findAll();
         $data = [];
         $invalidID = [];
         /* Get All Parameters */
@@ -80,6 +80,7 @@ class Average1Min extends BaseCommand
                 ->select("id,value")
                 ->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group <= '{$endAt}'")
                 ->findAll();
+            CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
             $isFlat = false;
             $flatCount = 0;
             foreach ($values as $i => $value) {
@@ -111,9 +112,12 @@ class Average1Min extends BaseCommand
             }
             foreach ($data as $valueArr) {
                 try{
-                    $avgFilter = array_sum($valueArr) / count($valueArr);
+                    $avgFilter = round(array_sum($valueArr) / count($valueArr),2);
                 }catch(DivisionByZeroError | Exception $e){
                     $avgFilter = null;
+                }
+                if(!$avgFilter){
+                    continue;
                 }
                 $measurement1min = [
                     "parameter_id" => $parameter->id,
@@ -126,6 +130,13 @@ class Average1Min extends BaseCommand
                 $Mmeasurement1Min->insert($measurement1min);
             }
         }
-        $MmeasurementLog->whereIn("id", $invalidID)->update(["is_valid" => 0]);
+        if($invalidID){
+            CLI::write("Invalid ID: ".implode(",",$invalidID));
+            try{
+                $MmeasurementLog->whereIn("id", $invalidID)->set(["is_valid" => 0])->update();
+            }catch(Exception $e){
+                CLI::write($e->getMessage());
+            }
+        }
     }
 }

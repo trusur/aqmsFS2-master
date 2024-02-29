@@ -43,7 +43,7 @@ class CreateTableMeasurement1mins extends Migration
             'sent_cloud_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
-                'default' => null
+                'default' => null,
             ],
             'is_averaged' => [
                 'type' => 'smallint',
@@ -58,7 +58,7 @@ class CreateTableMeasurement1mins extends Migration
             'time_group' => [
                 'type' => 'DATETIME',
                 'null' => true,
-                'default' => null
+                'default' => null,
             ],
             'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
         ]);

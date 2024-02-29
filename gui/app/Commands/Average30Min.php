@@ -71,7 +71,7 @@ class Average30Min extends BaseCommand
         $minute = (date('i')>$interval)? $interval :'00';
 
 
-        $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate')")->findAll();
+        $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate') and is_view = 1")->findAll();
         $data = [];
         /* Get All Parameters */
         foreach ($parameters as $parameter) {
@@ -84,6 +84,7 @@ class Average30Min extends BaseCommand
                 ->findAll();
             $isFlat = false;
             $flatCount = 0;
+            CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : " . count($values), 'yellow');
             foreach ($values as $i => $value) {
                 $data[$parameter->id]['all'][] = $value->value;
                 /*1. Validate Nol atau Minus */
@@ -123,9 +124,9 @@ class Average30Min extends BaseCommand
                 $data[$parameter->id]['valid'][] = $value->value;
             }
             $totalData = count($values);
-            $totalInvalid = count(array_map(function($arr){
-                return $arr['value'] ?? [];
-            }, $invalidData[$parameter->id]));
+            $totalInvalid = count($invalidData[$parameter->id]['value']);
+            CLI::write("[$startAt - $endAt] {$parameter->code} " . $totalData . " - " . $totalInvalid, 'yellow');
+            
             try{
                 $percentageValid = round(($totalData - $totalInvalid) / $totalData * 100, 2);
             }catch(DivisionByZeroError | Exception $e){
@@ -144,7 +145,7 @@ class Average30Min extends BaseCommand
                             $avg = array_sum($valueArr['all']) / count($valueArr['all']);
                         }else{
                             // Data Valid tidak lebih dari 80%
-                            $percentageDiff = 80 - $percentageValid;
+                            $percentageDiff = 80-$percentageValid;
                             $sliceArray = ceil(count($invalidData[$parameter->id]['id'])*$percentageDiff/100);
                             usort($valueArr['valid'], function($a, $b){
                                 return $a - $b;
@@ -164,21 +165,24 @@ class Average30Min extends BaseCommand
                     CLI::error("Error Average 30 min : ".$e->getMessage());
                     log_message("error","Error Average 30 min : ".$e->getMessage());
                 }
-                $measurement = [
-                    "parameter_id" => $parameter->id,
-                    "value" => $avg,
-                    "sensor_value" => $avg,
-                    "is_valid" => $this->isValid($parameter->code, $avg),
-                    "total_data" => $totalData,
-                    "total_valid" => ($totalData - $totalInvalid),
-                    "time_group" => date("Y-m-d $hour:$minute:00"),
-                ];
-                $isExist = $Mmeasurement->where("parameter_id = {$parameter->id} AND time_group = '{$measurement['time_group']}'")->first();
-                if($isExist){
-                    $Mmeasurement->update($isExist->id, $measurement);
-                }else{
-                    $Mmeasurement->insert($measurement);
+                if($avg){
+                    $measurement = [
+                        "parameter_id" => $parameter->id,
+                        "value" => $avg,
+                        "sensor_value" => $avg,
+                        "is_valid" => $this->isValid($parameter->code, $avg),
+                        "total_data" => $totalData,
+                        "total_valid" => ($totalData - $totalInvalid),
+                        "time_group" => date("Y-m-d $hour:$minute:00"),
+                    ];
+                    $isExist = $Mmeasurement->where("parameter_id = {$parameter->id} AND time_group = '{$measurement['time_group']}'")->first();
+                    if($isExist){
+                        $Mmeasurement->update($isExist->id, $measurement);
+                    }else{
+                        $Mmeasurement->insert($measurement);
+                    }
                 }
+
             }
         }
         /*
