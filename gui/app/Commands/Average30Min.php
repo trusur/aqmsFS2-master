@@ -63,7 +63,7 @@ class Average30Min extends BaseCommand
         $Mparameter = new \App\Models\m_parameter();
         $Mconfiguration = new \App\Models\m_configuration();
 
-        $startAt = date("Y-m-d H:i:00", strtotime("-1 minutes"));
+        $startAt = date("Y-m-d H:i:00", strtotime("-30 minutes"));
         $endAt = date("Y-m-d H:i:00");
 
         $interval = $Mconfiguration->where("name", "data_interval")->first()->content ?? 30;
@@ -133,8 +133,10 @@ class Average30Min extends BaseCommand
             }
             foreach ($data as $valueArr) {
                 try{
+                    if(empty($valueArr['all'])){
+                        continue;
+                    }
                     if($percentageValid >= 80){
-                        unset($valueArr['all']);
                         $avg = array_sum($valueArr['valid']) / count($valueArr['valid']);
                     }else{
                         if(empty($valueArr['valid'])){
