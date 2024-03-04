@@ -317,6 +317,7 @@ try:
                         time.sleep(0.5)
                     else:
                         print("[X]  MOTHERBOARD ID: " + str(sys.argv[1]))
+                    
                 else:
                     if (is_shutdown == 0) :
                         data = read_sensors()
@@ -336,6 +337,9 @@ try:
                         shutdown()
                     else:
                         break
+                    
+                socket.close()
+                
             except Exception as e:
                 print(e)
 
