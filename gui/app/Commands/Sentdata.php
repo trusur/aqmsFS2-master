@@ -98,7 +98,6 @@ class Sentdata extends BaseCommand
 							$arr["total_{$parameter->code}"] = $measurement->total_data;
 							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
 							$arr["avg_id"] = $measurement->avg_id;
-							$arr["sub_avg_id"] = $measurement->sub_avg_id;
 						}
 						$measurement_ids .= $measurement->id . ",";
 					}
