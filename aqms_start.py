@@ -14,8 +14,8 @@ mydb = db_connect.connecting()
 mycursor = mydb.cursor()
 mycursor.execute("TRUNCATE sensor_values")
 mydb.commit()
-mycursor.execute("TRUNCATE measurement_logs")
-mydb.commit()
+#mycursor.execute("TRUNCATE measurement_logs")
+#mydb.commit()
 
 
 subprocess.Popen("php gui/spark serve > /dev/null 2>&1", shell=True)
