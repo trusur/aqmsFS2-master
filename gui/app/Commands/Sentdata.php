@@ -154,6 +154,10 @@ class Sentdata extends BaseCommand
 					$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
 					$arr[$parameter->code] = $measurement->value;
 					$measurement_ids .= $measurement->id . ",";
+					$arr["stat_{$parameter->code}"] = $measurement->is_valid;
+					$arr["total_{$parameter->code}"] = $measurement->total_data;
+					$arr["avg_id"] = $measurement->avg_id;
+					$arr["sub_avg_id"] = $measurement->sub_avg_id;
 				}
 			}
 			
