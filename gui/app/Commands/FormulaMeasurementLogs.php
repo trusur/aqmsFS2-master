@@ -204,7 +204,7 @@ class FormulaMeasurementLogs extends BaseCommand
 							"value" => $measured,
 							"sensor_value" => $raw,
 							"is_averaged" => 0,
-							"time_group" => date("Y-m-d H:i:00"),
+							"time_group" => date("Y-m-d H:i:s"),
 							"is_valid" => $is_valid,
 							"xtimestamp" => date('Y-m-d H:i:s'),
 						], $isInsertLog);
