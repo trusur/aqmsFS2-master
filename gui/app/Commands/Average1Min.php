@@ -21,7 +21,7 @@ class Average1Min extends BaseCommand
      *
      * @var string
      */
-    protected $name = 'command:average1min';
+    protected $name = 'command:avg1min';
 
     /**
      * The Command's Description
@@ -35,7 +35,7 @@ class Average1Min extends BaseCommand
      *
      * @var string
      */
-    protected $usage = 'command:average1min';
+    protected $usage = 'command:avg1min';
 
     /**
      * The Command's Arguments
@@ -62,83 +62,114 @@ class Average1Min extends BaseCommand
         $MmeasurementLog = new \App\Models\m_measurement_log();
         $Mparameter = new \App\Models\m_parameter();
         $Mconfiguration = new \App\Models\m_configuration();
+		
 
         $startAt = date("Y-m-d H:i:00", strtotime("-1 minutes"));
         $endAt = date("Y-m-d H:i:00");
-
-        $interval = $Mconfiguration->where("name", "data_interval")->first()->content ?? 30;
-
+	
 
         $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate') and is_view = 1")->findAll();
         $data = [];
-        $invalidID = [];
         /* Get All Parameters */
+		$avgid = date('ymdHis');
         foreach ($parameters as $parameter) {
-            /* Get value from specific parameter */
-            $data[$parameter->id] = [];
-            $values = $MmeasurementLog
-                ->select("id,value")
-                ->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group <= '{$endAt}'")
-                ->findAll();
-            CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
-            $isFlat = false;
-            $flatCount = 0;
-            foreach ($values as $i => $value) {
-                /*1. Validate Nol atau Minus */
-                if($value->value <= 0){
-                    $invalidID[] = $value->id;
-                    continue;
-                }
-                /*2. Validate with range */
-
-                /*3. Validate with baku mutu */
-                if($value->value > (2*$parameter->bakumutu)){
-                    $invalidID[] = $value->id;
-                    continue;
-                }
-
-                /*4. Validate flat data */
-                if(!$isFlat && $i > 0 && $values[$i-1]->value == $values[$i]->value && $flatCount <= 10){
-                    $flatCount++;
-                    if($flatCount >= 10){
-                        $isFlat = true;
-                    }
-                }
-                if($isFlat){
-                    continue;
-                }
-
-                /* Add value to array */
-                $data[$parameter->id][] = $value->value;
-            }
-            foreach ($data as $valueArr) {
-                try{
-                    $avgFilter = round(array_sum($valueArr) / count($valueArr),2);
-                }catch(DivisionByZeroError | Exception $e){
-                    CLI::write("Error Average:". $e->getMessage(), 'red');
-                    $avgFilter = null;
-                }
-                if(!$avgFilter){
-                    continue;
-                }
-                $measurement1min = [
-                    "parameter_id" => $parameter->id,
-                    "value" => $avgFilter,
-                    "total_valid" => count($valueArr),
-                    "total_data" => count($values),
-                    "is_averaged" => 0,
-                    "time_group" => $endAt,
-                ];
-                $Mmeasurement1Min->insert($measurement1min);
-            }
-        }
-        if($invalidID){
-            CLI::write("Invalid ID: ".implode(",",$invalidID));
-            try{
-                $MmeasurementLog->whereIn("id", $invalidID)->set(["is_valid" => 0])->update();
-            }catch(Exception $e){
-                CLI::write($e->getMessage());
-            }
+           try{
+				/* Get value from specific parameter */
+				$data[$parameter->id] = [];
+				$values = $MmeasurementLog
+					->select("id,value,is_valid")
+					->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}'")
+					->findAll();
+				CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
+				if(!empty($values)){
+					$vvalue = 0;
+					foreach ($values as $i => $value) {
+						if($value->is_valid == 11){
+							$vvalue += 1;
+						}
+					}
+					if($vvalue > 0){
+						$minData = ($vvalue * 100 / count($values));
+					}else{
+						$minData = 0;
+					}
+					$valuesValid = $MmeasurementLog
+						->select("id,value,is_valid")
+						->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}' and is_valid = 11")
+						->findAll();
+					if($minData >= 80){
+						$is_valid = 11;
+						$tvalue = 0;
+						foreach ($valuesValid as $i => $valueValid) {
+							$tvalue += $valueValid->value;
+							$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueValid->id)->update();
+						}
+						$avgvalue = round($tvalue / count($valuesValid), 2);
+					}else{
+						$is_valid = 19;
+						
+						//check minimum 80%
+						$minJumlData = ((count($values) / 100) * 80);//80% dari total data
+						$addData = $minJumlData - $minData;
+						
+						//valid
+						$tvalueValid = 0;
+						if(!empty($valuesValid)){
+							foreach ($valuesValid as $i => $valueV) {
+								$tvalueValid += $valueV->value;
+								$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
+							}
+							$avgvalueValid = $tvalueValid;
+						}else{
+							$avgvalueValid = 0;
+						}
+						
+						//Nvalid
+						$valuesNValid = $MmeasurementLog
+							->select("id,value,is_valid")
+							->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}' and is_valid != 11")
+							->orderBy('value', 'asc')
+							->findAll($addData);
+						$tvalueNValid = 0;
+						foreach ($valuesNValid as $i => $valueNV) {
+							$tvalueNValid += $valueNV->value;
+							if($valueNV->is_valid == 12){
+								$isValidNum = 16;
+							}else if($valueNV->is_valid == 13){
+								$isValidNum = 17;
+							}else{
+								$isValidNum = 18;
+							}
+							$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => $isValidNum])->where('id', $valueNV->id)->update();
+						}
+						$avgvalueNValid = $tvalueNValid;
+						
+						$avgvalue = round(($avgvalueValid + $avgvalueNValid) / ($minData + $addData), 2);
+						
+					}
+					$measurement1min = [
+							"parameter_id" => $parameter->id,
+							"value" => @$avgvalue,
+							"total_valid" => $vvalue,
+							"total_data" => count($values),
+							"is_averaged" => 0,
+							"is_valid" => $is_valid,
+							"avg_id" => $avgid,
+							"time_group" => $endAt,
+						];
+					//check duplicate value
+					$getLastData = $Mmeasurement1Min->where("parameter_id = '{$parameter->id}' and time_group = '{$endAt}'")->orderby('id', 'desc')->first();
+					if(empty($getLastData)){
+						$Mmeasurement1Min->insert($measurement1min);
+						foreach ($values as $value) {
+							$MmeasurementLog->set(['sub_avg_id' => $avgid])->where('id', $value->id)->update();
+						}
+					}
+				}
+		   }catch(Exception $e){
+				CLI::error($e->getMessage());
+				log_message("error","AVG 1 MIN : ".$e->getMessage());
+		   }
         }
     }
 }

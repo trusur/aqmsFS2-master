@@ -9,11 +9,17 @@ class AddColumnOnMeasurementTable extends Migration
     public function up()
     {
         $this->forge->addColumn('measurements', [
+            "avg_id" => [
+                "type" => "BIGINT",
+                "default" => 0,
+                "null" => true,
+                "after" => "sensor_value",
+            ],
             "total_data" => [
                 "type" => "INT",
                 "default" => 0,
                 "null" => true,
-                "after" => "sensor_value",
+                "after" => "avg_id",
             ],
             "total_valid" => [
                 "type" => "INT",
@@ -32,6 +38,6 @@ class AddColumnOnMeasurementTable extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('measurements', ['total_data','total_valid','is_valid']);
+        $this->forge->dropColumn('measurements', ['avg_id', 'total_data','total_valid','is_valid']);
     }
 }

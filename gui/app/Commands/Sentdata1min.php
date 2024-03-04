@@ -99,6 +99,8 @@ class Sentdata1min extends BaseCommand
 							$arr["total_{$parameter->code}"] = $measurement->total_data;
 						}
 						$measurement_ids[] = $measurement->id; 
+						$arr["avg_id"] = $measurement->avg_id;
+						$arr["sub_avg_id"] = $measurement->sub_avg_id;
 					}
 
 					if ($is_exist) {

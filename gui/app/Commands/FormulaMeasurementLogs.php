@@ -119,14 +119,93 @@ class FormulaMeasurementLogs extends BaseCommand
 							$measured = 0;
 							$raw = 0;
 						}
-						$isInsertLog = true;		
+						$isInsertLog = true;
+						if($parameter->p_type == "particulate"){
+							if($measured <= 0){
+								$lastValue = $this->measurement_logs
+									->where("parameter_id='{$parameter->id}' and value != 0")
+									->orderBy("id","desc")->first();
+								$measured = $lastValue->value ?? 0;
+							}
+						}
+						if($parameter->p_type == "gas"){
+							// try{
+							// 	$measured = $measured < 0 ? 0 : $measured;
+							// 	$dataset = [];
+							// 	// print("{$parameter->code}\n");
+							// 	$last3data = $this->measurement_logs->where("parameter_id={$parameter->id}")
+							// 		->orderBy("id","desc")->findAll(2);
+							// 	$dataset[] = $measured;
+							// 	foreach($last3data as $data){
+							// 		if(array_search($data->value, $dataset) === false){
+							// 			$dataset[] = $data->value;
+							// 		}
+							// 	}
+							// 	// print("Dataset0: [".implode(', ',$dataset)."]\n");
+							// 	$dataset = $this->remove_outliers($dataset);
+							// 	try{
+							// 		$measured = round(array_sum($dataset) / count($dataset),1);
+							// 		$raw = $measured;
+							// 	}catch(DivisionByZeroError | Exception $e){
+							// 		CLI::write("Error Averaging: ".$e->getMessage());
+							// 		$measured = 0;
+							// 		$raw = 0;
+							// 	}
+							// 	// print("Removed: [".implode(', ',$dataset)."]\n");
+							// 	// print("Measured : $measured\n");
+							// }catch(Exception $e){
+							// 	CLI::write("Error Applying Remove Outliers: ".$e->getMessage());
+							// }
+						}
+						
+						$is_valid = '';
+						//START VALIDIASI
+						if(!empty($parameter->range_max)){
+							if($measured <= 0){
+								//validasi Abnormal
+								$is_valid = 12;
+							}else if($measured > $parameter->range_max){
+								//out of range
+								$is_valid = 13;
+							}else{
+								//check data Flat
+								$lastValue = $this->measurement_logs
+										->where("parameter_id='{$parameter->id}'")
+										->orderBy("id","desc")->first();
+								$lastValueAVG = $this->measurement_logs
+										->where("parameter_id='{$parameter->id}'")
+										->orderBy("id","desc")->findAll(60);
+								$flat = 0;
+								foreach ($lastValueAVG as $avg){
+									if($lastValue->value == $avg->value){
+										$flat +=1; 	
+									}
+								}
+								if($flat == 60){
+									$is_valid = 14;
+									foreach ($lastValueAVG as $avg){
+										$this->measurement_logs->set(['is_valid' => $is_valid])->where('id', $avg->id)->update();
+									}
+									if($lastValue->value != $measured){
+										$is_valid = 11;
+									}
+								}else{
+									//data normal
+									$is_valid = 11;
+								}
+							}
+						}else{
+							$is_valid = 1;
+						}
+						//END VALIDASI				
 
 						$this->insert_logs([
 							"parameter_id" => $parameter->id,
 							"value" => $measured,
 							"sensor_value" => $raw,
 							"is_averaged" => 0,
-							"time_group" => date("Y-m-d H:i:s"),
+							"is_valid" => $is_valid,
+							"xtimestamp" => date('Y-m-d H:i:s'),
 						], $isInsertLog);
 
 					}catch(Exception $e){

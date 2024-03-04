@@ -98,7 +98,10 @@ class Sentdata1sec extends BaseCommand
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
 						}
 						$measurement_ids[] = $measurement->id; 
+						$arr["avg_id"] = $measurement->avg_id;
+						$arr["sub_avg_id"] = $measurement->sub_avg_id;
 					}
+
 
 					if ($is_exist) {
 						// Sent to Server

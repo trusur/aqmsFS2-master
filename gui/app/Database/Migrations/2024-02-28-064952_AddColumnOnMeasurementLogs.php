@@ -15,11 +15,23 @@ class AddColumnOnMeasurementLogs extends Migration
                 'null' => true,
                 'after' => 'is_averaged'
            ],
+           "avg_id" => [
+                "type" => "BIGINT",
+                "default" => 0,
+                "null" => true,
+                "after" => "is_valid",
+            ],
+            "sub_avg_id" => [
+                "type" => "BIGINT",
+                "default" => 0,
+                "null" => true,
+                "after" => "avg_id",
+            ],
            'remark' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
                 'null' => true,
-                'after' => 'is_valid',
+                'after' => 'sub_avg_id',
            ],
            'is_sent_cloud' => [
                 'type' => 'smallint',
@@ -42,6 +54,6 @@ class AddColumnOnMeasurementLogs extends Migration
 
     public function down()
     {
-        $this->forge->dropColumn('measurement_logs', ['is_valid','remark','time_group', 'is_sent_cloud','sent_cloud_at']);
+        $this->forge->dropColumn('measurement_logs', ['is_valid','remark','time_group','avg_id','sub_avg_id', 'is_sent_cloud','sent_cloud_at']);
     }
 }

@@ -15,6 +15,16 @@ class CreateTableMeasurement1mins extends Migration
                 'unsigned' => true,
                 'auto_increment' => true
             ],
+            "avg_id" => [
+                "type" => "BIGINT",
+                "default" => 0,
+                "null" => true,
+            ],
+            "sub_avg_id" => [
+                "type" => "BIGINT",
+                "default" => 0,
+                "null" => true,
+            ],
             'parameter_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
