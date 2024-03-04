@@ -40,14 +40,14 @@ for sensor_reader in sensor_readers:
 subprocess.Popen("php gui/spark command:formula_measurement_logs", shell=True)
 print("php gui/spark command:formula_measurement_logs")
 time.sleep(1)
-subprocess.Popen("php gui/spark command:sentdata", shell=True)
-print("php gui/spark command:sentdata")
-time.sleep(1)
 subprocess.Popen("php gui/spark command:sentdata_klhk", shell=True)
 print("php gui/spark command:sentdata_klhk")
 time.sleep(1)
 # Disabled beacuse using crontab service
 # To check service use command : sudo crontab -l or crontab -l 
+# subprocess.Popen("php gui/spark command:sentdata", shell=True)
+# print("php gui/spark command:sentdata")
+# time.sleep(1)
 # subprocess.Popen("php gui/spark command:measurement_averaging", shell=True)
 # print("php gui/spark command:measurement_averaging")
 # time.sleep(1)

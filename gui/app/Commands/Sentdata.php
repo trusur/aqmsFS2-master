@@ -77,97 +77,39 @@ class Sentdata extends BaseCommand
 	 */
 	public function run(array $params)
 	{
-		while (true) {
-			$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
-			if ($is_sentto_trusur == "1") {
-				$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
-				$measurement_ids = "";
-				$is_exist = false;
-				$arr["id_stasiun"] = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
+		$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
+		if ($is_sentto_trusur == "1") {
+			$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
+			$measurement_ids = "";
+			$is_exist = false;
+			$arr["id_stasiun"] = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 
-				$time_group = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
-				if ($time_group) {
-					$is_exist = true;
-					$arr["waktu"] = $time_group;
-					$measurements = @$this->measurements->where(["time_group" => $time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll();
-					foreach ($measurements as $measurement) {
-						$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
-						$arr[$parameter->code] = $measurement->value;
-						if($parameter->p_type == "particulate" || $parameter->p_type == "gas"){
-							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
-							$arr["total_{$parameter->code}"] = $measurement->total_data;
-							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
-							$arr["avg_id"] = $measurement->avg_id;
-						}
-						$measurement_ids .= $measurement->id . ",";
-					}
-				}
-				$measurement_ids = substr($measurement_ids, 0, -1);
-				if ($is_exist) {
-					$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
-					$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
-					$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
-					$data = json_encode($arr);
-					$curl = curl_init();
-					curl_setopt_array($curl, array(
-						CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data.php",
-						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_ENCODING => "",
-						CURLOPT_MAXREDIRS => 10,
-						CURLOPT_TIMEOUT => 30,
-						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						CURLOPT_CUSTOMREQUEST => "PUT",
-						CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
-						CURLOPT_POSTFIELDS => $data,
-						CURLOPT_HTTPHEADER => array(
-							"Api-Key: " . $trusur_api_key,
-							"cache-control: no-cache",
-							"content-type: application/json"
-						),
-						CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
-					));
-
-					$response = curl_exec($curl);
-					$err = curl_error($curl);
-
-					curl_close($curl);
-
-					if ($err) {
-						echo "cURL Error #:" . $err;
-					} else {
-						if (strpos(" " . $response, "success") > 0) {
-							$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-						} else {
-							echo $response;
-						}
-					}
-				}
-			}
-
-			//START DKI
-			$time_group_dki = @$this->measurements->where(["is_sent_dki" => 0])->orderBy("id")->first()->time_group;
-			$is_exist_dki = false;
-			if ($time_group_dki) {
-				$is_exist_dki = true;
-				$arr["waktu"] = $time_group_dki;
-				$measurements = @$this->measurements->where(["time_group" => $time_group_dki, "is_sent_dki" => 0])->orderBy("id")->findAll();
+			$time_group = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
+			if ($time_group) {
+				$is_exist = true;
+				$arr["waktu"] = $time_group;
+				$measurements = @$this->measurements->where(["time_group" => $time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll();
 				foreach ($measurements as $measurement) {
 					$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
 					$arr[$parameter->code] = $measurement->value;
+					if($parameter->p_type == "particulate" || $parameter->p_type == "gas"){
+						$arr["stat_{$parameter->code}"] = $measurement->is_valid;
+						$arr["total_{$parameter->code}"] = $measurement->total_data;
+						$arr["valid_{$parameter->code}"] = $measurement->total_valid;
+						$arr["avg_id"] = $measurement->avg_id;
+					}
 					$measurement_ids .= $measurement->id . ",";
 				}
 			}
-			
 			$measurement_ids = substr($measurement_ids, 0, -1);
-			if ($is_exist_dki) {
-				$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->findAll()[0]->content;
-				$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->findAll()[0]->content;
-				$trusur_api_key = '1VHJ1c3VyVW5nZ3VsVGVrbnVzYV9wVA==';
-				//$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->findAll()[0]->content;
+			if ($is_exist) {
+				$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
+				$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
+				$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
 				$data = json_encode($arr);
 				$curl = curl_init();
 				curl_setopt_array($curl, array(
-					CURLOPT_URL => "http://103.135.214.229:22380/put_data.php",
+					CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data.php",
 					CURLOPT_RETURNTRANSFER => true,
 					CURLOPT_ENCODING => "",
 					CURLOPT_MAXREDIRS => 10,
@@ -193,15 +135,71 @@ class Sentdata extends BaseCommand
 					echo "cURL Error #:" . $err;
 				} else {
 					if (strpos(" " . $response, "success") > 0) {
-						$this->measurements->where(["time_group" => $time_group_dki])->set(["is_sent_dki" => 1, "sent_dki_at" => date("Y-m-d H:i:s")])->update();
-						// $this->measurements->where("id IN (" . $measurement_ids . ")")->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
+						$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
 					} else {
 						echo $response;
 					}
 				}
 			}
-			//END DKI
-			sleep(10);
 		}
+
+		//START DKI
+		$time_group_dki = @$this->measurements->where(["is_sent_dki" => 0])->orderBy("id")->first()->time_group;
+		$is_exist_dki = false;
+		if ($time_group_dki) {
+			$is_exist_dki = true;
+			$arr["waktu"] = $time_group_dki;
+			$measurements = @$this->measurements->where(["time_group" => $time_group_dki, "is_sent_dki" => 0])->orderBy("id")->findAll();
+			foreach ($measurements as $measurement) {
+				$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
+				$arr[$parameter->code] = $measurement->value;
+				$measurement_ids .= $measurement->id . ",";
+			}
+		}
+		
+		$measurement_ids = substr($measurement_ids, 0, -1);
+		if ($is_exist_dki) {
+			$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->findAll()[0]->content;
+			$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->findAll()[0]->content;
+			$trusur_api_key = '1VHJ1c3VyVW5nZ3VsVGVrbnVzYV9wVA==';
+			//$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->findAll()[0]->content;
+			$data = json_encode($arr);
+			$curl = curl_init();
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => "http://103.135.214.229:22380/put_data.php",
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => "",
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 30,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => "PUT",
+				CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
+				CURLOPT_POSTFIELDS => $data,
+				CURLOPT_HTTPHEADER => array(
+					"Api-Key: " . $trusur_api_key,
+					"cache-control: no-cache",
+					"content-type: application/json"
+				),
+				CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
+			));
+
+			$response = curl_exec($curl);
+			$err = curl_error($curl);
+
+			curl_close($curl);
+
+			if ($err) {
+				echo "cURL Error #:" . $err;
+			} else {
+				if (strpos(" " . $response, "success") > 0) {
+					$this->measurements->where(["time_group" => $time_group_dki])->set(["is_sent_dki" => 1, "sent_dki_at" => date("Y-m-d H:i:s")])->update();
+					// $this->measurements->where("id IN (" . $measurement_ids . ")")->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
+				} else {
+					echo $response;
+				}
+			}
+		}
+		//END DKI
+		sleep(10);
 	}
 }
