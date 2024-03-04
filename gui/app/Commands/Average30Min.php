@@ -155,10 +155,14 @@ class Average30Min extends BaseCommand
                     $getLastData = $Mmeasurement->where("parameter_id = '{$parameter->id}' and time_group = '{$endAt}'")->orderby('id', 'desc')->first();
 					
                     if(empty($getLastData)){
-						$Mmeasurement->insert($measurement);
-						foreach ($values as $value) {
-							$Mmeasurement1Min->set(['sub_avg_id' => $avgid])->where('id', $value->id)->update();
-						}
+                        try{
+                            $Mmeasurement->insert($measurement);
+                            foreach ($values as $value) {
+                                $Mmeasurement1Min->set(['sub_avg_id' => $avgid])->where('id', $value->id)->update();
+                            }
+                        }catch(Exception $e){
+                            CLI::error("Insert Error : ".$e->getMessage());
+                        }
 					}
 				}
 		   }catch(DivisionByZeroError | Exception $e){
