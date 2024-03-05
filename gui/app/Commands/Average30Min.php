@@ -98,7 +98,7 @@ class Average30Min extends BaseCommand
 						->select("id,value,is_valid")
 						->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group < '{$endAt}' and is_valid = 11")
 						->findAll();
-					if($minData >= 80){
+					if($minData >= 75){
 						$is_valid = 11;
 						$tvalue = 0;
 						foreach ($valuesValid as $i => $valueValid) {
@@ -109,10 +109,6 @@ class Average30Min extends BaseCommand
 					}else{
 						$is_valid = 19;
 						
-						//check minimum 80%
-						$minJumlData = ((count($values) / 100) * 80);//80% dari total data
-						$addData = $minJumlData - $minData;
-						
 						//valid
 						$tvalueValid = 0;
 						if(!empty($valuesValid)){
@@ -120,27 +116,10 @@ class Average30Min extends BaseCommand
 								$tvalueValid += $valueV->value;
 								$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
 							}
-							$avgvalueValid = $tvalueValid;
+							$avgvalue = round($tvalueValid / count($valuesValid), 2);
 						}else{
-							$avgvalueValid = 0;
+							$avgvalue = null;
 						}
-						
-						//Nvalid
-						$valuesNValid = $Mmeasurement1Min
-							->select("id,value,is_valid")
-							->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group < '{$endAt}' and is_valid != 11")
-							->orderBy('value', 'asc')
-							->findAll($addData);
-						$tvalueNValid = 0;
-						foreach ($valuesNValid as $i => $valueNV) {
-							$tvalueNValid += $valueNV->value;
-                            $isValidNum = 20;
-							$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => $isValidNum])->where('id', $valueNV->id)->update();
-						}
-						$avgvalueNValid = $tvalueNValid;
-						
-						$avgvalue = round(($avgvalueValid + $avgvalueNValid) / ($minData + $addData), 2);
-						
 					}
 					$measurement = [
 							"parameter_id" => $parameter->id,

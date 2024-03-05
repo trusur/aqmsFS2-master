@@ -94,11 +94,13 @@ class Sentdata1sec extends BaseCommand
 					foreach ($measurements as $measurement) {
 						$parameter = @$this->parameters->select("code,p_type")->where(["id" => $measurement->parameter_id])->first();
 						$arr[$parameter->code] = $measurement->value;
+						if($measurement->sub_avg_id){
+							$arr["sub_avg_id"] = $measurement->sub_avg_id;
+						}
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
 						}
-						$measurement_ids[] = $measurement->id; 
-						$arr["sub_avg_id"] = $measurement->sub_avg_id;
+						$measurement_ids[] = $measurement->id;
 					}
 
 
@@ -137,7 +139,7 @@ class Sentdata1sec extends BaseCommand
 						} else {
 							if (strpos(" " . $response, "success") > 0) {
 								$this->measurements->where(["time_group" => $time_group->time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-								$this->measurements->where(["time_group" => $time_group->time_group])->delete();
+								//$this->measurements->where(["time_group" => $time_group->time_group])->delete();
 							} else {
 								echo $response;
 							}
