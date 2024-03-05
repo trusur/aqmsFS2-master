@@ -97,6 +97,7 @@ class Sentdata1min extends BaseCommand
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
 							$arr["total_{$parameter->code}"] = $measurement->total_data;
+							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
 						}
 						$measurement_ids[] = $measurement->id; 
 						$arr["avg_id"] = $measurement->avg_id;

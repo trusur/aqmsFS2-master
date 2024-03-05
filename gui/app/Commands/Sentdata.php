@@ -92,11 +92,14 @@ class Sentdata extends BaseCommand
 				foreach ($measurements as $measurement) {
 					$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
 					$arr[$parameter->code] = $measurement->value;
+					if($measurement->avg_id){
+						$arr["avg_id"] = $measurement->avg_id;
+					}
 					if($parameter->p_type == "particulate" || $parameter->p_type == "gas"){
 						$arr["stat_{$parameter->code}"] = $measurement->is_valid;
 						$arr["total_{$parameter->code}"] = $measurement->total_data;
 						$arr["valid_{$parameter->code}"] = $measurement->total_valid;
-						$arr["avg_id"] = $measurement->avg_id;
+						
 					}
 					$measurement_ids .= $measurement->id . ",";
 				}
