@@ -80,7 +80,7 @@ class Sentdata1sec extends BaseCommand
 		$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
 		if ($is_sentto_trusur == "1") {
 			$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
-			$lastPutData = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
+			$lastPutData = @$this->measurements->where(["is_sent_cloud" => 0, "time_group !=" => null])->orderBy("id")->first()->time_group;
 			if ($lastPutData) {
 				$measurement_ids = [];
 				$this->lastPutData = $lastPutData;
