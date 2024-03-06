@@ -85,7 +85,7 @@ class Sentdata1sec extends BaseCommand
 				$measurement_ids = [];
 				$this->lastPutData = $lastPutData;
 				$is_exist = true;
-				$time_groups = $this->measurements->select("time_group")->where("is_sent_cloud = 0 and time_group != null")->groupBy("time_group")->findAll();
+				$time_groups = $this->measurements->select("time_group")->where("is_sent_cloud = 0 and time_group != null and time_group >= '{$lastPutData}'")->groupBy("time_group")->findAll();
 				$idStation = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 				foreach ($time_groups as $time_group) {
 					$arr["id_stasiun"] = $idStation;
