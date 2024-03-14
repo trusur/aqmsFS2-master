@@ -207,6 +207,9 @@ class Average30Min extends BaseCommand
                 log_message("error","Particulate Flow 30 Min:".$e->getMessage());
             }
         }
+        
+        //delete data weather
+        $MmeasurementLog->where('is_valid', 1)->delete();
     }
 
     public function get_percentile($percentile, $array) {

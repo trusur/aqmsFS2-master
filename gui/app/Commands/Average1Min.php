@@ -62,6 +62,7 @@ class Average1Min extends BaseCommand
         $MmeasurementLog = new \App\Models\m_measurement_log();
         $Mparameter = new \App\Models\m_parameter();
         $Mconfiguration = new \App\Models\m_configuration();
+        $logSent = new \App\Models\m_log_sent();
 		
 
         $startAt = date("Y-m-d H:i:00", strtotime("-1 minutes"));
@@ -94,7 +95,6 @@ class Average1Min extends BaseCommand
 						$minData = 0;
 					}
 					$valuesValid = $MmeasurementLog
-						->select("id,value,is_valid")
 						->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}' and is_valid = 11")
 						->findAll();
 					if($minData >= 75){
@@ -102,7 +102,23 @@ class Average1Min extends BaseCommand
 						$tvalue = 0;
 						foreach ($valuesValid as $i => $valueValid) {
 							$tvalue += $valueValid->value;
-							$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueValid->id)->update();
+							//$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueValid->id)->update();
+							//insert into log sent
+							$logSent->insert(
+							[
+								'parameter_id' => $valueValid->parameter_id,
+								'value' => $valueValid->value,
+								'sensor_value' => $valueValid->sensor_value,
+								'is_averaged' => 1,
+								'is_valid' => 15,
+								'sub_avg_id' => $avgid,
+								'time_group' => $valueValid->time_group,
+								'xtimestamp' => date('Y-m-d H:i:s'),
+							]
+							);
+								
+							//delete
+							$MmeasurementLog->where('id', $valueValid->id)->delete();
 						}
 						$avgvalue = round($tvalue / count($valuesValid), 2);
 					}else{
@@ -113,13 +129,51 @@ class Average1Min extends BaseCommand
 						if(!empty($valuesValid)){
 							foreach ($valuesValid as $i => $valueV) {
 								$tvalueValid += $valueV->value;
-								$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
+								//$MmeasurementLog->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
+								//insert into log sent
+								$logSent->insert(
+								[
+									'parameter_id' => $valueValid->parameter_id,
+									'value' => $valueValid->value,
+									'sensor_value' => $valueValid->sensor_value,
+									'is_averaged' => 1,
+									'is_valid' => 15,
+									'sub_avg_id' => $avgid,
+									'time_group' => $valueValid->time_group,
+									'xtimestamp' => date('Y-m-d H:i:s'),
+								]
+								);
+								
+								//delete
+								$MmeasurementLog->where('id', $valueV->id)->delete();
 							}
 							$avgvalue = round($tvalueValid / count($valuesValid), 2);
 						}else{
 							$avgvalue = null;
 						}
+					}
 						
+					$valuesNotValid = $MmeasurementLog
+					->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}' and is_valid != 11")
+					->findAll();
+					if(!empty($valuesNotValid)){
+						foreach ($valuesNotValid as $i => $valueNV) {
+							//insert into log sent
+							$logSent->insert(
+							[
+								'parameter_id' => $valueNV->parameter_id,
+								'value' => $valueNV->value,
+								'sensor_value' => $valueNV->sensor_value,
+								'is_valid' => $valueNV->is_valid,
+								'sub_avg_id' => $avgid,
+								'time_group' => $valueNV->time_group,
+								'xtimestamp' => date('Y-m-d H:i:s'),
+							]
+							);
+							
+							//delete
+							$MmeasurementLog->where('id', $valueNV->id)->delete();
+						}
 					}
 					$measurement1min = [
 							"parameter_id" => $parameter->id,
@@ -137,6 +191,7 @@ class Average1Min extends BaseCommand
 						$Mmeasurement1Min->insert($measurement1min);
 						foreach ($values as $value) {
 							$MmeasurementLog->set(['sub_avg_id' => $avgid])->where('id', $value->id)->update();
+							
 						}
 					}
 				}
