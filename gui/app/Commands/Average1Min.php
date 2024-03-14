@@ -133,13 +133,13 @@ class Average1Min extends BaseCommand
 								//insert into log sent
 								$logSent->insert(
 								[
-									'parameter_id' => $valueValid->parameter_id,
-									'value' => $valueValid->value,
-									'sensor_value' => $valueValid->sensor_value,
+									'parameter_id' => $valueV->parameter_id,
+									'value' => $valueV->value,
+									'sensor_value' => $valueV->sensor_value,
 									'is_averaged' => 1,
 									'is_valid' => 15,
 									'sub_avg_id' => $avgid,
-									'time_group' => $valueValid->time_group,
+									'time_group' => $valueV->time_group,
 									'xtimestamp' => date('Y-m-d H:i:s'),
 								]
 								);
