@@ -78,6 +78,8 @@ class Sentdata1min extends BaseCommand
 	public function run(array $params)
 	{
 		$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
+		$minute = date("i") > 30 ? "30" : "00";
+        $endAt = date("Y-m-d H:$minute:00");
 		if ($is_sentto_trusur == "1") {
 			$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
 			$lastPutData = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
@@ -85,7 +87,7 @@ class Sentdata1min extends BaseCommand
 				$measurement_ids = [];
 				$this->lastPutData = $lastPutData;
 				$is_exist = true;
-				$time_groups = $this->measurements->select("time_group")->where("is_sent_cloud = 0")->groupBy("time_group")->findAll();
+				$time_groups = $this->measurements->select("time_group")->where("is_sent_cloud = 0 and time_group < '{$endAt}'")->groupBy("time_group")->findAll();
 				$idStation = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 				foreach ($time_groups as $time_group) {
 					$arr["id_stasiun"] = $idStation;
@@ -138,8 +140,8 @@ class Sentdata1min extends BaseCommand
 							echo "cURL Error #:" . $err;
 						} else {
 							if (strpos(" " . $response, "success") > 0) {
-								$this->measurements->where(["time_group" => $time_group->time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-								// $this->measurements->where(["time_group" => $time_group])->delete();
+								// $this->measurements->where(["time_group" => $time_group->time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
+								$this->measurements->where(["time_group" => $time_group->time_group])->delete();
 							} else {
 								echo $response;
 							}

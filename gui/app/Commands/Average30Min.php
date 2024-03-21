@@ -64,7 +64,7 @@ class Average30Min extends BaseCommand
         $Mparameter = new \App\Models\m_parameter();
 
         $hour = date("H");
-        $minute = date("i") > 30 ? "30" : "00";
+        $minute = date("i") >= 30 ? "30" : "00";
 
         $startAt = date("Y-m-d H:i:00", strtotime("-30 minutes", strtotime("{$hour}:{$minute}:00")));
         $endAt = date("Y-m-d H:$minute:00");
