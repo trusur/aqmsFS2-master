@@ -84,7 +84,6 @@ class Sentdata extends BaseCommand
 			$arr["id_stasiun"] = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 
 			$time_groups = @$this->measurements->select("time_group")->where(["is_sent_cloud" => 0])->orderBy("id")->findAll();
-			dd($time_groups);
 			foreach ($time_groups as $timeGroup) {
 				$time_group = $timeGroup->time_group;
 				$is_exist = false;
@@ -153,8 +152,9 @@ class Sentdata extends BaseCommand
 		// return; // Disable sending data to other server
 		//START DKI
 		$time_groups = @$this->measurements->select("time_group")->where(["is_sent_dki" => 0])->orderBy("id")->findAll();
-		foreach ($time_groups as $time_group_dki) {
+		foreach ($time_groups as $timeGroup) {
 			$is_exist_dki = false;
+			$time_group_dki = $timeGroup->time_group;
 			if ($time_group_dki) {
 				$is_exist_dki = true;
 				$arr["waktu"] = $time_group_dki;
