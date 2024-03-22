@@ -83,7 +83,7 @@ class Sentdata extends BaseCommand
 			$measurement_ids = "";
 			$arr["id_stasiun"] = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 
-			$time_groups = @$this->measurements->select("time_group")->where(["is_sent_cloud" => 0])->orderBy("id")->findAll();
+			$time_groups = @$this->measurements->select("time_group")->where(["is_sent_cloud" => 0])->groupBy("time_group")->orderBy("id")->findAll();
 			foreach ($time_groups as $timeGroup) {
 				$time_group = $timeGroup->time_group;
 				CLI::write("Sent data {$time_group} to Trusur Server", "green");
@@ -152,7 +152,7 @@ class Sentdata extends BaseCommand
 		}
 		// return; // Disable sending data to other server
 		//START DKI
-		$time_groups = @$this->measurements->select("time_group")->where(["is_sent_dki" => 0])->orderBy("id")->findAll();
+		$time_groups = @$this->measurements->select("time_group")->where(["is_sent_dki" => 0])->groupBy("time_group")->orderBy("id")->findAll();
 		foreach ($time_groups as $timeGroup) {
 			$is_exist_dki = false;
 			$time_group_dki = $timeGroup->time_group;
