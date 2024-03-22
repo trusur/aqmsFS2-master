@@ -86,6 +86,7 @@ class Sentdata extends BaseCommand
 			$time_groups = @$this->measurements->select("time_group")->where(["is_sent_cloud" => 0])->orderBy("id")->findAll();
 			foreach ($time_groups as $timeGroup) {
 				$time_group = $timeGroup->time_group;
+				CLI::write("Sent data {$time_group} to Trusur Server", "green");
 				$is_exist = false;
 				if ($time_group) {
 					$is_exist = true;
@@ -155,6 +156,7 @@ class Sentdata extends BaseCommand
 		foreach ($time_groups as $timeGroup) {
 			$is_exist_dki = false;
 			$time_group_dki = $timeGroup->time_group;
+			CLI::write("Sent data {$time_group_dki} to DKI Server", "green");
 			if ($time_group_dki) {
 				$is_exist_dki = true;
 				$arr["waktu"] = $time_group_dki;
