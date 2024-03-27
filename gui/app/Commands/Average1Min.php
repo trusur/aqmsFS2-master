@@ -191,7 +191,6 @@ class Average1Min extends BaseCommand
 						$Mmeasurement1Min->insert($measurement1min);
 						foreach ($values as $value) {
 							$MmeasurementLog->set(['sub_avg_id' => $avgid])->where('id', $value->id)->update();
-							
 						}
 					}
 				}
@@ -200,5 +199,31 @@ class Average1Min extends BaseCommand
 				log_message("error","AVG 1 MIN : ".$e->getMessage());
 		   }
         }
+		$parameterFlow = $Mparameter->select("id,code")->where("p_type = 'particulate_flow' and is_view = 1")->findAll();
+		foreach ($parameterFlow as $parameter) {
+			try{
+				$values = $MmeasurementLog
+				->select("id,value")
+				->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}'")
+				->findAll();
+				foreach ($values as $value) {
+					$logSent->insert([
+						'parameter_id' => $value->parameter_id,
+						'value' => $value->value,
+						'sensor_value' => $value->sensor_value,
+						'is_averaged' => 1,
+						'is_valid' => 1,
+						'sub_avg_id' => $avgid,
+						'time_group' => $value->time_group,
+						'xtimestamp' => date('Y-m-d H:i:s'),
+					]);
+					//delete
+					$MmeasurementLog->where('id', $value->id)->delete();
+				}
+			}catch(Exception $e){
+				CLI::error($e->getMessage());
+				log_message("error","AVG 1 MIN : ".$e->getMessage());
+			}
+		}
     }
 }
