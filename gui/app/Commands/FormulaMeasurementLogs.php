@@ -242,7 +242,7 @@ class FormulaMeasurementLogs extends BaseCommand
 		try{
 			$measured = 2;
 			$parameter = $this->parameters->select("sensor_value_id,formula")->where("code",$code)->first();
-			$sensorValues = $this->sensor_value->find($parameter->sensor_value_id);
+			$sensorValues = $this->sensor_values->find($parameter->sensor_value_id);
 			eval("\$measured = $parameter->formula ?? -1;");
 			return $measured;
 		}catch(Exception $e){
