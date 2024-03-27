@@ -111,8 +111,10 @@ class FormulaMeasurementLogs extends BaseCommand
 						// $sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
 						// $flow_pm25 = explode(';',$this->sensor_values->where('pin', 17)->first()->value)[1];
 						// $flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
-						$flow_pm25 = $this->getPMFlow("pm25_flow");
-						$flow_pm10 = $this->getPMFlow("pm10_flow");
+						$flow_pm25 = $this->getPMFlow("pm25_flow",$sensor);
+						$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
+						CLI::write("Flow PM2.5:".$flow_pm25);
+						CLI::write("Flow PM10:".$flow_pm10);
 						try{
 							eval("\$measured = $parameter->formula ?? -1;");
 							$raw = $measured;
@@ -238,14 +240,16 @@ class FormulaMeasurementLogs extends BaseCommand
 			sleep(1);
 		}
 	}
-	public function getPMFlow($code){
+	public function getPMFlow($code, $sensor){
 		try{
+			// $sensor for exec formula
 			$measured = 2;
 			$parameter = $this->parameters->select("sensor_value_id,formula")->where("code",$code)->first();
 			$sensorValues = $this->sensor_values->find($parameter->sensor_value_id);
 			eval("\$measured = $parameter->formula ?? -1;");
 			return $measured;
 		}catch(Exception $e){
+			CLI::write($e->getMessage(),"red");
 			log_message("error","Get PM Flow Error : ".$e->getMessage());
 			return false;
 		}
