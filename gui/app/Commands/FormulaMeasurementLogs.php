@@ -113,8 +113,6 @@ class FormulaMeasurementLogs extends BaseCommand
 						// $flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
 						$flow_pm25 = $this->getPMFlow("pm25_flow",$sensor);
 						$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
-						CLI::write("Flow PM2.5:".$flow_pm25);
-						CLI::write("Flow PM10:".$flow_pm10);
 						try{
 							eval("\$measured = $parameter->formula ?? -1;");
 							$raw = $measured;
