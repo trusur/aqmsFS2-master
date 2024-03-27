@@ -74,7 +74,7 @@ def update_sensor(mode = ""):
         
     motherboards = mycursor.fetchall()
     for motherboard in motherboards:
-        print(motherboard[1])
+        # print(motherboard[1])
         retval = ""
         try:
             ser.write(bytes(motherboard[1] + "#",'utf-8'))
