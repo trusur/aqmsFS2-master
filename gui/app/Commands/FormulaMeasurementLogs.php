@@ -241,7 +241,7 @@ class FormulaMeasurementLogs extends BaseCommand
 	public function getPMFlow($code){
 		try{
 			$measured = 2;
-			$parameter = $this->parameter->select("sensor_value_id,formula")->where("code",$code)->first();
+			$parameter = $this->parameters->select("sensor_value_id,formula")->where("code",$code)->first();
 			$sensorValues = $this->sensor_value->find($parameter->sensor_value_id);
 			eval("\$measured = $parameter->formula ?? -1;");
 			return $measured;
