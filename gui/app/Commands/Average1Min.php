@@ -203,7 +203,7 @@ class Average1Min extends BaseCommand
 		foreach ($parameterFlow as $parameter) {
 			try{
 				$values = $MmeasurementLog
-				->select("id,value")
+				->select("id,value,parameter_id")
 				->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}'")
 				->findAll();
 				foreach ($values as $value) {
