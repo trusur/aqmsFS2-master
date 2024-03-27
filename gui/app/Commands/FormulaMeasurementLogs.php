@@ -247,8 +247,8 @@ class FormulaMeasurementLogs extends BaseCommand
 			eval("\$measured = $parameter->formula ?? -1;");
 			return $measured;
 		}catch(Exception $e){
-			CLI::write($e->getMessage(),"red");
-			log_message("error","Get PM Flow Error : ".$e->getMessage());
+			// CLI::write($e->getMessage(),"red");
+			// log_message("error","Get PM Flow Error : ".$e->getMessage());
 			return false;
 		}
 	}
