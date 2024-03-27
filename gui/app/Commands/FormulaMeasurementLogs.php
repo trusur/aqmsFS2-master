@@ -108,9 +108,11 @@ class FormulaMeasurementLogs extends BaseCommand
 				foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
 					try{
 						$measured = 0;
-						$sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
-						$flow_pm25 = explode(';',$this->sensor_values->where('pin', 17)->first()->value)[1];
-						$flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
+						// $sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
+						// $flow_pm25 = explode(';',$this->sensor_values->where('pin', 17)->first()->value)[1];
+						// $flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
+						$flow_pm25 = $this->getPMFlow("pm25_flow");
+						$flow_pm10 = $this->getPMFlow("pm10_flow");
 						try{
 							eval("\$measured = $parameter->formula ?? -1;");
 							$raw = $measured;
@@ -234,6 +236,18 @@ class FormulaMeasurementLogs extends BaseCommand
 				log_message("error","Formula Convertion Service Error : ".$e->getMessage());
 			}
 			sleep(1);
+		}
+	}
+	public function getPMFlow($code){
+		try{
+			$measured = 2;
+			$parameter = $this->parameter->select("sensor_value_id,formula")->where("code",$code)->first();
+			$sensorValues = $this->sensor_value->find($parameter->sensor_value_id);
+			eval("\$measured = $parameter->formula ?? -1;");
+			return $measured;
+		}catch(Exception $e){
+			log_message("error","Get PM Flow Error : ".$e->getMessage());
+			return false;
 		}
 	}
 	public function insert_logs($logs, $insertLogs = true){
