@@ -140,8 +140,45 @@ class Sentdata1min extends BaseCommand
 							echo "cURL Error #:" . $err;
 						} else {
 							if (strpos(" " . $response, "success") > 0) {
-								// $this->measurements->where(["time_group" => $time_group->time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-								$this->measurements->where(["time_group" => $time_group->time_group])->delete();
+								// START SENT DATA TO DKI
+								$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
+								$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
+								$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
+								$data = json_encode($arr);
+								$curl = curl_init();
+								curl_setopt_array($curl, array(
+									CURLOPT_URL => "http://103.135.214.229:22380/put_data_min.php",
+									CURLOPT_RETURNTRANSFER => true,
+									CURLOPT_ENCODING => "",
+									CURLOPT_MAXREDIRS => 10,
+									CURLOPT_TIMEOUT => 30,
+									CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+									CURLOPT_CUSTOMREQUEST => "PUT",
+									CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
+									CURLOPT_POSTFIELDS => $data,
+									CURLOPT_HTTPHEADER => array(
+										"Api-Key: " . $trusur_api_key,
+										"cache-control: no-cache",
+										"content-type: application/json"
+									),
+									CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
+								));
+				
+								$response = curl_exec($curl);
+								$err = curl_error($curl);
+				
+								curl_close($curl);
+				
+								if ($err) {
+									echo "cURL Error #:" . $err;
+								} else {
+									if (strpos(" " . $response, "success") > 0) {
+										$this->measurements->where(["time_group" => $time_group->time_group])->delete();
+									} else {
+										echo $response;
+									}
+								}
+								// END SENT DATA TO DKI
 							} else {
 								echo $response;
 							}
