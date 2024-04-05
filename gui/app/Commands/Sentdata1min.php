@@ -110,7 +110,7 @@ class Sentdata1min extends BaseCommand
 						// Sent to Server
 						$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
 						$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
-						$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
+						$trusur_api_key = '1VHJ1c3VyVW5nZ3VsVGVrbnVzYV9wVA==';
 						$data = json_encode($arr);
 						$curl = curl_init();
 						curl_setopt_array($curl, array(
