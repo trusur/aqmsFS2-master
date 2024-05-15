@@ -139,6 +139,11 @@ class Sentdata1min extends BaseCommand
 						if ($err) {
 							echo "cURL Error #:" . $err;
 						} 
+						if (strpos(" " . $response, "success") > 0) {
+							$this->measurements->where(["time_group" => $time_group->time_group])->delete();
+						} else {
+							echo $response;
+						}
 					}
 
 				}
