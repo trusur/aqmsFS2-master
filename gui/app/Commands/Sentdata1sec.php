@@ -146,6 +146,11 @@ class Sentdata1sec extends BaseCommand
                     if ($err) {
                         echo "cURL Error #:" . $err;
                     } 
+					if (strpos(" " . $response, "success") > 0) {
+						$this->logSent->whereIn("time_group", $timeGroup)->delete();
+					} else {
+						echo $response;
+					}
 
 
 					
