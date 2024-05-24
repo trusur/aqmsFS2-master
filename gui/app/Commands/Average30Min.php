@@ -159,8 +159,8 @@ class Average30Min extends BaseCommand
                 }
                 $measurement = [
                     "parameter_id" => $parameter->id,
-                    "value" => round($value->value,0),
-                    "sensor_value" => round($value->value,0),
+                    "value" => round($value->value,2),
+                    "sensor_value" => round($value->value,2),
                     "is_valid" => 1,
                     "total_data" => 1,
                     "total_valid" => 1,
@@ -189,8 +189,8 @@ class Average30Min extends BaseCommand
                 }
                 $measurement = [
                     "parameter_id" => $parameter->id,
-                    "value" => round($value->value,0),
-                    "sensor_value" => round($value->value,0),
+                    "value" => round($value->value,2),
+                    "sensor_value" => round($value->value,2),
                     "is_valid" => 1,
                     "total_data" => 1,
                     "total_valid" => 1,
