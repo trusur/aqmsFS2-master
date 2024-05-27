@@ -63,6 +63,7 @@ try:
         PM = "b'000.700," + PM[10:len(PM)]
         
     update_sensor_value(str(sys.argv[1]),PM.replace("'","''"))
+    COM_PM.close()
     
 except Exception as e2:
     print(e2)
