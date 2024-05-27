@@ -63,6 +63,7 @@ try:
             update_sensor_value(str(sys.argv[1]),PM.replace("'","''"))
             
             if(is_PM_connect == True):
+                is_PM_connect = False
                 COM_PM.close()
         except Exception as e2:
             print(e2)
