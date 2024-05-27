@@ -34,7 +34,7 @@ def connect_pm():
         mycursor.execute("SELECT sensor_code,baud_rate FROM sensor_readers WHERE id = '"+ sys.argv[1] +"'")
         sensor_reader = mycursor.fetchone()
         
-        COM_PM = serial.Serial(sensor_reader[0], sensor_reader[1])
+        COM_PM = serial.Serial(sensor_reader[0], sensor_reader[1],timeout=10)
         PM = str(COM_PM.readline())
         if(PM.count(",") == 6):
             is_PM_connect = True
