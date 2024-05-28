@@ -29,7 +29,7 @@ def update_sensor_value(sensor_reader_id,value):
     except Exception as e2:
         return None
     
-def connect_pm():
+def connect_pm(is_retry=False):
     global is_PM_connect
     try:
         mycursor.execute("SELECT sensor_code,baud_rate FROM sensor_readers WHERE id = '"+ sys.argv[1] +"'")
@@ -39,7 +39,8 @@ def connect_pm():
         PM = str(COM_PM.readline())
         if(PM.count(",") == 6):
             is_PM_connect = True
-            print("[V] PM " + sensor_reader[0] + " CONNECTED")
+            if(not is_retry):
+                print("[V] PM " + sensor_reader[0] + " CONNECTED")
             return COM_PM 
         else:
             is_PM_connect = False
