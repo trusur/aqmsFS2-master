@@ -54,18 +54,23 @@ try:
             if(not is_PM_connect):
                 COM_PM = connect_pm()
         
-            PM = str(COM_PM.readline())
-            if(PM.count(",") != 6):
+            if(COM_PM is None):
+                print("Not connect PM Sensor ID: " + str(sys.argv[1]))
                 PM = "b'000.000,0.0,+0.0,0,0,00,*0\\r\\n'"
+                update_sensor_value(str(sys.argv[1]),PM.replace("'","''"))
+            else:
+                PM = str(COM_PM.readline())
+                if(PM.count(",") != 6):
+                    PM = "b'000.000,0.0,+0.0,0,0,00,*0\\r\\n'"
+                    
+                if((float(PM[2:9]) * 1000) > 700):
+                    PM = "b'000.700," + PM[10:len(PM)]
+                    
+                update_sensor_value(str(sys.argv[1]),PM.replace("'","''"))
                 
-            if((float(PM[2:9]) * 1000) > 700):
-                PM = "b'000.700," + PM[10:len(PM)]
-                
-            update_sensor_value(str(sys.argv[1]),PM.replace("'","''"))
-            
-            if(is_PM_connect == True):
-                is_PM_connect = False
-                COM_PM.close()
+                if(is_PM_connect == True):
+                    is_PM_connect = False
+                    COM_PM.close()
         except Exception as e2:
             print(e2)
             is_PM_connect = False
