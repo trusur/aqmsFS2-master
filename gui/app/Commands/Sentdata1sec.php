@@ -97,7 +97,7 @@ class Sentdata1sec extends BaseCommand
 					$timeGroup[] = $time_group->time_group;
 					$arr[$key]["id_stasiun"] = $idStation;
 					$arr[$key]["waktu"] = $time_group->time_group;
-					$measurements = @$this->logSent->where(["time_group" => $time_group->time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll();
+					$measurements = @$this->logSent->where(["time_group" => $time_group->time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll(500);
 					foreach ($measurements as $measurement) {
 						$parameter = @$this->parameters->select("code,p_type")->where(["id" => $measurement->parameter_id])->first();
 						$arr[$key][$parameter->code] = $measurement->value;
