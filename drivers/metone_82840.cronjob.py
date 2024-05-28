@@ -39,7 +39,7 @@ def connect_pm(is_retry=False):
         PM = str(COM_PM.readline())
         if(PM.count(",") == 6):
             is_PM_connect = True
-            if(not is_retry):
+            if(is_retry):
                 print("[V] PM " + sensor_reader[0] + " CONNECTED")
             return COM_PM 
         else:
@@ -50,7 +50,7 @@ def connect_pm(is_retry=False):
         return None
     
 try:
-    COM_PM = connect_pm()
+    COM_PM = connect_pm(1)
     if(COM_PM is None):
         print("Not connect PM Sensor ID: " + str(sys.argv[1]))
         PM = "b'000.000,0.0,+0.0,0,0,00,*0\\r\\n'"
