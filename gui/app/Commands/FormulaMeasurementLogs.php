@@ -152,15 +152,15 @@ class FormulaMeasurementLogs extends BaseCommand
 									}else{
 										//check data Flat
 										$lastValue = $this->measurement_logs
-												->where("parameter_id='{$parameter->id}'")
+												->where("parameter_id='{$parameter->id}' and value is not null")
 												->orderBy("id","desc")->first();
 										$lastValueAVG = $this->measurement_logs
-												->where("parameter_id='{$parameter->id}'")
+												->where("parameter_id='{$parameter->id}' and value is not null")
 												->orderBy("id","desc")->findAll(60);
 										$flat = 0;
 										foreach ($lastValueAVG as $avg){
 											if($lastValue->value == $avg->value){
-												$flat +=1; 	
+												$flat +=1;
 											}
 										}
 										if($flat == 60){

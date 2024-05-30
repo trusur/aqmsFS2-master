@@ -111,12 +111,19 @@ class Average30Min extends BaseCommand
 						
 						//valid
 						$tvalueValid = 0;
+                        $stat_valid = [];
 						if(!empty($valuesValid)){
 							foreach ($valuesValid as $i => $valueV) {
+                                if(empty($stat_valid[$valueV->is_valid])){
+									$stat_valid[$valueV->is_valid] = 1;
+								}else{
+									$stat_valid[$valueV->is_valid] += 1;
+								}
 								$tvalueValid += $valueV->value;
 								$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
 							}
 							$avgvalue = round($tvalueValid / count($valuesValid), 2);
+							$is_valid = array_keys($stat_valid)[0] ?? 19;
 						}else{
 							$avgvalue = null;
 						}
