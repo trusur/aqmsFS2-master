@@ -123,6 +123,7 @@ class Average30Min extends BaseCommand
 								$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
 							}
 							$avgvalue = round($tvalueValid / count($valuesValid), 2);
+							arsort($stat_valid);
 							$is_valid = array_keys($stat_valid)[0] ?? 19;
 						}else{
 							$avgvalue = null;

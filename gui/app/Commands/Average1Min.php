@@ -154,6 +154,7 @@ class Average1Min extends BaseCommand
 								$MmeasurementLog->where('id', $valueV->id)->delete();
 							}
 							$avgvalue = round($tvalueValid / count($valuesValid), 2);
+							arsort($stat_valid);
 							$is_valid = array_keys($stat_valid)[0] ?? 19;
 						}else{
 							$avgvalue = null;
