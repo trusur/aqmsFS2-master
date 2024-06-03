@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Models\m_configuration;
+use App\Models\m_log_sent;
 use App\Models\m_measurement;
 use App\Models\m_measurement_1min;
 use App\Models\m_measurement_log;
@@ -25,6 +26,7 @@ class Sentdata extends BaseCommand
 	protected $measurements;
 	protected $configurations;
 	protected $lastPutData;
+	protected $MLogSent;
 
 	public function __construct()
 	{
@@ -34,6 +36,7 @@ class Sentdata extends BaseCommand
 		$this->configurations =  new m_configuration();
 		$this->measurements =  new m_measurement();
 		$this->lastPutData = "0000-00-00 00:00";
+		$this->MLogSent = new m_log_sent();
 	}
 	/**
 	 * The Command's Name
@@ -211,8 +214,10 @@ class Sentdata extends BaseCommand
 				}
 			}
 		}
-		
-		//END DKI
-		sleep(10);
+		// Check if all data 1sec has been sent
+		$totalData1sec = $this->MLogSent->count();
+		if ($totalData1sec == 0 || $totalData1sec > 2100) {
+			$this->MLogSent->truncate();
+		}
 	}
 }
