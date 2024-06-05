@@ -1,9 +1,0 @@
-gui/vendor/*
-gui/writable/debugbar/*
-gui/writable/logs/*
-gui/writable/cache/*
-gui/writable/session/*
-gui/.env
-gui/.env
-gui/public/export/*
-*.pyc
