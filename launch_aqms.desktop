@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=AQMS_EFS1
+Comment=AQMS_FS1-2023
+Icon=/home/mx/aqms-efs1/gui/public/img/logo.png
+Exec=xfce4-terminal -e 'sh /home/mx/aqms-efs1/aqms_start.sh'
+Terminal=true
+Type=Application
+Path=
+StartupNotify=false
