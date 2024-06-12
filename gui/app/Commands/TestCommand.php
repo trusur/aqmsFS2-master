@@ -19,7 +19,7 @@ class TestCommand extends BaseCommand
      *
      * @var string
      */
-    protected $name = 'command:name';
+    protected $name = 'command:test-command';
 
     /**
      * The Command's Description
@@ -33,7 +33,7 @@ class TestCommand extends BaseCommand
      *
      * @var string
      */
-    protected $usage = 'command:name [arguments] [options]';
+    protected $usage = '';
 
     /**
      * The Command's Arguments
@@ -56,6 +56,12 @@ class TestCommand extends BaseCommand
      */
     public function run(array $params)
     {
-        //
+        $stat_valid =[
+            19 => 30,
+            14 => 29
+        ];
+        $stat_valid[14]+=2;
+        arsort($stat_valid);
+        print_r(array_keys($stat_valid)[0]);
     }
 }
