@@ -11,14 +11,14 @@ class AlterMeasurements20210506 extends Migration
 		$this->forge->dropTable('measurements');
 		$this->forge->addField([
 			'id'				=> ['type' => 'BIGINT', 'unsigned' => true, 'auto_increment' => true],
-			'time_group'		=> ['type' => 'DATETIME'],
-			'parameter_id'		=> ['type' => 'INT', 'default' => 0],
-			'value'				=> ['type' => 'DOUBLE', 'default' => 0],
-			'sensor_value'		=> ['type' => 'DOUBLE', 'default' => 0],
-			'is_sent_cloud'		=> ['type' => 'tinyint', 'default' => 0],
-			'sent_cloud_at'		=> ['type' => 'DATETIME'],
-			'is_sent_klhk'		=> ['type' => 'tinyint', 'default' => 0],
-			'sent_klhk_at'		=> ['type' => 'DATETIME'],
+			'time_group'		=> ['type' => 'DATETIME', 'default' => null,'null' => true],
+			'parameter_id'		=> ['type' => 'INT', 'default' => null,'null' => true],
+			'value'				=> ['type' => 'DOUBLE', 'default' => null,'null' => true],
+			'sensor_value'		=> ['type' => 'DOUBLE', 'default' => null,'null' => true],
+			'is_sent_cloud'		=> ['type' => 'tinyint', 'default' => 0,'null' => true],
+			'sent_cloud_at'		=> ['type' => 'DATETIME', 'default' => null,'null' => true],
+			'is_sent_klhk'		=> ['type' => 'tinyint', 'default' => 0,'null' => true],
+			'sent_klhk_at'		=> ['type' => 'DATETIME', 'default' => null,'null' => true],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', TRUE);

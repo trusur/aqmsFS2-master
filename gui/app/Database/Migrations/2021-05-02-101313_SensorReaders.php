@@ -10,10 +10,10 @@ class SensorReaders extends Migration
 	{
 		$this->forge->addField([
 			'id'			=> ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
-			'driver'		=> ['type' => 'VARCHAR', 'constraint' => 50],
-			'sensor_code'	=> ['type' => 'VARCHAR', 'constraint' => 30],
-			'baud_rate'		=> ['type' => 'VARCHAR', 'constraint' => 100],
-			'pins'			=> ['type' => 'VARCHAR', 'constraint' => 200],
+			'driver'		=> ['type' => 'VARCHAR', 'constraint' => 50, 'null' => true],
+			'sensor_code'	=> ['type' => 'VARCHAR', 'constraint' => 30, 'null' => true],
+			'baud_rate'		=> ['type' => 'VARCHAR', 'constraint' => 100, 'null' => true],
+			'pins'			=> ['type' => 'VARCHAR', 'constraint' => 200, 'null' => true],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', TRUE);

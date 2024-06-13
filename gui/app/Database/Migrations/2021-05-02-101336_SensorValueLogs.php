@@ -10,8 +10,8 @@ class SensorValueLogs extends Migration
 	{
 		$this->forge->addField([
 			'id'				=> ['type' => 'BIGINT', 'unsigned' => true, 'auto_increment' => true],
-			'sensor_value_id'	=> ['type' => 'INT', 'default' => 0],
-			'value'				=> ['type' => 'VARCHAR', 'default' => '', 'constraint' => 255],
+			'sensor_value_id'	=> ['type' => 'INT', 'default' => null,'null' => true],
+			'value'				=> ['type' => 'VARCHAR', 'default' => null, 'null' => true, 'constraint' => 255],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', TRUE);

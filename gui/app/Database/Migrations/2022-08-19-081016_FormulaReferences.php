@@ -11,10 +11,10 @@ class FormulaReferences extends Migration
 		$this->forge->dropTable('formula_references',true);
 		$this->forge->addField([
 			'id'			=> ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
-			'parameter_id'	=> ['type' => 'INT', 'default' => 0],
-			'min_value'		=> ['type' => 'DOUBLE', 'default' => 0],
-			'max_value'		=> ['type' => 'DOUBLE', 'default' => 0],
-			'formula'		=> ['type' => 'VARCHAR', 'constraint' => 255],
+			'parameter_id'	=> ['type' => 'INT', 'default' => null,'null' => true],
+			'min_value'		=> ['type' => 'DOUBLE', 'default' => null, 'null' => true],
+			'max_value'		=> ['type' => 'DOUBLE', 'default' => null, 'null' => true],
+			'formula'		=> ['type' => 'VARCHAR', 'constraint' => 255, 'default' => null, 'null' => true],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', TRUE);

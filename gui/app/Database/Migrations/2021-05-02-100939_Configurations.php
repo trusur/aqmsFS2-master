@@ -10,8 +10,8 @@ class Configurations extends Migration
 	{
 		$this->forge->addField([
 			'id'				=> ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
-			'name'				=> ['type' => 'VARCHAR', 'constraint' => 50],
-			'content'			=> ['type' => 'VARCHAR', 'constraint' => 200]
+			'name'				=> ['type' => 'VARCHAR', 'constraint' => 50, 'null' => true, 'default' => null],
+			'content'			=> ['type' => 'VARCHAR', 'constraint' => 200, 'null' => true, 'default' => null],
 		]);
 		$this->forge->addKey('id', TRUE);
 		$this->forge->addKey('name');
