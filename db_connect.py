@@ -1,4 +1,3 @@
-from mysql.connector.constants import ClientFlag
 import mysql.connector
 
 def connecting():
