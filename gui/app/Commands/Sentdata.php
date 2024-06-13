@@ -150,5 +150,10 @@ class Sentdata extends BaseCommand
 			}
 			
 		}
+		// Check if all data 1sec has been sent
+		$totalData1sec = $this->MLogSent->countAllResults();
+		if ($totalData1sec == 0 || $totalData1sec > 2100) {
+			$this->MLogSent->truncate();
+		}
 	}
 }
