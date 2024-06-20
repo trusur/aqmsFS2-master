@@ -57,6 +57,12 @@ def main():
         pump_interval = db.get_configuration("pump_interval")
         pump_state = db.get_configuration("pump_state")
         pump_switch_to = 1 if pump_state == "0" else 0
+        pump_has_trigger_change = db.get_configuration("pump_has_trigger_change")
+        if(not pump_has_trigger_change in ['']):
+            if (switch_pump(pump_state=pump_has_trigger_change) == True):
+                db.set_configuration("pump_has_trigger_change","")
+                db.set_configuration("pump_last",str(now))
+                return True
 
         if(pump_last in [None,'']):
             db.set_configuration("pump_last",str(now))

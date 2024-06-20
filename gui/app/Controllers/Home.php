@@ -34,29 +34,18 @@ class Home extends BaseController
 	public function pump()
 	{
 		try{
-			$getPumpState = $this->configuration->where(["name" => "pump_state"])->first();
+			$pumpState = $this->configuration->where(["name" => "pump_has_trigger_change"])->first(); 
 
-			if($getPumpState){
+			if($pumpState){
 				// Check Is Pump State Exist in Configuration
-				$switch = $getPumpState->content == 1 ? 0 : 1;
+				$switch = $pumpState->content == 1 ? 0 : 1;
 				$pumpStateData['content'] 	= $switch;
-				$this->configuration->update($getPumpState->id, $pumpStateData);
+				$this->configuration->update($pumpState->id, $pumpStateData);
 			}else{
 				// Insert New Configuration if empty
-				$pumpStateData['name'] 		= 'pump_state';
+				$pumpStateData['name'] 		= 'pump_has_trigger_change';
 				$pumpStateData['content'] 	= 1;
 				$this->configuration->insert($pumpStateData);
-			}
-			$getPumpLast = $this->configuration->where(["name" => "pump_last"])->first();
-			if($getPumpLast){
-				// Check is Pump Last Exist in Configuration
-				$pumpLastData['content'] 	= date('Y-m-d H:i:s');
-				$this->configuration->update($getPumpLast->id, $pumpLastData);
-			}else{
-				// Insert New Configuration if empty
-				$pumpLastData['name'] 		= 'pump_last';
-				$pumpLastData['content'] 	= date('Y-m-d H:i:s');
-				$this->configuration->insert($pumpLastData);
 			}
 			return $this->response->setJSON(['success' => true, 'message' => 'Pump switch success']);
 		}catch(Exception $e){

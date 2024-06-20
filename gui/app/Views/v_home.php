@@ -170,11 +170,12 @@
                             let m = Math.floor((remaining - (h * 3600)) / 60);
                             let s = Math.floor(remaining % 60);
                             let pumpTimer = `${h}:${m}:${s}`;
-                            if (pumpTimer == `0:0:0` || parseInt(h) < 0 || parseInt(m) < 0 || parseInt(s) < 0) {
-                                $('#switch_pump').click();
-                            }
-                            $('#pumpTimer').html(pumpTimer);
                             $('#pumpState').html(`(Pump ${Math.floor(parseInt(pump_state)+1)})`)
+                            if (pumpTimer == `0:0:0` || parseInt(h) < 0 || parseInt(m) < 0 || parseInt(s) < 0) {
+                                $('#pumpTimer').html('Switching...');
+                            }else{
+                                $('#pumpTimer').html(pumpTimer);
+                            }
                         } catch (err) {
                             console.log(err)
                         }
@@ -223,16 +224,16 @@
 
         // Trigger Switch Pump
         $("#switch_pump").click(function() {
-            // $.ajax({
-            //     type: 'POST',
-            //     url: '/switch/pump',
-            //     dataType: 'json',
-            //     success: function(data) {
-            //         if (data?.success) {
-            //             toastr.success(`Pump switched`);   
-            //         }
-            //     }
-            // })
+            $.ajax({
+                type: 'POST',
+                url: '/switch/pump',
+                dataType: 'json',
+                success: function(data) {
+                    if (data?.success) {
+                        toastr.success(`Waiting for switching...`);   
+                    }
+                }
+            })
         })
 
         // Trigger Show Last 
