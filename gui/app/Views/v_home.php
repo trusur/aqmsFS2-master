@@ -223,16 +223,16 @@
 
         // Trigger Switch Pump
         $("#switch_pump").click(function() {
-            $.ajax({
-                type: 'POST',
-                url: '/switch/pump',
-                dataType: 'json',
-                success: function(data) {
-                    if (data?.success) {
-                        toastr.success(`Pump switched`);   
-                    }
-                }
-            })
+            // $.ajax({
+            //     type: 'POST',
+            //     url: '/switch/pump',
+            //     dataType: 'json',
+            //     success: function(data) {
+            //         if (data?.success) {
+            //             toastr.success(`Pump switched`);   
+            //         }
+            //     }
+            // })
         })
 
         // Trigger Show Last 

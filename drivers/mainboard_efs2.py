@@ -2,7 +2,7 @@ import serial
 import db
 import sys
 from datetime import datetime, timedelta
-
+import time
 # Get Motherboard Command List
 def get_motherboards():
     try:
@@ -75,70 +75,10 @@ def is_motherboard_ready(ser):
     except:
         return False
 
-def switch_pump(pump_state):
-    try:
-        driver = get_driver()
-        port = driver['sensor_code']
-        baudrate = driver['baud_rate']
-        if(pump_state == 1):
-            command = "pump2.set.100#"
-        else:
-            command = "pump.set.100#"
-        max_timeout = 50
-        timeout = 0
-        response = ""
-        responseReady = ""
-        ser = serial.Serial(port, baudrate, timeout=3)
-        while responseReady != "Ready" and timeout < max_timeout:
-            responseReady = ser.readline().decode('utf-8').strip('\r\n')
-            timeout += 1
-            if(responseReady == "Ready"):
-                break
-
-        ser.write(bytes(command, 'utf-8'))
-        timeout = 0
-        while response.find("END_PUMP") == -1 and timeout < max_timeout:
-            response += ser.readline().decode('utf-8').strip('\r\n')
-            print(response)
-            timeout += 1
-        ser.close()
-        db.set_configuration("pump_state",pump_state)
-        return True
-    except Exception as e: 
-        print('Switch Pump Error: ',e)
-        return False
-# Check Switch Pump
-def check_pump():
-    try:
-        now = datetime.now()
-        pump_last = db.get_configuration("pump_last")
-        pump_interval = db.get_configuration("pump_interval")
-        pump_state = db.get_configuration("pump_state")
-        pump_switch_to = 1 if pump_state == "0" else 0
-
-        if(pump_last in [None,'']):
-            db.set_configuration("pump_last",str(now))
-            # Switch Pompa 1 
-            switch_pump(pump_switch_to)
-
-            return True
-        pump_last = datetime.strptime(pump_last, '%Y-%m-%d %H:%M:%S.%f')
-        # Apakah waktu sekarang sudah melewati waktu interval
-        last_switch  = now - timedelta(seconds=int(pump_interval))
-        if(last_switch > pump_last):
-            db.set_configuration("pump_last",str(now))
-            # Switch Pump
-            switch_pump(pump_switch_to)
-            return True
-        return False
-    except Exception as e: 
-        print('Check Pump Error: ',e)
-        return False
 
 # Running Main Function
 def main():
-    # Check Pump Switch
-    check_pump()
+    time.sleep(1)
     driver = get_driver()
     sensor_reader_id = driver['id']
     port = driver['sensor_code']
