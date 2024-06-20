@@ -100,86 +100,60 @@ class FormulaMeasurementLogs extends BaseCommand
 
 	public function run(array $params)
 	{
-		while (true) {
-			try{
-				foreach ($this->sensor_values->findAll() as $sensor_value) {
-					$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
-				}
-				foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
+		$start = microtime(true);
+		try{
+			foreach ($this->sensor_values->findAll() as $sensor_value) {
+				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
+			}
+			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
+				try{
+					$measured = 0;
+					$sensor_value = $this->sensor_values->select("sensor_reader_id,pin")->find($parameter->sensor_value_id);
+					// $flow_pm25 = explode(';',$this->sensor_values->where('pin', 17)->first()->value)[1];
+					// $flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
+					$flow_pm25 = $this->getPMFlow("pm25_flow",$sensor);
+					$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
 					try{
-						$measured = 0;
-						// $sensor_value = $this->sensor_values->find($parameter->sensor_value_id);
-						// $flow_pm25 = explode(';',$this->sensor_values->where('pin', 17)->first()->value)[1];
-						// $flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
-						$flow_pm25 = $this->getPMFlow("pm25_flow",$sensor);
-						$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
-						try{
-							eval("\$measured = $parameter->formula ?? -1;");
-							$raw = $measured;
-						}catch(ParseError | Error | DivisionByZeroError $e){
-							$measured = 0;
-							$raw = 0;
-						}catch(Exception $e){
-							$measured = 0;
-							$raw = 0;
-						}
-						$isInsertLog = true;
-						if($parameter->p_type == "particulate"){
-							
-							if($measured <= 0){
-								$lastValue = $this->measurement_logs
-									->where("parameter_id='{$parameter->id}' and value != 0")
-									->orderBy("id","desc")->first();
-								$measured = $lastValue->value ?? 0;
+						eval("\$measured = $parameter->formula ?? -1;");
+						$raw = $measured;
+						if($parameter->p_type == "gas"){
+							if($parameter->code == "hc"){
+								$raw = explode(";",$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin])[1] ?? -999;
+							}else{
+								$raw = explode(";",$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin])[2] ?? -999;
 							}
 						}
+						CLI::write("[$parameter->code]: $measured", "blue");
+						CLI::write("[$parameter->code]: $raw", "blue");
+					}catch(ParseError | Error | DivisionByZeroError $e){
+						$measured = 0;
+						$raw = 0;
+					}catch(Exception $e){
+						$measured = 0;
+						$raw = 0;
+					}
+					$isInsertLog = true;
+					if($parameter->p_type == "particulate"){
 						
-						$is_valid = '';
-						//START VALIDIASI
-						if(!empty($parameter->range_max)){
-							if($parameter->p_type == "particulate"){
-								if($parameter->code == "pm25" && $flow_pm25 < 1.6){
-									$is_valid = 20;
-								} else if($parameter->code == "pm10" && $flow_pm10 < 1.6){
-									$is_valid = 20;
-								} else {
-									if($measured <= 0){
-										//validasi Abnormal
-										$is_valid = 12;
-									}else if($measured > $parameter->range_max){
-										//out of range
-										$is_valid = 13;
-									}else{
-										//check data Flat
-										$lastValue = $this->measurement_logs
-												->where("parameter_id='{$parameter->id}'")
-												->orderBy("id","desc")->first();
-										$lastValueAVG = $this->measurement_logs
-												->where("parameter_id='{$parameter->id}'")
-												->orderBy("id","desc")->findAll(60);
-										$flat = 0;
-										foreach ($lastValueAVG as $avg){
-											if($lastValue->value == $avg->value){
-												$flat +=1; 	
-											}
-										}
-										if($flat == 60){
-											$is_valid = 14;
-											foreach ($lastValueAVG as $avg){
-												$this->measurement_logs->set(['is_valid' => $is_valid])->where('id', $avg->id)->update();
-											}
-											if($lastValue->value != $measured){
-												$is_valid = 11;
-											}
-										}else{
-											//data normal
-											$is_valid = 11;
-										}
-									}
-								}
-							}else{
+						if($measured <= 0){
+							$lastValue = $this->measurement_logs
+								->where("parameter_id='{$parameter->id}' and value != 0")
+								->orderBy("id","desc")->first();
+							$measured = $lastValue->value ?? 0;
+						}
+					}
+					
+					$is_valid = '';
+					//START VALIDIASI
+					if(!empty($parameter->range_max)){
+						if($parameter->p_type == "particulate"){
+							if($parameter->code == "pm25" && $flow_pm25 < 1.6){
+								$is_valid = 20;
+							} else if($parameter->code == "pm10" && $flow_pm10 < 1.6){
+								$is_valid = 20;
+							} else {
 								if($measured <= 0){
-								//validasi Abnormal
+									//validasi Abnormal
 									$is_valid = 12;
 								}else if($measured > $parameter->range_max){
 									//out of range
@@ -212,31 +186,67 @@ class FormulaMeasurementLogs extends BaseCommand
 									}
 								}
 							}
-							
 						}else{
-							$is_valid = 1;
+							if($measured <= 0){
+							//validasi Abnormal
+								$is_valid = 12;
+							}else if($measured > $parameter->range_max){
+								//out of range
+								$is_valid = 13;
+							}else{
+								//check data Flat
+								$lastValue = $this->measurement_logs
+										->where("parameter_id='{$parameter->id}'")
+										->orderBy("id","desc")->first();
+								$lastValueAVG = $this->measurement_logs
+										->where("parameter_id='{$parameter->id}'")
+										->orderBy("id","desc")->findAll(60);
+								$flat = 0;
+								foreach ($lastValueAVG as $avg){
+									if($lastValue->value == $avg->value){
+										$flat +=1; 	
+									}
+								}
+								if($flat == 60){
+									$is_valid = 14;
+									foreach ($lastValueAVG as $avg){
+										$this->measurement_logs->set(['is_valid' => $is_valid])->where('id', $avg->id)->update();
+									}
+									if($lastValue->value != $measured){
+										$is_valid = 11;
+									}
+								}else{
+									//data normal
+									$is_valid = 11;
+								}
+							}
 						}
-						//END VALIDASI				
-
-						$this->insert_logs([
-							"parameter_id" => $parameter->id,
-							"value" => $measured,
-							"sensor_value" => $raw,
-							"is_averaged" => 0,
-							"time_group" => date("Y-m-d H:i:s"),
-							"is_valid" => $is_valid,
-							"xtimestamp" => date('Y-m-d H:i:s'),
-						], $isInsertLog);
-
-					}catch(Exception $e){
-						log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
+						
+					}else{
+						$is_valid = 1;
 					}
+					//END VALIDASI				
+
+					$this->insert_logs([
+						"parameter_id" => $parameter->id,
+						"value" => $measured,
+						"sensor_value" => $raw,
+						"is_averaged" => 0,
+						"time_group" => date("Y-m-d H:i:s"),
+						"is_valid" => $is_valid,
+						"xtimestamp" => date('Y-m-d H:i:s'),
+					], $isInsertLog);
+
+				}catch(Exception $e){
+					log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
 				}
-			}catch(Exception $e){
-				log_message("error","Formula Convertion Service Error : ".$e->getMessage());
 			}
-			sleep(1);
+		}catch(Exception $e){
+			log_message("error","Formula Convertion Service Error : ".$e->getMessage());
 		}
+		$end = microtime(true);
+		CLI::write("Total Time : ".($end-$start)."s");
+		CLI::write("Done");
 	}
 	public function getPMFlow($code, $sensor){
 		try{
