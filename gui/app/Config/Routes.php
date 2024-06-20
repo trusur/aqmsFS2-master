@@ -43,6 +43,8 @@ $routes->post('parameter/edit', 'Parameter::edit');
 $routes->get('parameter/sensor-value', 'Parameter::sensor_value');
 
 $routes->get('calibrations', 'Calibration::index');
+$routes->get('calibration/configuration', 'Calibration\CalibrationConfiguration::index');
+$routes->post('calibration/configuration', 'Calibration\CalibrationConfiguration::update');
 $routes->get('calibration/zero/{:num}', 'Calibration::zero');
 $routes->get('calibration/span/{:num}', 'Calibration::span');
 $routes->get('calibration/datatable', 'Calibration::datatable');

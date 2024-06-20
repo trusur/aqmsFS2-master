@@ -85,6 +85,7 @@ class TaskScheduler extends BaseCommand
 			}
 
 			try {
+				$value = null;
 				if (!isset($counter)) $counter = 59;
 				$counter++;
 				if ($counter >= 30) {

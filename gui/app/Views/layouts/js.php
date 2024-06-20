@@ -18,13 +18,13 @@
             if(showHiddenMenuCount > 4 && localStorage.getItem("showHiddenMenu")) {
                 localStorage.removeItem("showHiddenMenu");
                 $("#parameters_nav").addClass("d-none");
-                // $("#calibrations_nav").addClass("d-none");
+                $("#calibrations_nav").addClass("d-none");
             }
         }
         <?php if(session()->get("loggedin")): ?>
             if(localStorage.getItem("showHiddenMenu") == "true") {
                 $("#parameters_nav").removeClass("d-none");
-                // $("#calibrations_nav").removeClass("d-none");
+                $("#calibrations_nav").removeClass("d-none");
             }
         <?php endif;?>
         // Trigger when user click on logo 4 times
