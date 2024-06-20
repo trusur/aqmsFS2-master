@@ -29,7 +29,6 @@
         <?php endif;?>
         // Trigger when user click on logo 4 times
         $('#logo-text').click(showHiddenMenu);
-
         /*Realtime Date & Time */
         setInterval(function() {
             try {
@@ -38,10 +37,20 @@
                 let date = ` ${momentNow.format('dddd').substr(0,3)}, ${momentNow.format('DD')} ${momentNow.format('MMM').substr(0,3)} ${momentNow.format('YYYY')}`;
                 let time = momentNow.format('hh:mm:ss A');
                 $('#date').html(`${date} | ${time}`);
+                $("#realtime-clock").html(time);
             } catch (err) {
                 console.error(err);
             }
         }, 1000);
+        /* Change Navbar */
+        window.addEventListener('scroll', function() {
+            console.log(window.scrollY);
+            if (window.scrollY > 19) {
+                $('#top-navbar').addClass('bg-dark');
+            } else {
+                $('#top-navbar').removeClass('bg-dark');
+            }
+        });
 
         
     })

@@ -26,14 +26,14 @@
                             <thead>
                                 <th width="12%">Variable</th>
                                 <th>Raw Value</th>
-                                <th>Timestamp</th>
+                                <th>Last Update</th>
                             </thead>
                             <tbody>
                                 <?php foreach($sensor_values as $sensor_value):?>
                                     <tr id="sensor_value_<?=$sensor_value->id?>">
                                         <td>$sensor[<?=$sensor_value->sensor_reader_id?>][<?=$sensor_value->pin?>]</td>
                                         <td class="value"><?=$sensor_value->value?></td>
-                                        <td class="timestamp"><?=$sensor_value->xtimestamp?></td>
+                                        <td class="timestamp text-nowrap"><?=$sensor_value->xtimestamp?></td>
                                     </tr>
                                 <?php endforeach;?>
                             </tbody>
@@ -65,13 +65,14 @@
             $.ajax({
                 url: '<?= base_url('rht/realtime') ?>',
                 type: 'GET',
+                timeout: 500,
                 dataType: 'json',
                 success: function(data) {
                     if(data?.success){
                         data?.data?.map(function(sensor_value){
                             let element = $(`#sensor_value_${sensor_value.id}`)
                             element.find(".value").html(sensor_value.value)
-                            element.find(".xtimestamp").html(sensor_value.xtimestamp)
+                            element.find(".timestamp").html(sensor_value.updated_at)
                         })
                     }
                 },

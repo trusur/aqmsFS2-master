@@ -1,4 +1,4 @@
-<nav class="sticky-top shadow-lg navbar navbar-expand-lg navbar-dark">
+<nav id="top-navbar" class="sticky-top shadow-lg navbar navbar-expand-lg navbar-dark">
     <div class="container-md">
         <span class="navbar-brand d-flex align-items-center" href="<?= base_url() ?>" style="column-gap:12px;font-weight:bolder;font-size:30px;">
             <a href="<?=base_url()?>">
@@ -7,7 +7,7 @@
             <div id="logo-text" style="cursor:pointer;" class="position-relative d-flex align-items-center">
                 <span style="font-size:20px">AQMS</span>
                 <div class="position-absolute" style="top: -2px;right: -11px">
-                    <small class="badge badge-dark" style="font-size:10px">EFS1</small>
+                    <small class="badge badge-dark" style="font-size:10px">EFS2</small>
                 </div>
             </div>
         </span>
@@ -48,7 +48,8 @@
                 <?php endif?>
                 
             </ul>
-            <div class="d-flex justify-content-end align-items-center my-2 ml-md-0">
+            <div class="d-flex justify-content-end align-items-center my-2 ml-md-0" style="gap:5px">
+                <span id="realtime-clock" class="text-muted"></span>
                 <div id="connect" data-intro="<?= lang('Global.intro_connectivity') ?>">
                     <span class="badge badge-sm badge-danger" title="Internet Not Connected">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-wifi-off" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -61,7 +62,7 @@
                         </svg>
                     </span>
                 </div>
-                <div class="mx-1" data-intro="<?= lang('Global.intro_lang') ?>">
+                <div  data-intro="<?= lang('Global.intro_lang') ?>">
                     <?php if (@session()->get('web_lang') == 'en') : ?>
                         <a href="<?= base_url('lang/id') ?>" class="btn btn-sm btn-primary" title="Translate to Indonesia">
                             <img src="<?= base_url('img/gb.svg') ?>" alt="EN" height="20vh" width="20vw">
