@@ -1,5 +1,6 @@
 from mysql.connector.constants import ClientFlag
 import mysql.connector
+import logging
 
 def connect():
     try:
@@ -47,3 +48,30 @@ def is_sensor_values_exist(id,pin):
         return True
     except Exception as e: 
         return False
+    
+
+def get_configuration(name):
+    try:
+        cnx = connect()
+        cursor = cnx.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM configurations WHERE name=%s",(name,))
+        row = cursor.fetchone()
+        cursor.close()
+        cnx.close()
+        if row is None:
+            return None
+        return row['content']
+    except Exception as e: 
+        logging.error("get_configuration: "+e)
+        return None
+def set_configuration(name,content):
+    try:
+        cnx = connect()
+        cursor = cnx.cursor()
+        if(get_configuration(name) is None):
+            cursor.execute("INSERT INTO configurations (name,content) VALUES (%s,%s)",(name,content))
+        else:
+            cursor.execute("UPDATE configurations SET content=%s WHERE name=%s",(content,name))
+    except Exception as e: 
+        logging.error("set_configuration: "+e)
+        return None
