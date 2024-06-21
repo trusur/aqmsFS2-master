@@ -54,6 +54,23 @@ class Calibration extends BaseController
 			]);
 		}
 	}
+
+	public function span($calibration_id){
+		try{
+			$calibration = $this->calibrations
+				->select("parameters.caption_id,calibrations.*")
+				->join("parameters", "parameters.id = calibrations.parameter_id", "left")
+				->find($calibration_id);
+			$data['__modulename'] = 'Span Calibration'; /* Title */
+			$data['__routename'] = 'calibration'; /* Route for check menu */
+			$data['calibration'] = $calibration;
+			return view("calibrations/v_span", $data);
+		}catch(Exception $e){
+			return redirect()->with('error', $e->getMessage());
+		}
+	}
+
+
 	public function logs(){
 		$data['__modulename'] = 'Calibration Logs'; /* Title */
 		$data['__routename'] = 'calibration'; /* Route for check menu */
@@ -105,10 +122,13 @@ class Calibration extends BaseController
 
 	public function get_calibration_logs($calibration_id){
 		try{
+			$db = db_connect();
+			$db->query("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 			$data = $this->calibration_logs
 				->select("id,value,created_at")
 				->where("calibration_id",$calibration_id)
 				->orderBy("created_at","desc")
+				->groupBy("created_at")
 				->findAll(1000);
 			$rows = $this->calibration_logs->where("calibration_id",$calibration_id)->countAllResults();
 			return $this->response->setJSON([

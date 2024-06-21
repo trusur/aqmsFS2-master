@@ -9,56 +9,161 @@
             </a>
         </div>
     </div>
-    <form action="">
-        <div class="row">
-            <div class="col-md-6 mx-auto">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label><?= lang('Global.Voltage Field') ?></label>
-                            <select name="" class="form-control"></select>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Span <?= lang('Global.Concentration') ?></label>
-                                    <input type="text" name="" placeholder="Span <?= lang('Global.Concentration') ?>" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Span <?= lang('Global.Voltage') ?></label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" placeholder="Span <?= lang('Global.Voltage') ?>">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-info" type="button" id="button-addon2"><i class="fas fa-check"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label><?= lang('Global.Voltage') ?></label>
-                            <input type="text" name="" placeholder="<?= lang('Global.Voltage') ?>" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Formula</label>
-                            <input type="text" name="" placeholder="Formula" class="form-control">
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" name="Save" class="btn btn-info" id="btn-save"><?= lang('Global.Save Changes') ?></button>
-                        </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped" style="width: 100%;">
+                            <tbody>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <td><?=$calibration->caption_id?></td>
+                                </tr>
+                                <tr>
+                                    <th>Durations <small>(sec)</small></th>
+                                    <td>300</td>
+                                </tr>
+                                <tr>
+                                    <th>Target Value <small>(ppm)</small></th>
+                                    <td>000</td>
+                                </tr>
+                                <tr>
+                                    <th>Remaining <small>(sec)</small></th>
+                                    <td>300</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Value <small>(ppm)</small></th>
+                                    <td>000</td>
+                                </tr>
+                                <tr>
+                                    <th>Action</th>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary">
+                                            Set SPAN
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- <div class="position-fixed" style="z-index: 999;right:11vw;bottom:20px;">
-                
-            </div> -->
-    </form>
+        <div class="col-md-8">
+           <div class="card">
+            <div class="card-body">
+                <div id="linechart"></div>
+            </div>
+           </div>
+        </div>
+    </div>
+
 </div>
 <?= $this->endSection() ?>
 <?= $this->section('css') ?>
 <!-- Custom CSS Here -->
 <?= $this->endSection() ?>
 <?= $this->section('js') ?>
-<!-- Custom JS Here -->
+<script src="<?=base_url("plugins/apexchart/dist/apexcharts.min.js")?>"></script>
+<script>
+    $(document).ready(function(){
+        const chart = new ApexCharts(document.querySelector("#linechart"), {
+            chart: {
+                type: 'line',
+                height: 300,
+                zoom: {
+                    enabled: false
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'linear',
+                    dynamicAnimation: {
+                        speed: 1000
+                    }
+                }
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            series: [
+                {
+                    name: "<?= $calibration->caption_id?> <small>ppm</small>",
+                    data: []
+                }
+            ],
+            title: {
+                text: 'Value Trends by Timestamp',
+                align: 'left'
+            },
+            xaxis: {
+                type: 'category',
+            },
+             grid: {
+                row: {
+                    colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            annotations: {
+                yaxis: [
+                    {
+                    y: <?= $calibration->target_value ?>,
+                        borderColor: '#FF2171',
+                        label: {
+                            borderColor: '#FF2171',
+                            style: {
+                            color: '#fff',
+                            background: '#FF2171'
+                            },
+                            text: 'Target Value : <?= $calibration->target_value ?>'
+                        }
+                    }
+                ]
+            }
+        });
+        chart.render()
+        function setChartAsInit(){
+            chart.updateSeries([{
+                name: "<?= $calibration->caption_id?> <small>ppm</small>",
+                data: []
+            }])
+        }
+
+        function updateChart() {
+            $.ajax({
+                url: "<?= base_url('calibration/log/calibration-log/'.$calibration->id) ?>",
+                dataType : "json",
+                success : function(response){
+                    let {data} = response
+                    if(data.length > 0){
+                        data = data.reverse()
+                        let series = [], labels = []
+                        data.forEach(d => {
+                            let xtime = d.created_at.split(" ")[1] ?? ""
+                            series.push({
+                                x : xtime,
+                                y : parseFloat(d.value)
+                            })
+                        })
+                        chart.updateSeries([
+                            {
+                                data : series   
+                            }
+                        ])
+                    }else{
+                        setChartAsInit()
+                    }
+                },
+                error : function(err){
+                    setChartAsInit()
+                }
+            })
+            setTimeout(updateChart, 1000);
+        }
+
+        updateChart()
+      
+    })
+</script>
 <?= $this->endSection() ?>
