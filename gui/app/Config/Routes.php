@@ -43,9 +43,12 @@ $routes->post('parameter/edit', 'Parameter::edit');
 $routes->get('parameter/sensor-value', 'Parameter::sensor_value');
 
 $routes->get('calibrations', 'Calibration::index');
+$routes->post('calibrations', 'Calibration::store');
 $routes->get('calibration/configuration', 'Calibration\CalibrationConfiguration::index');
 $routes->post('calibration/configuration', 'Calibration\Calibrat/ionConfiguration::update');
 $routes->get('calibration/logs', 'Calibration::logs');
+$routes->get('calibration/log/(:num)', 'Calibration::detail_log/$1');
+$routes->get('calibration/log/calibration-log/(:num)', 'Calibration::get_calibration_logs/$1');
 $routes->get('calibration/datatable-logs', 'Calibration::datatable_logs');
 // $routes->get('calibration/zero/{:num}', 'Calibration::zero');
 // $routes->get('calibration/span/{:num}', 'Calibration::span');
