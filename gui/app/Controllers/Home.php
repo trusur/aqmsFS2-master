@@ -25,22 +25,20 @@ class Home extends BaseController
 		$data['particulates'] = $this->parameter->where(['is_view' => 1, 'p_type' => 'particulate'])->findAll();
 		$data['weathers'] = $this->parameter->where(['is_view' => 1, 'p_type' => 'weather'])->findAll();
 		$data['flow_meters'] = $this->parameter->where(['is_view' => 1, 'p_type' => 'flowmeter'])->findAll();
-		$data['stationname'] = $this->configuration->where(['name' => 'nama_stasiun'])->first()->content ?? '-';
-		$data['is_cems'] = $this->configuration->where(['name' => 'is_cems'])->first()->content ?? 0;
-		$data['pump_interval'] = $this->configuration->where(['name' => 'pump_interval'])->first()->content ?? 360;
+		$data['stationname'] = get_config("station_name");
+		$data['pump_interval'] = get_config("pump_interval",360);
 		return view("v_home", $data);
 	}
 
 	public function pump()
 	{
 		try{
-			$pumpState = $this->configuration->where(["name" => "pump_has_trigger_change"])->first(); 
+			$pumpState = get_config("pump_has_trigger_change",1); 
 
 			if($pumpState){
 				// Check Is Pump State Exist in Configuration
-				$switch = $pumpState->content == 1 ? 0 : 1;
-				$pumpStateData['content'] 	= $switch;
-				$this->configuration->update($pumpState->id, $pumpStateData);
+				$switch = $pumpState == 1 ? 0 : 1;
+				set_config("pump_has_trigger_change",$switch);
 			}else{
 				// Insert New Configuration if empty
 				$pumpStateData['name'] 		= 'pump_has_trigger_change';
