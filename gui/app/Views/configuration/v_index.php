@@ -82,22 +82,22 @@
                         <div class="row p-0">
                             <div class="mb-1 col-6">
                                 <label class="small">Interval Data Avg. <small class="text-muted" style="font-size: smaller;">(mins)</small></label>
-                                <input type="number" min="1" inputmode="numeric" placeholder="Interval in mins" name="name[data_interval]" value="<?= $__this->getConfiguration('data_interval') ?>" class="form-control form-control-sm">
+                                <input type="number" min="5" inputmode="numeric" placeholder="Interval in mins" name="name[data_interval]" value="<?= get_config('data_interval') ?>" class="form-control form-control-sm">
                             </div>
                             <div class="mb-1 col-6">
                                 <label class="small">Pump Speed. <small class="text-muted" style="font-size: smaller;">(%)</small></label>
-                                <input type="number" min="1" inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= $__this->getConfiguration('pump_speed') ?>" class="form-control form-control-sm">
+                                <input type="number" min="1" inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= get_config('pump_speed') ?>" class="form-control form-control-sm">
                             </div>
                             <div class="mb-1 col-6">
                                 <label class="d-block small">Auto Restart?</label>
                                 <select name="name[is_auto_restart]" class="form-control form-control-sm">
-                                    <option value="1" <?= $__this->getConfiguration('is_auto_restart') == 1 ? 'selected' : '' ?>>Yes</option>
-                                    <option value="1" <?= $__this->getConfiguration('is_auto_restart') == 1 ? 'selected' : '' ?>>No</option>
+                                    <option value="1" <?= get_config("is_auto_restart") == 1 ? 'selected' : '' ?>>Yes</option>
+                                    <option value="0" <?= get_config("is_auto_restart") == 0 ? 'selected' : '' ?>>No</option>
                                 </select>
                             </div>
                             <div class="mb-1 col-6">
                                 <label class="small">Restart Schedule</label>
-                                <input type="time" name="restart_schedule" value="<?= $__this->getConfiguration('restart_schedule') ?>" class="form-control form-control-sm">
+                                <input type="time" name="restart_schedule" value="<?= get_config("restart_schedule") ?>" class="form-control form-control-sm">
                             </div>
                             <div class="col-12 d-flex justify-content-end">
                                 <button type="submit" class="btn btn-info">Save Changes</button>
@@ -123,25 +123,25 @@
                                     <div class="mb-1 col-6">
                                         <label class="d-block small">Sent to KLHK?</label>
                                         <select name="name[is_sentto_klhk]" class="form-control form-control-sm">
-                                            <option value="1" <?= $__this->getConfiguration('is_sentto_klhk') == 1 ? 'selected' : '' ?>>Yes</option>
-                                            <option value="1" <?= $__this->getConfiguration('is_sentto_klhk') == 1 ? 'selected' : '' ?>>No</option>
+                                            <option value="1" <?= get_config('is_sentto_klhk') == 1 ? 'selected' : '' ?>>Yes</option>
+                                            <option value="0" <?= get_config('is_sentto_klhk') == 0 ? 'selected' : '' ?>>No</option>
                                         </select>
                                     </div>
                                     <div class="mb-1 col-6">
                                         <label class="small">Base URL</label>
-                                        <input type="text" placeholder="Base URL" name="name[klhk_api_server]" value="<?= $__this->getConfiguration('klhk_api_server') ?>" class="form-control form-control-sm">
+                                        <input type="text" placeholder="Base URL" name="name[klhk_api_server]" value="<?= get_config('klhk_api_server') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="mb-1 col-6">
                                         <label class="small">Username</label>
-                                        <input type="text" placeholder="Username" name="name[klhk_api_username]" value="<?= $__this->getConfiguration('klhk_api_username') ?>" class="form-control form-control-sm">
+                                        <input type="text" placeholder="Username" name="name[klhk_api_username]" value="<?= get_config('klhk_api_username') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="mb-1 col-6">
                                         <label class="small">Password</label>
-                                        <input type="password" placeholder="Password" name="name[klhk_api_password]" value="<?= $__this->getConfiguration('klhk_api_password') ?>" class="form-control form-control-sm">
+                                        <input type="password" placeholder="Password" name="name[klhk_api_password]" value="<?= get_config('klhk_api_password') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="mb-1 col-12">
                                         <label class="small">API-Key</label>
-                                        <input type="password" placeholder="API-Key" name="name[klhk_api_key]" value="<?= $__this->getConfiguration('klhk_api_key') ?>" class="form-control form-control-sm">
+                                        <input type="password" placeholder="API-Key" name="name[klhk_api_key]" value="<?= get_config('klhk_api_key')?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="col-12">
                                         <label class="text-muted small" style="font-size: smaller;">Server Trusur Configuration</label>
@@ -169,25 +169,25 @@
                                     <div class="mb-1 col-6">
                                         <label class="d-block small">Sent to TRUSUR?</label>
                                         <select name="name[is_sent_to_trusur]" class="form-control form-control-sm">
-                                            <option value="1" <?= $__this->getConfiguration('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>Yes</option>
-                                            <option value="1" <?= $__this->getConfiguration('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>No</option>
+                                            <option value="1" <?= get_config('is_sent_to_trusur') == 1 ? 'selected' : '' ?>>Yes</option>
+                                            <option value="0" <?= get_config('is_sent_to_trusur') == 0 ? 'selected' : '' ?>>No</option>
                                         </select>
                                     </div>
                                     <div class="mb-1 col-6">
                                         <label class="small">Base URL</label>
-                                        <input type="text" placeholder="Base URL" name="name[trusur_api_server]" value="<?= $__this->getConfiguration('trusur_api_server') ?>" class="form-control form-control-sm">
+                                        <input type="text" placeholder="Base URL" name="name[trusur_api_server]" value="<?= get_config('trusur_api_server') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="mb-1 col-6">
                                         <label class="small">Username</label>
-                                        <input type="text" placeholder="Username" name="name[trusur_api_username]" value="<?= $__this->getConfiguration('trusur_api_username') ?>" class="form-control form-control-sm">
+                                        <input type="text" placeholder="Username" name="name[trusur_api_username]" value="<?= get_config('trusur_api_username') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="mb-1 col-6">
                                         <label class="small">Password</label>
-                                        <input type="password" placeholder="Password" name="name[trusur_api_password]" value="<?= $__this->getConfiguration('trusur_api_password') ?>" class="form-control form-control-sm">
+                                        <input type="password" placeholder="Password" name="name[trusur_api_password]" value="<?= get_config('trusur_api_password') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="mb-1 col-12">
                                         <label class="small">API-Key</label>
-                                        <input type="password" placeholder="API-Key" name="name[trusur_api_key]" value="<?= $__this->getConfiguration('trusur_api_key') ?>" class="form-control form-control-sm">
+                                        <input type="password" placeholder="API-Key" name="name[trusur_api_key]" value="<?= get_config('trusur_api_key') ?>" class="form-control form-control-sm">
                                     </div>
                                     <div class="col-12 d-flex justify-content-end">
                                         <button type="submit" class="btn btn-info">Save Changes</button>

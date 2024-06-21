@@ -36,19 +36,19 @@ if(!function_exists('get_config')) {
 }
 if(!function_exists('update_config')) {
     function update_config($name, $content) {
-       try{
-            if(get_config($name) == null){
-                return set_config($name, $content);
-            }
+         try{
             $configurationM  = new m_configuration();
-            return $configurationM->where('name', $name)->update(['content' => $content]);
+            if($configurationM->where('name', $name)->countAllResults() < 1){
+                return create_config($name, $content);
+            }
+            return $configurationM->set(['content' => $content])->where('name', $name)->update();
        }catch(Exception $e){
             return false;
        }
     }
 }
-if(!function_exists('set_config')) {
-    function set_config($name, $content) {
+if(!function_exists('create_config')) {
+    function create_config($name, $content) {
        try{
             $configurationM  = new m_configuration();
             return $configurationM->insert(['name' => $name, 'content' => $content]);

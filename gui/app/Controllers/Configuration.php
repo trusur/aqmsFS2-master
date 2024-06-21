@@ -134,15 +134,13 @@ class Configuration extends BaseController
 		try{
 			$inputs = request()->getPost('name');
 			foreach ($inputs as $name => $content) {
-				$isExist = $this->configuration->where('name', $name)->countAllResults() > 0 ? true:false;
-				if(!$isExist){
-					$this->configuration->insert([
-						'name' => $name,
-						'content' => $content
-					]);
-				}else{
-					$this->configuration->set('content', $content)->where('name', $name)->update();
+				if($name == "pump_speed" && $content != get_config('pump_speed')){
+					/* 
+						Validasi jika ada perubahan nilai pada kecepatan pompa, maka otomatis trigger bahwa ada perubahan data pada pompa untuk dijalakan oleh driver pompa
+					*/
+					update_config("pump_has_trigger_change",get_config("pump_state"));
 				}
+				update_config($name, $content);
 			}
 			return response()->setJSON([
 				'success' => true,

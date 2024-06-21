@@ -17,13 +17,15 @@ def get_driver():
     
 def switch_pump(pump_state):
     try:
+        pump_speed = db.get_configuration("pump_speed")
+        pump_speed = 100 if int(pump_speed) > 100 else int(pump_speed)
         driver = get_driver()
         port = driver['sensor_code']
         baudrate = driver['baud_rate']
         if(pump_state == 1):
-            command = "pump2.set.100#"
+            command = "pump2.set."+str(pump_speed)+"#"
         else:
-            command = "pump.set.100#"
+            command = "pump.set."+str(pump_speed)+"#"
         max_timeout = 60
         timeout = 0
         response = ""
