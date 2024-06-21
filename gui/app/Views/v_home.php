@@ -155,7 +155,6 @@
                                 $(`#value_${value?.code}`).attr("title",value.xtimestamp)
                                 $(`#time_${value?.code}`).html(value.xtimestamp)
                             } catch (err) {
-                                console.log(err)
                             }
 
                         });
@@ -251,7 +250,6 @@
         function calculatePpm(ug, molecular_mass) {
 
             try {
-                console.log(ug)
                 ug = parseFloat(ug);
                 molecular_mass = parseFloat(molecular_mass);
                 let value = (ug * 24.45) / (1000 * molecular_mass);

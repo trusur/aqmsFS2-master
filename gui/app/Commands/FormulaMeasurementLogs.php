@@ -109,8 +109,6 @@ class FormulaMeasurementLogs extends BaseCommand
 				try{
 					$measured = 0;
 					$sensor_value = $this->sensor_values->select("sensor_reader_id,pin")->find($parameter->sensor_value_id);
-					// $flow_pm25 = explode(';',$this->sensor_values->where('pin', 17)->first()->value)[1];
-					// $flow_pm10 = explode(';',$this->sensor_values->where('pin', 16)->first()->value)[1];
 					$flow_pm25 = $this->getPMFlow("pm25_flow",$sensor);
 					$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
 					try{
@@ -123,8 +121,8 @@ class FormulaMeasurementLogs extends BaseCommand
 								$raw = explode(";",$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin])[2] ?? -999;
 							}
 						}
-						CLI::write("[$parameter->code]: $measured", "blue");
-						CLI::write("[$parameter->code]: $raw", "blue");
+						// CLI::write("[$parameter->code]: $measured", "blue");
+						// CLI::write("[$parameter->code]: $raw", "blue");
 					}catch(ParseError | Error | DivisionByZeroError $e){
 						$measured = 0;
 						$raw = 0;
@@ -275,6 +273,7 @@ class FormulaMeasurementLogs extends BaseCommand
 				return $this->realtime_value->where("parameter_id={$parameterId}")
 				->set([
 					"measured" => $logs["value"],
+					"raw" => $logs['sensor_value'],
 					"xtimestamp" => date("Y-m-d H:i:s"),
 				])->update();
 			}
