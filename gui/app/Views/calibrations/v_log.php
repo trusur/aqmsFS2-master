@@ -8,7 +8,7 @@
                     <h5 class="card-title">Calibration Logs</h5>
                     <div>
                         <button type="button" data-toggle="modal" data-target="#modal-filter" class="btn btn-sm btn-info">Filter</button>
-                        <a href="<?= base_url('calibration') ?>" class="btn btn-sm btn-secondary">Back</a>
+                        <a href="<?= base_url('calibration') ?>" class="btn btn-sm btn-secondary">Go Back</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -108,7 +108,12 @@
                 }
             },
             columns: [
-                {data: "id"},
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return `<a href="<?= base_url('calibration/log/') ?>${data}">👁️</a>`;
+                    }
+                },
                 {
                     data: "parameter_id",
                     render: function (data, type, row) {
