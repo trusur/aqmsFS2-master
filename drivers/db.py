@@ -75,3 +75,35 @@ def set_configuration(name,content):
     except Exception as e: 
         logging.error("set_configuration: "+e)
         return None
+    
+def get_calibration(id):
+    try:
+        cnx = connect()
+        cursor = cnx.cursor(dictionary=True,buffered=True)
+        cursor.execute("SELECT * FROM calibrations WHERE id=%s",(id,))
+        row = cursor.fetchone()
+        cursor.close()
+        cnx.close()
+        if row is None:
+            return None
+        return row  
+    except Exception as e: 
+        print(e)
+        logging.error("get_calibration: "+str(e))
+        return None
+    
+def set_calibration_log(calibration_id,parameter_id,value,created_at):
+    try:
+        cnx = connect()
+        cursor = cnx.cursor()
+        cursor.execute("UPDATE calibrations SET is_executed = 1 WHERE id = %s",(calibration_id,))
+        cnx.commit()
+        cursor.execute("INSERT INTO calibration_logs (calibration_id,parameter_id,value,created_at) VALUES (%s,%s,%s,%s)",(calibration_id,parameter_id,value,created_at))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return True
+    except Exception as e: 
+        print(e)
+        logging.error("set_calibration_log: "+str(e))
+        return False

@@ -134,7 +134,7 @@
                         type: 'POST',
                         data: {
                             parameter_id: id,
-                            calibration_type: id,
+                            calibration_type: 1,
                             target_value: result.value,
                         },
                         success: function(response){
@@ -142,7 +142,7 @@
                             Swal.fire({
                                 icon: 'success',
                                 text: response.message,
-                                showConfirmButton: false,
+                                confirmButtonText: 'Lanjut Kalibrasi',
                             }).then((result) => {
                                 location.href = `<?= base_url('calibration/span') ?>/${response?.data ?? ''}`
                             })

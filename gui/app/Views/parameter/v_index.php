@@ -83,6 +83,7 @@
 <script>
     $(document).ready(function(){
         const table = $('#table-parameter').DataTable({
+            lengthMenu: [[5,10, 25, 50, 100, -1], [5,10, 25, 50, 100, "All"]],
             processing:true,
             serverSide:true,
             ajax: {

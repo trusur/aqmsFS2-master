@@ -40,7 +40,15 @@ class Calibration extends BaseController
 			$params['target_value'] = request()->getPost('target_value') ?? 0;
 			$params['duration'] = get_config('span_cal_duration') ?? 0;
 
+			if($params['calibration_type'] == 1){
+				$parameter = $this->parameters->select("code")->find($params['parameter_id']);
+				$parameterCode = strtoupper($parameter->code);
+				update_config('set_span',"{$parameterCode};{$params['target_value']};{$params['duration']}");
+				update_config('calibration_mode',1);
+			}
+
 			$data = $this->calibrations->insert($params);
+			update_config('is_calibration',$data);
 			return $this->response->setJSON([
 				'success' => true,
 				'message' => 'Calibration has been added to queue',
