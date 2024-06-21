@@ -44,10 +44,14 @@ $routes->get('parameter/sensor-value', 'Parameter::sensor_value');
 
 $routes->get('calibrations', 'Calibration::index');
 $routes->get('calibration/configuration', 'Calibration\CalibrationConfiguration::index');
-$routes->post('calibration/configuration', 'Calibration\CalibrationConfiguration::update');
-$routes->get('calibration/zero/{:num}', 'Calibration::zero');
-$routes->get('calibration/span/{:num}', 'Calibration::span');
-$routes->get('calibration/datatable', 'Calibration::datatable');
+$routes->post('calibration/configuration', 'Calibration\Calibrat/ionConfiguration::update');
+$routes->get('calibration/logs', 'Calibration::logs');
+$routes->get('calibration/datatable-logs', 'Calibration::datatable_logs');
+// $routes->get('calibration/zero/{:num}', 'Calibration::zero');
+// $routes->get('calibration/span/{:num}', 'Calibration::span');
+// $routes->get('calibration/datatable', 'Calibration::datatable');
+
+
 $routes->get('exports', 'Export::index');
 $routes->get('export/csv', 'Export::export');
 

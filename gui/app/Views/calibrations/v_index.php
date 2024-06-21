@@ -26,7 +26,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between flex-column" style="gap: 5px;">
                                         <a href="<?= base_url('calibration/configuration')?>" class="btn btn-sm btn-secondary w-100">Configurations &raquo;</a>
-                                        <a href="#" class="btn btn-sm btn-secondary w-100">Calibrations Logs &raquo;</a>
+                                        <a href="<?= base_url('calibration/logs') ?>" class="btn btn-sm btn-secondary w-100">Calibrations Logs &raquo;</a>
                                         <a href="#" class="btn btn-sm btn-info w-100">Zero Cal. All Params</a>
                                     </div>
                                 </div>
