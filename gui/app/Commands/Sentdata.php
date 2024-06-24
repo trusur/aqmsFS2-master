@@ -25,6 +25,7 @@ class Sentdata extends BaseCommand
 	protected $sensor_values;
 	protected $measurement_logs;
 	protected $measurements;
+	protected $measurement1min;
 	protected $configurations;
 	protected $lastPutData;
 	protected $MLogSent;
@@ -36,6 +37,7 @@ class Sentdata extends BaseCommand
 		$this->measurement_logs =  new m_measurement_log();
 		$this->configurations =  new m_configuration();
 		$this->measurements =  new m_measurement();
+		$this->measurement1min =  new m_measurement_1min();
 		$this->lastPutData = "0000-00-00 00:00";
 		$this->MLogSent = new m_log_sent();
 	}
