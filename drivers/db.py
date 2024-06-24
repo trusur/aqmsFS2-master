@@ -69,10 +69,14 @@ def set_configuration(name,content):
     try:
         cnx = connect()
         cursor = cnx.cursor()
-        if(get_configuration(name) is None):
+        cursor.execute("SELECT * FROM configurations WHERE name=%s",(name,))
+        row = cursor.fetchone()
+        if row is None:
             cursor.execute("INSERT INTO configurations (name,content) VALUES (%s,%s)",(name,content))
         else:
             cursor.execute("UPDATE configurations SET content=%s WHERE name=%s",(content,name))
+        cnx.commit()
+        cursor.close()
     except Exception as e: 
         logging.error("set_configuration: "+e)
         return None
