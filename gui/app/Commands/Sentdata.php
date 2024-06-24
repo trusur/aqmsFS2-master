@@ -161,6 +161,7 @@ class Sentdata extends BaseCommand
 			} else {
 				if (strpos(" " . $response, "success") > 0) {
 					$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
+					$this->measurement1min->where(["is_sent_cloud" => 1])->delete();
 					CLI::write("[Success] - Sent data {$time_group} to Trusur Server", "green");
 					return true;
 				} else {

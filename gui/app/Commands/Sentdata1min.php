@@ -165,7 +165,7 @@ class Sentdata1min extends BaseCommand
 			} 
 			if (strpos(" " . $response, "success") > 0) {
 				CLI::write("Success Sending 1min data", "green");
-				$this->measurement1min->where(["time_group" => $timegroup])->delete();
+				// $this->measurement1min->where(["time_group" => $timegroup])->delete();
 			} else {
 				print_r($response);
 			}
