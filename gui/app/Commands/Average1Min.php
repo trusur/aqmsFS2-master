@@ -100,8 +100,6 @@ class Average1Min extends BaseCommand
 				$valuesNotValid = array_filter($values,  function($value) {
 					return $value->is_valid != 11;
 				});
-				print_r($valuesNotValid);
-				print_r($valuesValid);
 
 				if($vvalue > 0){
 					$minData = ($vvalue * 100 / count($values));
