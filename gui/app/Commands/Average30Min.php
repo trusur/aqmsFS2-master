@@ -65,11 +65,14 @@ class Average30Min extends BaseCommand
         $Mparameter = new \App\Models\m_parameter();
 
         $hour = date("H");
-        $minute = date("i") >= 30 ? "30" : "00";
-
+        $minute = date("i");
+        $interval = get_config("data_interval");
+        if(($minute % $interval) != 0){
+            CLI::write("Interval not match", 'yellow');
+            return 0;
+        }
         $startAt = date("Y-m-d H:i:00", strtotime("-30 minutes", strtotime("{$hour}:{$minute}:00")));
         $endAt = date("Y-m-d H:$minute:00");
-
         $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate') and is_view = 1")->findAll();
         $data = [];
         /* Get All Parameters */

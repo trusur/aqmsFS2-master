@@ -58,6 +58,10 @@ class Average1Min extends BaseCommand
      */
     public function run(array $params)
     {
+		$s = date("s");
+		if($s != "00"){
+			return 0;
+		}
 		$exec_start =  microtime(true);
         $Mmeasurement1Min = new \App\Models\m_measurement_1min();
         $MmeasurementLog = new \App\Models\m_measurement_log();
