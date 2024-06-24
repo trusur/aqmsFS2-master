@@ -71,8 +71,6 @@ try:
     #hdd
     harddisk = round((hdd.used / (2**30)) * 100 / (hdd.total / (2**30)))
 
-    sentData(cpu,memory,harddisk)
-
     if(cpu > 80 or memory > 80 or harddisk > 80):
         sentData(cpu,memory,harddisk)
         sys.exit
