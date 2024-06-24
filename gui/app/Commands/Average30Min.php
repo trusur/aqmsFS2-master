@@ -67,7 +67,11 @@ class Average30Min extends BaseCommand
         $hour = date("H");
         $minute = date("i");
         $interval = get_config("data_interval");
-        if(($minute % $interval) != 0){
+
+        $startAt = $params[0] ?? date("Y-m-d H:i:00", strtotime("-{$interval} minutes"));
+        $endAt = $parms[1] ?? date("Y-m-d H:$minute:00");
+        
+        if(empty($params) && ($minute % $interval) != 0){
             // CLI::write("[Avg30Min] - The minute must be a multiple of {$interval}mins", 'yellow');
             return 0;
         }
@@ -75,8 +79,7 @@ class Average30Min extends BaseCommand
         //     CLI::write("[Avg30Min] - The second must be 00", 'yellow');
         //     return 0;
         // }
-        $startAt = date("Y-m-d H:i:00", strtotime("-{$interval} minutes"));
-        $endAt = date("Y-m-d H:$minute:00");
+        
         $parameters = $Mparameter->select("id,code,range_min,range_max,bakumutu")->where("p_type in ('gas','particulate') and is_view = 1")->findAll();
         $data = [];
         /* Get All Parameters */
