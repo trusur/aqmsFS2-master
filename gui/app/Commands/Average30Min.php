@@ -72,6 +72,7 @@ class Average30Min extends BaseCommand
             return 0;
         }
         if(date("s") != "00"){
+            CLI::write("[Avg30Min] - The second must be 00", 'yellow');
             return 0;
         }
         $startAt = date("Y-m-d H:i:00", strtotime("-30 minutes", strtotime("{$hour}:{$minute}:00")));
