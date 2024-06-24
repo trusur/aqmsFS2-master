@@ -84,16 +84,15 @@ class Sentdata1sec extends BaseCommand
 	{
 		$is_sentto_trusur = (int) get_config("is_sentto_trusur", 1);
 		if($is_sentto_trusur == 0) return;
+		if(date("s") != "00") return;
 
 		$trusur_api_server = get_config("trusur_api_server");
 		$lastSent = $this->getLastSent();
 		if ($lastSent) {
 			$is_exist = false;
+			enabled_group_by();
 			$time_groups = $this->logSent->select("time_group")->where("is_sent_cloud = 0 and time_group >= '{$lastSent}'")->groupBy("time_group")->findAll(1000);
 			$idStation = get_config("id_stasiun");
-			print("Trusur: " . $trusur_api_server . "\n");
-			print("Last Sent: " . $lastSent . "\n");
-			print("ID Stasiun: " . $idStation . "\n");
 			$timeGroup = [];
 			$arr = [];
 			foreach ($time_groups as $key => $time_group) {

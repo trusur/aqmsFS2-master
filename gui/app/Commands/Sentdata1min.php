@@ -87,13 +87,13 @@ class Sentdata1min extends BaseCommand
 			CLI::write("Pengiriman tidak diaktifkan", "yellow");
 			return;
 		}
-		if(date("i") % $data_interval != 0) {
-			CLI::write("Waktu harus di kelipatan {$data_interval} menit", "yellow");
-			return;
-		}
-		if(date("s") != "00"){
-			return;
-		}
+		// if(date("i") % $data_interval != 0) {
+		// 	CLI::write("Waktu harus di kelipatan {$data_interval} menit", "yellow");
+		// 	return;
+		// }
+		// if(date("s") != "00"){
+		// 	return;
+		// }
 
 		$idStation = get_config("id_stasiun");
 		$lastSent = $this->getLastSent() ?? $startAt;
@@ -102,8 +102,7 @@ class Sentdata1min extends BaseCommand
 		$time_groups = $this->measurement1min
 			->select("time_group")
 			->where("is_sent_cloud = 0 and time_group >= '{$lastSent}' and time_group < '{$endAt}'")
-			->groupBy("time_group")->findAll();
-		$is_exist  = count($time_groups) > 0;
+			->groupBy("time_group")->findAll(1000);
 		foreach ($time_groups as $time_group) {
 			$arr["id_stasiun"] = $idStation;
 			$arr["waktu"] = $time_group->time_group;
@@ -177,7 +176,7 @@ class Sentdata1min extends BaseCommand
 
 	public function getLastSent(){
 		try{
-			return $this->measurement1min->where(["is_sent_cloud" => 1])->orderBy("id", "desc")->first()->time_group ?? null;
+			return $this->measurement1min->where(["is_sent_cloud" => 0])->orderBy("id", "asc")->first()->time_group ?? null;
 		}catch(Exception $e){
 			return null;
 		}
