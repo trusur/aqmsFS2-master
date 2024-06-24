@@ -84,7 +84,7 @@ class Sentdata1sec extends BaseCommand
 	{
 		$is_sentto_trusur = (int) get_config("is_sentto_trusur", 1);
 		if($is_sentto_trusur == 0) return;
-		if(date("s") != "00") return;
+		// if(date("s") != "00") return;
 
 		$trusur_api_server = get_config("trusur_api_server");
 		$lastSent = $this->getLastSent();
