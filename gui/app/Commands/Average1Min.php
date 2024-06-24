@@ -58,16 +58,15 @@ class Average1Min extends BaseCommand
      */
     public function run(array $params)
     {
-		$s = date("s");
-		if($s != "00"){
-			// CLI::write("[Avg1min] - The second must be 00", 'yellow');
-			return 0;
-		}
+		// $s = date("s");
+		// if($s != "00"){
+		// 	// CLI::write("[Avg1min] - The second must be 00", 'yellow');
+		// 	return 0;
+		// }
 		$exec_start =  microtime(true);
         $Mmeasurement1Min = new \App\Models\m_measurement_1min();
         $MmeasurementLog = new \App\Models\m_measurement_log();
         $Mparameter = new \App\Models\m_parameter();
-        $Mconfiguration = new \App\Models\m_configuration();
         $logSent = new \App\Models\m_log_sent();
 		
 
