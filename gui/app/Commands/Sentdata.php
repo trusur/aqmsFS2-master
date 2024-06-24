@@ -81,7 +81,7 @@ class Sentdata extends BaseCommand
 	 */
 	public function run(array $params)
 	{
-		if(date("s") != "00") return;
+		// if(date("s") != "00") return;
 		$is_sentto_trusur = get_config("is_sentto_trusur");
 		$data_interval = get_config("data_interval", 30);
 		if($is_sentto_trusur != 1){
@@ -161,7 +161,7 @@ class Sentdata extends BaseCommand
 			} else {
 				if (strpos(" " . $response, "success") > 0) {
 					$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
-					CLI::write("[Success]  -Sent data {$time_group} to Trusur Server", "green");
+					CLI::write("[Success] - Sent data {$time_group} to Trusur Server", "green");
 					return true;
 				} else {
 					CLI::write("[Error] - Sending data {$time_group} to Trusur Server", "red");
