@@ -22,6 +22,8 @@ def switch_pump(pump_state):
         driver = get_driver()
         port = driver['sensor_code']
         baudrate = driver['baud_rate']
+        print("Switch Pump: "+str(pump_state))
+        print("Pump Speed: "+str(pump_speed))
         if(pump_state == 1):
             command = "pump2.set."+str(pump_speed)+"#"
         else:
@@ -41,7 +43,6 @@ def switch_pump(pump_state):
         timeout = 0
         while response.find("END_PUMP") == -1 and timeout < max_timeout:
             response += ser.readline().decode('utf-8').strip('\r\n')
-            print(response)
             timeout += 1
         ser.close()
         if(response.find("END_PUMP") > -1):
@@ -49,7 +50,7 @@ def switch_pump(pump_state):
             return True
         return False
     except Exception as e: 
-        print('Switch Pump Error: ',e)
+        print('Switch Pump Error: '+str(e))
         return False
 # Check Switch Pump
 def main():
@@ -77,11 +78,12 @@ def main():
         if(last_switch > pump_last):
             db.set_configuration("pump_last",str(now))
             # Switch Pump
+            print("Pump Switch to: "+str(pump_switch_to))
             return switch_pump(pump_switch_to)
-        print("Not Switch Pump")
+        # print("Not Switch Pump")
         return False
     except Exception as e: 
-        print('Check Pump Error: ',e)
+        print('Check Pump Error: '+str(e))
         return False
 
 if __name__ == "__main__":
