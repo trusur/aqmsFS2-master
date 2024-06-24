@@ -38,7 +38,7 @@ def insert_sensor_values(id,pin,value):
 def is_sensor_values_exist(id,pin):
     try:
         cnx = connect()
-        cursor = cnx.cursor()
+        cursor = cnx.cursor(dictionary=True, buffered=True)
         cursor.execute("SELECT * FROM sensor_values WHERE sensor_reader_id=%s AND pin=%s",(id,pin))
         row = cursor.fetchone()
         cursor.close()
@@ -53,7 +53,7 @@ def is_sensor_values_exist(id,pin):
 def get_configuration(name):
     try:
         cnx = connect()
-        cursor = cnx.cursor(dictionary=True)
+        cursor = cnx.cursor(dictionary=True, buffered=True)
         cursor.execute("SELECT * FROM configurations WHERE name=%s",(name,))
         row = cursor.fetchone()
         cursor.close()
@@ -62,6 +62,7 @@ def get_configuration(name):
             return None
         return row['content']
     except Exception as e: 
+        print(e)
         logging.error("get_configuration: "+e)
         return None
 def set_configuration(name,content):
