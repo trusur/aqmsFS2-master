@@ -58,6 +58,7 @@ class Average30Min extends BaseCommand
      */
     public function run(array $params)
     {
+        $exec_start =  microtime(true);
         $Mmeasurement1Min = new \App\Models\m_measurement_1min();
         $Mmeasurement = new \App\Models\m_measurement();
         $MmeasurementLog = new \App\Models\m_measurement_log();
@@ -81,42 +82,40 @@ class Average30Min extends BaseCommand
 					->select("id,value,is_valid")
 					->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group < '{$endAt}'")
 					->findAll();
+                $valuesValid = array_filter($values, function ($value) {
+                    return $value->is_valid == 11 && $value->value > 0;
+                });
 				CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
 				if(!empty($values)){
-					$vvalue = 0;
-					foreach ($values as $i => $value) {
-						if($value->is_valid == 11){
-							$vvalue += 1;
-						}
-					}
+					$vvalue = count($valuesValid);
 					if($vvalue > 0){
 						$minData = ($vvalue * 100 / count($values));
 					}else{
 						$minData = 0;
 					}
-					$valuesValid = $Mmeasurement1Min
-						->select("id,value,is_valid")
-						->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group < '{$endAt}' and is_valid = 11")
-						->findAll();
+
 					if($minData >= 75){
 						$is_valid = 11;
 						$tvalue = 0;
-						foreach ($valuesValid as $i => $valueValid) {
+						$tSvalue = 0;
+						foreach ($valuesValid as $valueValid) {
 							$tvalue += $valueValid->value;
+                            $tSvalue += $valueValid->sensor_value;
 							$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueValid->id)->update();
 						}
 						$avgvalue = round($tvalue / count($valuesValid), 2);
+                        $avgSensorValue  = round($tvalue / count($valuesValid), 5);
 					}else{
 						$is_valid = 19;
-						
 						//valid
 						$tvalueValid = 0;
 						if(!empty($valuesValid)){
-							foreach ($valuesValid as $i => $valueV) {
+							foreach ($valuesValid as $valueV) {
 								$tvalueValid += $valueV->value;
 								$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
 							}
 							$avgvalue = round($tvalueValid / count($valuesValid), 2);
+                            $avgSensorValue  = round($tvalueValid / count($valuesValid), 5);
 						}else{
 							$avgvalue = null;
 						}
@@ -124,6 +123,7 @@ class Average30Min extends BaseCommand
 					$measurement = [
 							"parameter_id" => $parameter->id,
 							"value" => @$avgvalue,
+                            "sensor_value" => @$avgSensorValue,
 							"total_valid" => $vvalue,
 							"total_data" => count($values),
 							"is_valid" => $is_valid,
@@ -159,8 +159,8 @@ class Average30Min extends BaseCommand
                 }
                 $measurement = [
                     "parameter_id" => $parameter->id,
-                    "value" => round($value->value,0),
-                    "sensor_value" => round($value->value,0),
+                    "value" => round($value->value,3),
+                    "sensor_value" => round($value->value,3),
                     "is_valid" => 1,
                     "total_data" => 1,
                     "total_valid" => 1,
@@ -207,9 +207,13 @@ class Average30Min extends BaseCommand
                 log_message("error","Particulate Flow 30 Min:".$e->getMessage());
             }
         }
-        
         //delete data weather
         $MmeasurementLog->where('is_valid', 1)->delete();
+        
+        $exec_end  = microtime(true);
+        $exec_time = $exec_end - $exec_start;
+
+        CLI::write("Average 30 Min Done. Execution Time : {$exec_time}","green");
     }
 
     public function get_percentile($percentile, $array) {
