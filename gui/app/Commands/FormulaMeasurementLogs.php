@@ -186,6 +186,7 @@ class FormulaMeasurementLogs extends BaseCommand
 		$end = microtime(true);
 		CLI::write("Total Time : ".($end-$start)."s");
 		CLI::write("Done");
+		sleep(1);
 	}
 
 	public function isFlat($parameterId, $measured){
