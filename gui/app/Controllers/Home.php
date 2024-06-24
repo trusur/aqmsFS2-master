@@ -38,7 +38,7 @@ class Home extends BaseController
 			if($pumpState){
 				// Check Is Pump State Exist in Configuration
 				$switch = $pumpState == 1 ? 0 : 1;
-				set_config("pump_has_trigger_change",$switch);
+				update_config("pump_has_trigger_change",$switch);
 			}else{
 				// Insert New Configuration if empty
 				$pumpStateData['name'] 		= 'pump_has_trigger_change';
