@@ -68,7 +68,10 @@ class Average30Min extends BaseCommand
         $minute = date("i");
         $interval = get_config("data_interval");
         if(($minute % $interval) != 0){
-            CLI::write("Interval not match", 'yellow');
+            CLI::write("The minute must be a multiple of {$interval}mins", 'yellow');
+            return 0;
+        }
+        if(date("s") != "00"){
             return 0;
         }
         $startAt = date("Y-m-d H:i:00", strtotime("-30 minutes", strtotime("{$hour}:{$minute}:00")));
@@ -82,7 +85,7 @@ class Average30Min extends BaseCommand
 				/* Get value from specific parameter */
 				$data[$parameter->id] = [];
 				$values = $Mmeasurement1Min
-					->select("id,value,is_valid")
+					->select("id,value,sensor_value,parameter_id,is_valid,time_group")
 					->where("parameter_id = {$parameter->id} AND time_group >= '{$startAt}' AND time_group < '{$endAt}'")
 					->findAll();
                 $valuesValid = array_filter($values, function ($value) {
@@ -111,18 +114,24 @@ class Average30Min extends BaseCommand
 					}else{
 						$is_valid = 19;
 						//valid
+						$tSvalue = 0;
 						$tvalueValid = 0;
 						if(!empty($valuesValid)){
 							foreach ($valuesValid as $valueV) {
 								$tvalueValid += $valueV->value;
+                                $tSvalue += $valueV->sensor_value;
 								$Mmeasurement1Min->set(['is_averaged' => 1, 'is_valid' => 15])->where('id', $valueV->id)->update();
 							}
 							$avgvalue = round($tvalueValid / count($valuesValid), 2);
-                            $avgSensorValue  = round($tvalueValid / count($valuesValid), 5);
+                            $avgSensorValue  = round($tSvalue / count($valuesValid), 5);
 						}else{
-							$avgvalue = null;
+                            $_values = array_filter($values, function ($value) {
+                                return $value->value > 0 && $value->sensor_value > 0;
+                            });
+							$avgvalue = round(array_sum(array_column($_values, 'value')) / count($_values),5);
+							$avgSensorValue = round(array_sum(array_column($_values, 'sensor_value')) / count($_values),5);
 						}
-					}
+					}   
 					$measurement = [
 							"parameter_id" => $parameter->id,
 							"value" => @$avgvalue,

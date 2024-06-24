@@ -150,8 +150,10 @@
                                             param_value = param_value
                                             break;
                                     }
+                                    $(`#value_${value?.code}`).html(parseFloat(param_value).toFixed(3))
+                                }else{
+                                    $(`#value_${value?.code}`).html(param_value)
                                 }
-                                $(`#value_${value?.code}`).html(param_value)
                                 $(`#value_${value?.code}`).attr("title",value.xtimestamp)
                                 $(`#time_${value?.code}`).html(value.xtimestamp)
                             } catch (err) {
@@ -252,7 +254,7 @@
             try {
                 ug = parseFloat(ug);
                 molecular_mass = parseFloat(molecular_mass);
-                let value = (ug * 24.45) / (1000 * molecular_mass);
+                let value = ug * 24.45 /  molecular_mass
                 return value.toFixed(3);
             } catch (err) {
                 toastr.error(`Error while calculating ppm`);

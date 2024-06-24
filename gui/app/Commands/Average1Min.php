@@ -60,6 +60,8 @@ class Average1Min extends BaseCommand
     {
 		$s = date("s");
 		if($s != "00"){
+			CLI::write("Now is: ".date("Y-m-d H:i:s"), 'yellow');
+			CLI::write('Only execute every 1 minutes', 'yellow');
 			return 0;
 		}
 		$exec_start =  microtime(true);
@@ -83,7 +85,7 @@ class Average1Min extends BaseCommand
 				/* Get value from specific parameter */
 				$data[$parameter->id] = [];
 				$values = $MmeasurementLog
-					->select("id,value,is_valid")
+					->select("id,value,sensor_value,is_valid,parameter_id,time_group")
 					->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}'")
 					->findAll();
 				CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
@@ -99,6 +101,8 @@ class Average1Min extends BaseCommand
 				$valuesNotValid = array_filter($values,  function($value) {
 					return $value->is_valid != 11;
 				});
+				print_r($valuesNotValid);
+				print_r($valuesValid);
 
 				if($vvalue > 0){
 					$minData = ($vvalue * 100 / count($values));

@@ -144,17 +144,16 @@ class Sentdata1sec extends BaseCommand
 				$err = curl_error($curl);
 				
 				CLI::write($response, "green");
-				CLI::write("\n");
 
 				curl_close($curl);
 
 				if ($err) {
-					echo "cURL Error #:" . $err;
+					CLI::write("cURL Error #:" . $err,"red");
 				} 
 				if (strpos(" " . $response, "success") > 0) {
 					$this->logSent->whereIn("time_group", $timeGroup)->delete();
 				} else {
-					echo $response;
+					print_r($response);
 				}
 			}
 		}
