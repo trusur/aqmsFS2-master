@@ -87,9 +87,9 @@
                     data: 'waktu'
                 },
                 {
-                    data: 'is_sent_klhk',
+                    data: 'is_sent_cloud',
                     render: function(data,type,row) {
-                        return row?.is_sent_klhk == 1 ? `<span class="badge badge-success">Sent</span>` : `<span class="badge badge-danger">Not Sent</span>`
+                        return row?.is_sent_cloud == 1 ? `<span class="badge badge-success">Sent</span>` : `<span class="badge badge-danger">Not Sent</span>`
                     }
                 },
                 <?php foreach ($parameters as $parameter) : ?> {
