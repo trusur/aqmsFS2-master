@@ -60,7 +60,7 @@ class Average1Min extends BaseCommand
     {
 		$s = date("s");
 		if($s != "00"){
-			CLI::write("[Avg1min] - The second must be 00", 'yellow');
+			// CLI::write("[Avg1min] - The second must be 00", 'yellow');
 			return 0;
 		}
 		$exec_start =  microtime(true);
@@ -87,7 +87,7 @@ class Average1Min extends BaseCommand
 					->select("id,value,sensor_value,is_valid,parameter_id,time_group")
 					->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}'")
 					->findAll();
-				CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
+				// CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
 				if(empty($values)){
 					continue;
 				}
@@ -201,7 +201,7 @@ class Average1Min extends BaseCommand
 					}
 				}
 		   }catch(Exception $e){
-				CLI::error($e->getMessage());
+				// CLI::error($e->getMessage());
 				log_message("error","AVG 1 MIN : ".$e->getMessage());
 		   }
         }
@@ -229,7 +229,7 @@ class Average1Min extends BaseCommand
 					$MmeasurementLog->where('id', $value->id)->delete();
 				}
 			}catch(Exception $e){
-				CLI::error($e->getMessage());
+				// CLI::error($e->getMessage());
 				log_message("error","AVG 1 MIN : ".$e->getMessage());
 			}
 		}

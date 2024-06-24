@@ -68,7 +68,7 @@ class Average30Min extends BaseCommand
         $minute = date("i");
         $interval = get_config("data_interval");
         if(($minute % $interval) != 0){
-            CLI::write("[Avg30Min] - The minute must be a multiple of {$interval}mins", 'yellow');
+            // CLI::write("[Avg30Min] - The minute must be a multiple of {$interval}mins", 'yellow');
             return 0;
         }
         // if(date("s") <= "00"){
@@ -92,7 +92,7 @@ class Average30Min extends BaseCommand
                 $valuesValid = array_filter($values, function ($value) {
                     return $value->is_valid == 11 && $value->value > 0;
                 });
-				CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
+				// CLI::write("[$startAt - $endAt] Checking data {$parameter->code} : ".count($values), 'yellow');
 				if(!empty($values)){
 					$vvalue = count($valuesValid);
 					if($vvalue > 0){
@@ -156,9 +156,11 @@ class Average30Min extends BaseCommand
                             CLI::error("Insert Error : ".$e->getMessage());
                         }
 					}
-				}
+				}else{
+                    CLI::write("[$startAt - $endAt] No data for {$parameter->code}", 'yellow');
+                }
 		   }catch(DivisionByZeroError | Exception $e){
-				CLI::error($e->getMessage());
+				// CLI::error($e->getMessage());
 				log_message("error","AVG 30 MIN : ".$e->getMessage());
 		   }
         }
