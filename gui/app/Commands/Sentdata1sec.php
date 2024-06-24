@@ -94,6 +94,7 @@ class Sentdata1sec extends BaseCommand
 
 			$idStation = get_config("id_station");
 			$timeGroup = [];
+			$arr = [];
 			foreach ($time_groups as $key => $time_group) {
 				$timeGroup[] = $time_group->time_group;
 				$arr[$key]["id_stasiun"] = $idStation;

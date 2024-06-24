@@ -78,11 +78,17 @@ class Sentdata extends BaseCommand
 	 */
 	public function run(array $params)
 	{
+		if(date("s") != "00") return;
 		$is_sentto_trusur = get_config("is_sentto_trusur");
+		$data_interval = get_config("data_interval", 30);
 		if($is_sentto_trusur != 1){
 			CLI::write("Pengiriman tidak diaktifkan", "yellow");
 			return;
 		}
+		// if(date("i") % $data_interval != 0){
+		// 	CLI::write("Pengiriman dilakukan setiap {$data_interval} menit", "yellow");
+		// 	return;
+		// }
 		$arr["id_stasiun"] = get_config("id_stasiun") ?? null;
 		$time_groups = $this->measurements->select("time_group")->where(["is_sent_cloud" => 0])->groupBy("time_group")->orderBy("id")->findAll();
 		foreach ($time_groups as $timeGroup) {
