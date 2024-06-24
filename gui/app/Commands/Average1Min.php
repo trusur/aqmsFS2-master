@@ -82,6 +82,8 @@ class Average1Min extends BaseCommand
            try{
 				/* Get value from specific parameter */
 				$data[$parameter->id] = [];
+				$endAt = $MmeasurementLog->selectMax("xtimestamp")->where("parameter_id = {$parameter->id}")->first()->xtimestamp ?? $endAt;
+				$startAt = date("Y-m-d H:i:00", strtotime("-1 minutes"));
 				$values = $MmeasurementLog
 					->select("id,value,sensor_value,is_valid,parameter_id,time_group")
 					->where("parameter_id = {$parameter->id} AND xtimestamp >= '{$startAt}' AND xtimestamp < '{$endAt}'")
