@@ -33,18 +33,9 @@ class Home extends BaseController
 	public function pump()
 	{
 		try{
-			$pumpState = get_config("pump_has_trigger_change",1); 
-
-			if($pumpState){
-				// Check Is Pump State Exist in Configuration
-				$switch = $pumpState == 1 ? 0 : 1;
-				update_config("pump_has_trigger_change",$switch);
-			}else{
-				// Insert New Configuration if empty
-				$pumpStateData['name'] 		= 'pump_has_trigger_change';
-				$pumpStateData['content'] 	= 1;
-				$this->configuration->insert($pumpStateData);
-			}
+			$pumpState = get_config("pump_state",1); 
+			$switch = $pumpState == 1 ? 0 : 1;
+			update_config("pump_has_trigger_change",$switch);
 			return $this->response->setJSON(['success' => true, 'message' => 'Pump switch success']);
 		}catch(Exception $e){
 			return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
