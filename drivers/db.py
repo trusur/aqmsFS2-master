@@ -4,7 +4,7 @@ import logging
 
 def connect():
     try:
-        return mysql.connector.connect(host="localhost",user="root",passwd="root",database="aqms_efs2")
+        return mysql.connector.connect(host="localhost",user="root",passwd="R2h2s12*",database="aqms_efs2")
     except Exception as e: 
         print('DB Connection Error :',e)
         return False
