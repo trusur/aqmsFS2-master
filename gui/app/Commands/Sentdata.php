@@ -113,8 +113,8 @@ class Sentdata extends BaseCommand
 					$arr["total_{$parameter->code}"] = $measurement->total_data;
 					$arr["valid_{$parameter->code}"] = $measurement->total_valid;
 				}
-				$this->sendData($arr, $time_group);
 			}
+			$this->sendData($arr, $time_group);
 		}
 		// Check if all data 1sec has been sent
 		$totalData1sec = $this->MLogSent->countAll();
