@@ -60,7 +60,7 @@ class Average1Min extends BaseCommand
     {
 		$s = date("s");
 		if($s != "00"){
-			CLI::write("[Avg30Min] - The second must be 00", 'yellow');
+			CLI::write("[Avg1min] - The second must be 00", 'yellow');
 			return 0;
 		}
 		$exec_start =  microtime(true);
