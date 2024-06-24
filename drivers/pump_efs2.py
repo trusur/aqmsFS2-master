@@ -30,7 +30,7 @@ def switch_pump(pump_state):
         timeout = 0
         response = ""
         responseReady = ""
-        ser = serial.Serial(port, baudrate, timeout=3)
+        ser = serial.Serial(port, baudrate, timeout=5)
         while responseReady != "Ready" and timeout < max_timeout:
             responseReady = ser.readline().decode('utf-8').strip('\r\n')
             timeout += 1

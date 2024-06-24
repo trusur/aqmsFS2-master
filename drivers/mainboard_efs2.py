@@ -3,6 +3,9 @@ import db
 import sys
 from datetime import datetime, timedelta
 import time
+
+
+
 # Get Motherboard Command List
 def get_motherboards():
     try:
@@ -18,26 +21,20 @@ def get_motherboards():
         return []
     
 # Get Response Values From Motherboard
-def get_motherboard_value(port, baudrate, command, prefix_return):
+def get_motherboard_value(ser, command, prefix_return):
     try:
+        if(ser is None):
+            return None
         max_timeout = 50
         timeout = 0
         response = ""
-        responseReady = ""
-        ser = serial.Serial(port, baudrate, timeout=3)
-        while responseReady != "Ready" and timeout < max_timeout:
-            responseReady = ser.readline().decode('utf-8').strip('\r\n')
-            timeout += 1
-            if(responseReady == "Ready"):
-                break
-
         ser.write(bytes(command, 'utf-8'))
         timeout = 0
         while response.find(prefix_return) == -1 and timeout < max_timeout:
             response += ser.readline().decode('utf-8').strip('\r\n')
             print(response)
             timeout += 1
-        ser.close()
+        # ser.close()
         return response
     except Exception as e: 
         print('Connect Serial Error: ',e)
@@ -78,11 +75,23 @@ def is_motherboard_ready(ser):
 
 # Running Main Function
 def main():
-    time.sleep(1)
+    start_time = time.time()
     driver = get_driver()
+    try:
+        ser = serial.Serial(driver['sensor_code'], driver['baud_rate'], timeout=3)
+        max_timeout = 5
+        timeout = 0
+        responseReady = ""
+        while responseReady != "Ready" and timeout < max_timeout:
+            responseReady = ser.readline().decode('utf-8').strip('\r\n')
+            timeout += 1
+            if(responseReady == "Ready"):
+                break
+    except:
+        print("Serial Port Error")
+        ser = None
+        return None
     sensor_reader_id = driver['id']
-    port = driver['sensor_code']
-    baudrate = driver['baud_rate']
     motherboards = get_motherboards()
     is_calibration = db.get_configuration("is_calibration") # 0 = Inactive, 1 = Calibration Running, 2 = Calibration Done
     calibration_mode = db.get_configuration("calibration_mode") # 0 = Zero, 1 = Span
@@ -99,7 +108,7 @@ def main():
         pin = motherboard['id']
         command = motherboard['command']
         prefix_return = motherboard['prefix_return']
-        response = get_motherboard_value(port, baudrate, command, prefix_return)
+        response = get_motherboard_value(ser, command, prefix_return)
         if(command.find("data.semeatech") == 0):
             sematech = response.split(" END;")
             for index,res in enumerate(sematech):
@@ -121,6 +130,9 @@ def main():
             db.update_sensor_values(sensor_reader_id,pin, response)
         else:
             db.update_sensor_values(sensor_reader_id,pin, '-999')
+    if(ser is not None):
+        ser.close()
     # print("Done")
+    print("Total Time: " + str(time.time() - start_time))
 if __name__ == "__main__":
     main()
