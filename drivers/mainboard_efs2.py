@@ -101,7 +101,7 @@ def main():
         prefix_return = motherboard['prefix_return']
         response = get_motherboard_value(port, baudrate, command, prefix_return)
         if(command.find("data.semeatech") == 0):
-            sematech = response.split(";END;")
+            sematech = response.split(" END;")
             for index,res in enumerate(sematech):
                 new_pin = str(pin) +  str(index)
                 final_str = res.replace("SEMEATECH START;","")
@@ -112,7 +112,7 @@ def main():
                         calibration = db.get_calibration(is_calibration)
                         if(calibration is not None):
                             if(calibration['is_executed'] == 0):
-                                # Send Signal to Mainboard here
+                                # Send Signal to Mainboard here 
                                 None
                             ppm_value = final_str.split(";")[2] if len(final_str.split(";")) > 4 else None
                             db.set_calibration_log(calibration['id'],calibration['parameter_id'],ppm_value,datetime.now())

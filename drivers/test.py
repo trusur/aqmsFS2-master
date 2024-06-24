@@ -26,8 +26,8 @@
 # # print(client.read_coils(address=1,slave=1).registers)
 # # print(client.read_input_registers(address=1).registers)
 import db
-test = "SEMEATECH 0x01;NO2;58;0.002;28.50;79"
-a = test.split(";")
-print(a[1])
-calibration = db.get_calibration(a[1])
-print(calibration)
+test = "SEMEATECH 0x1;NO2;1;1;26.70;58.16;SEMEATECH 0x1 END;SEMEATECH 0x2;SO2;81;31;25.77;61.27;SEMEATECH 0x2 END;SEMEATECH 0x3;O3;9;5;25.61;61.41;SEMEATECH 0x3 END;SEMEATECH 0x4;CO;258;226;25.33;62.05;SEMEATECH 0x4 END"
+a = test.split(" END;")
+for i in a:
+    print(i)
+print(a)
