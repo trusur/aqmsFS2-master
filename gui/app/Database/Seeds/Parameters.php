@@ -2,6 +2,7 @@
 
 namespace App\Database\Seeds;
 
+use App\Models\m_parameter;
 use CodeIgniter\Database\Seeder;
 
 class Parameters extends Seeder
@@ -10,8 +11,8 @@ class Parameters extends Seeder
 	{
 		$this->db->query("TRUNCATE TABLE parameters");
 		$data = [
-			['p_type' => 'gas', 'code' => 'no2', 'caption_id' => 'NO<sub>2</sub>', 'caption_en' => 'NO<sub>2</sub>',	'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '46.01', 	'formula' => 'round(explode(";",$sensor[1][60])[2] ,2)', 'sensor_value_id' => 2 , 'is_view' => '1', 'is_graph' => '1'],
-			['p_type' => 'gas', 'code' => 'o3', 'caption_id' => 'O<sub>3</sub>', 'caption_en' => 'O<sub>3</sub>', 		'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '48', 		'formula' => 'round(explode(";",$sensor[1][62])[2] ,2)','sensor_value_id' => 2, 'is_view' => '1', 'is_graph' => '1'],
+			['p_type' => 'gas', 'code' => 'no2', 'caption_id' => 'NO<sub>2</sub>', 'caption_en' => 'NO<sub>2</sub>',	'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '46.01', 	'formula' => 'round(explode(";",$sensor[1][60])[2] ,2)' , 'is_view' => '1', 'is_graph' => '1'],
+			['p_type' => 'gas', 'code' => 'o3', 'caption_id' => 'O<sub>3</sub>', 'caption_en' => 'O<sub>3</sub>', 		'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '48', 		'formula' => 'round(explode(";",$sensor[1][62])[2] ,2)', 'is_view' => '1', 'is_graph' => '1'],
 			['p_type' => 'gas', 'code' => 'co', 'caption_id' => 'CO', 'caption_en' => 'CO', 							'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '28.01', 	'formula' => 'round(explode(";",$sensor[1][63])[2] ,2)', 'is_view' => '1', 'is_graph' => '1'],
 			['p_type' => 'gas', 'code' => 'so2', 'caption_id' => 'SO<sub>2</sub>', 'caption_en' => 'SO<sub>2</sub>', 	'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '64.06', 	'formula' => 'round(explode(";",$sensor[1][61])[2] ,2)', 'is_view' => '1', 'is_graph' => '1'],
 			['p_type' => 'gas', 'code' => 'hc', 'caption_id' => 'HC', 'caption_en' => 'HC', 							'default_unit' => 'µg/m<sup>3</sup>', 'molecular_mass' => '13.0186', 	'formula' => 'round(explode(";",$sensor[1][6])[1] ,2)', 'is_view' => '1', 'is_graph' => '1'],
@@ -28,5 +29,42 @@ class Parameters extends Seeder
 			['p_type' => 'weather', 'code' => 'rain_intensity', 'caption_id' => 'Curah Hujan', 'caption_en' => 'Rain Rate', 'default_unit' => 'mm/h', 'molecular_mass' => '', 			'formula' => '0', 'is_view' => '0', 'is_graph' => '0'],
 		];
 		$this->db->table('parameters')->insertBatch($data);
+		$parameters = [
+            [
+                'code' => 'no2',
+                'range_max' => 9409,
+            ],
+            [
+                'code' => 'o3',
+                'range_max' => 9816,
+            ],
+            [
+                'code' => 'co',
+                'range_max' => 57280,
+            ],
+            [
+                'code' => 'so2',
+                'range_max' => 13100,
+            ],
+            [
+                'code' => 'hc',
+                'range_max' => 64582,
+            ],
+            [
+                'code' => 'pm25',
+                'range_max' => 100000,
+            ],
+            [
+                'code' => 'pm10',
+                'range_max' => 100000,
+            ],
+        ];
+		$Mparameter = new m_parameter();
+        foreach ($parameters as $parameter) {
+            $Mparameter->where(['code' => $parameter['code']])->set([
+                "range_min" => 0,
+                "range_max" => $parameter['range_max']
+			])->update();
+		}
 	}
 }
