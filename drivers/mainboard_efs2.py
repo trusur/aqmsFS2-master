@@ -111,6 +111,9 @@ def main():
                     if (is_calibration != None and calibration_mode == '1' and final_str.find(_parameter) > -1):
                         calibration = db.get_calibration(is_calibration)
                         if(calibration is not None):
+                            if(calibration['is_executed'] == 0):
+                                # Send Signal to Mainboard here
+                                None
                             ppm_value = final_str.split(";")[2] if len(final_str.split(";")) > 4 else None
                             db.set_calibration_log(calibration['id'],calibration['parameter_id'],ppm_value,datetime.now())
 
