@@ -92,7 +92,7 @@ class Average1Min extends BaseCommand
 				}
 				// Valid Value
 				$valuesValid = array_filter($values,  function($value) {
-					return $value->is_valid == 11 && $value->value > 0 && $value->sensor_value > 0;
+					return $value->is_valid == 11;
 				});
 				$vvalue = count($valuesValid);
 				// Not Valid Value
@@ -200,7 +200,7 @@ class Average1Min extends BaseCommand
 					}
 				}
 		   }catch(Exception $e){
-				// CLI::error($e->getMessage());
+				CLI::error($e->getMessage());
 				log_message("error","AVG 1 MIN : ".$e->getMessage());
 		   }
         }
