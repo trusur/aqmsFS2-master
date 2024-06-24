@@ -82,7 +82,6 @@ class Sentdata1sec extends BaseCommand
 	 */
 	public function run(array $params)
 	{
-		$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
 		$is_sentto_trusur = (int) get_config("is_sentto_trusur", 1);
 		if($is_sentto_trusur == 0) return;
 
@@ -90,9 +89,11 @@ class Sentdata1sec extends BaseCommand
 		$lastSent = $this->getLastSent();
 		if ($lastSent) {
 			$is_exist = false;
-			$time_groups = $this->logSent->select("time_group")->where("is_sent_cloud = 0 and time_group >= '{$lastSent}'")->groupBy("time_group")->findAll(60);
-
-			$idStation = get_config("id_station");
+			$time_groups = $this->logSent->select("time_group")->where("is_sent_cloud = 0 and time_group >= '{$lastSent}'")->groupBy("time_group")->findAll(1000);
+			$idStation = get_config("id_stasiun");
+			print("Trusur: " . $trusur_api_server . "\n");
+			print("Last Sent: " . $lastSent . "\n");
+			print("ID Stasiun: " . $idStation . "\n");
 			$timeGroup = [];
 			$arr = [];
 			foreach ($time_groups as $key => $time_group) {
@@ -142,6 +143,7 @@ class Sentdata1sec extends BaseCommand
 				));
 
 				$response = curl_exec($curl);
+				$responseArr = json_decode($response, true);
 				$err = curl_error($curl);
 				
 				CLI::write($response, "green");
@@ -151,7 +153,8 @@ class Sentdata1sec extends BaseCommand
 				if ($err) {
 					CLI::write("cURL Error #:" . $err,"red");
 				} 
-				if (strpos(" " . $response, "success") > 0) {
+				if ($responseArr["success"]) {
+					CLI::write("Success", "green");
 					$this->logSent->whereIn("time_group", $timeGroup)->delete();
 				} else {
 					print_r($response);
@@ -161,9 +164,9 @@ class Sentdata1sec extends BaseCommand
 	}
 
 	public function getLastSent(){
-		$twoMinAgo = date("Y-m-d H:i:s", strtotime("-2 minutes"));
+		$twoMinAgo = date("Y-m-d H:i:00", strtotime("-2 minutes"));
 		try{
-			$logSent = $this->logSent->where("is_sent_cloud = 1")->orderBy("id", "desc")->first();
+			$logSent = $this->logSent->where("is_sent_cloud = 0")->first();
 			if(empty($logSent)){
 				return $twoMinAgo;
 			}

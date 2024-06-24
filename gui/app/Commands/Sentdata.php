@@ -89,7 +89,7 @@ class Sentdata extends BaseCommand
 		// 	CLI::write("Pengiriman dilakukan setiap {$data_interval} menit", "yellow");
 		// 	return;
 		// }
-		$arr["id_stasiun"] = get_config("id_stasiun") ?? null;
+		$arr["id_stasiun"] = get_config("id_stasiun");
 		$time_groups = $this->measurements->select("time_group")->where(["is_sent_cloud" => 0])->groupBy("time_group")->orderBy("id")->findAll();
 		foreach ($time_groups as $timeGroup) {
 			$time_group = $timeGroup->time_group;

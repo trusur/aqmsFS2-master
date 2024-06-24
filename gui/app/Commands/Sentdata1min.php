@@ -98,6 +98,7 @@ class Sentdata1min extends BaseCommand
 		$idStation = get_config("id_stasiun");
 		$lastSent = $this->getLastSent() ?? $startAt;
 		$arr = [];
+		enabled_group_by();
 		$time_groups = $this->measurement1min
 			->select("time_group")
 			->where("is_sent_cloud = 0 and time_group >= '{$lastSent}' and time_group < '{$endAt}'")

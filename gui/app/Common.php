@@ -30,6 +30,7 @@ if(!function_exists('get_config')) {
             $content = $configurationM->where('name', $name)->first();
             return $content->content ?? $default;
        }catch(Exception $e){
+          //   throw new Exception($e->getMessage());
             return $default;
        }
     }
@@ -55,5 +56,12 @@ if(!function_exists('create_config')) {
        }catch(Exception $e){
             return false;
        }
+    }
+}
+
+if(!function_exists('enabled_group_by')) {
+    function enabled_group_by() {
+          $db = db_connect();
+          return $db->query("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
     }
 }
