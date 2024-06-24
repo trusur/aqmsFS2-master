@@ -81,7 +81,7 @@ class Sentdata extends BaseCommand
 	 */
 	public function run(array $params)
 	{
-		// if(date("s") != "00") return;
+		if(date("s") != "00") return;
 		$is_sentto_trusur = get_config("is_sentto_trusur");
 		$data_interval = get_config("data_interval", 30);
 		if($is_sentto_trusur != 1){

@@ -91,9 +91,9 @@ class Sentdata1min extends BaseCommand
 		// 	CLI::write("Waktu harus di kelipatan {$data_interval} menit", "yellow");
 		// 	return;
 		// }
-		// if(date("s") != "00"){
-		// 	return;
-		// }
+		if(date("s") != "00"){
+			return;
+		}
 
 		$idStation = get_config("id_stasiun");
 		$lastSent = $this->getLastSent() ?? $startAt;
