@@ -7,6 +7,7 @@
         <button type="button" data-target="config-automation" class="btn btn-secondary">Automation</button>
         <button type="button" data-target="config-integration" class="btn btn-secondary">Integration Data</button>
         <a href="<?= base_url('configuration/raw') ?>" class="btn btn-secondary">Full Configuration</a>
+        <a href="<?= base_url('configuration/mainboard') ?>" class="btn btn-secondary">Mainboards</a>
     </div>
     <div class="row pt-3" id="content-overlay">
         <div class="col-md-6 mx-auto" id="config-general">

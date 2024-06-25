@@ -36,6 +36,12 @@ $routes->get('configuration/raw', 'ConfigurationRaw::index');
 $routes->get('configuration/raw/datatable', 'ConfigurationRaw::datatable');
 $routes->post('configuration/raw/add', 'ConfigurationRaw::add');
 
+$routes->get('configuration/mainboard', 'Mainboard::index');
+$routes->post('configuration/mainboard', 'Mainboard::store');
+$routes->get('configuration/mainboard/json/(:num)', 'Mainboard::show/$1');
+$routes->post('configuration/mainboard/(:num)', 'Mainboard::update/$1');
+$routes->get('configuration/mainboard/delete/(:num)', 'Mainboard::delete/$1');
+
 
 $routes->get('parameters', 'Parameter::index');
 $routes->get('parameter/(:num)', 'Parameter::get/$1');

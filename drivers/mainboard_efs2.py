@@ -10,8 +10,8 @@ import time
 def get_motherboards():
     try:
         cnx = db.connect()
-        cursor = cnx.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM motherboard where is_enable = 1")
+        cursor = cnx.cursor(dictionary=True, buffered=True)
+        cursor.execute("SELECT * FROM motherboard where is_enable = 1 order by is_priority desc")
         rows = cursor.fetchall()
         cursor.close()
         cnx.close()
