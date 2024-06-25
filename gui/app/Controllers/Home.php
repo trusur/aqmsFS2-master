@@ -25,7 +25,7 @@ class Home extends BaseController
 		$data['particulates'] = $this->parameter->where(['is_view' => 1, 'p_type' => 'particulate'])->findAll();
 		$data['weathers'] = $this->parameter->where(['is_view' => 1, 'p_type' => 'weather'])->findAll();
 		$data['flow_meters'] = $this->parameter->where(['is_view' => 1, 'p_type' => 'flowmeter'])->findAll();
-		$data['stationname'] = get_config("station_name");
+		$data['stationname'] = get_config("nama_stasiun");
 		$data['pump_interval'] = get_config("pump_interval",360);
 		return view("v_home", $data);
 	}
