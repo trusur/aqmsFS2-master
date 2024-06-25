@@ -161,6 +161,7 @@ def main():
     while True:
         # start_time = time.time()
         try:
+            check_pump()
             motherboards = get_motherboards()
             is_calibration = db.get_configuration("is_calibration") # 0 = Inactive, 1 = Calibration Running, 2 = Calibration Done
             calibration_mode = db.get_configuration("calibration_mode") # 0 = Zero, 1 = Span
