@@ -95,7 +95,6 @@ def switch_pump(ser, pump_state):
         while response.find("END_PUMP") == -1 and timeout < max_timeout:
             response += ser.readline().decode('utf-8').strip('\r\n')
             timeout += 1
-        ser.close()
         if(response.find("END_PUMP") > -1):
             db.set_configuration("pump_state",pump_state)
             return True
@@ -114,6 +113,7 @@ def check_pump():
         pump_has_trigger_change = db.get_configuration("pump_has_trigger_change")
         if(not pump_has_trigger_change in ['']):
             if (switch_pump(pump_state=pump_has_trigger_change) == True):
+                print("Pump Switch to: "+str(pump_switch_to))
                 db.set_configuration("pump_has_trigger_change","")
                 db.set_configuration("pump_last",str(now))
                 return True
@@ -121,6 +121,7 @@ def check_pump():
         if(pump_last in [None,'']):
             db.set_configuration("pump_last",str(now))
             # Switch Pompa 1 
+            print("Pump Switch to: "+str(pump_switch_to))
             return switch_pump(pump_switch_to)
 
         pump_last = datetime.strptime(pump_last, '%Y-%m-%d %H:%M:%S.%f')
