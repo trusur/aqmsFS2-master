@@ -103,8 +103,10 @@ def switch_pump(ser, pump_state):
         print('Switch Pump Error: '+str(e))
         return False
 # Check Switch Pump
-def check_pump():
+def check_pump(ser):
     try:
+        if(ser is None):
+            return False
         now = datetime.now()
         pump_last = db.get_configuration("pump_last")
         pump_interval = db.get_configuration("pump_interval")
@@ -112,7 +114,7 @@ def check_pump():
         pump_switch_to = 1 if pump_state == "0" else 0
         pump_has_trigger_change = db.get_configuration("pump_has_trigger_change")
         if(not pump_has_trigger_change in ['']):
-            if (switch_pump(pump_state=pump_has_trigger_change) == True):
+            if (switch_pump(ser,pump_state=pump_has_trigger_change) == True):
                 print("Pump Switch to: "+str(pump_switch_to))
                 db.set_configuration("pump_has_trigger_change","")
                 db.set_configuration("pump_last",str(now))
@@ -122,7 +124,7 @@ def check_pump():
             db.set_configuration("pump_last",str(now))
             # Switch Pompa 1 
             print("Pump Switch to: "+str(pump_switch_to))
-            return switch_pump(pump_switch_to)
+            return switch_pump(ser,pump_switch_to)
 
         pump_last = datetime.strptime(pump_last, '%Y-%m-%d %H:%M:%S.%f')
         # Apakah waktu sekarang sudah melewati waktu interval
@@ -131,7 +133,7 @@ def check_pump():
             db.set_configuration("pump_last",str(now))
             # Switch Pump
             print("Pump Switch to: "+str(pump_switch_to))
-            return switch_pump(pump_switch_to)
+            return switch_pump(ser,pump_switch_to)
         # print("Not Switch Pump")
         return False
     except Exception as e: 
@@ -162,7 +164,7 @@ def main():
     while True:
         # start_time = time.time()
         try:
-            check_pump()
+            check_pump(ser)
             motherboards = get_motherboards()
             is_calibration = db.get_configuration("is_calibration") # 0 = Inactive, 1 = Calibration Running, 2 = Calibration Done
             calibration_mode = db.get_configuration("calibration_mode") # 0 = Zero, 1 = Span
