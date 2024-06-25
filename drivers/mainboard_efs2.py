@@ -32,12 +32,10 @@ def get_motherboard_value(ser, command, prefix_return):
         timeout = 0
         while response.find(prefix_return) == -1 and timeout < max_timeout:
             response += ser.readline().decode('utf-8').strip('\r\n')
-            print(response)
             timeout += 1
         # ser.close()
         return response
     except Exception as e: 
-        print('Connect Serial Error: ',e)
         return None
     
 # Get Driver Info From Filename
@@ -88,7 +86,7 @@ def main():
             if(responseReady == "Ready"):
                 break
     except:
-        print("Serial Port Error")
+        print("Serial Port Not Connect")
         ser = None
         return None
     sensor_reader_id = driver['id']
@@ -133,6 +131,6 @@ def main():
     if(ser is not None):
         ser.close()
     # print("Done")
-    print("Total Time: " + str(time.time() - start_time))
+    # print("Total Time: " + str(time.time() - start_time))
 if __name__ == "__main__":
     main()
