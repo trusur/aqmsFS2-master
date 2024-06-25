@@ -135,15 +135,17 @@
                                 let param_value = cleanStr(value?.measured);
                                 let default_unit = cleanStr(value?.default_unit);
                                 let molecular_mass = cleanStr(value?.molecular_mass);
+                                let raw = cleanStr(value?.raw);
                                 let p_type = value?.p_type
                                 if (p_type == 'gas' && default_unit == "µg/m<sup>3") {
                                     let unit_id = parseInt(localStorage.getItem('unit_id'));
                                     switch (unit_id) {
                                         case 2:
-                                            param_value = calculatePpm(param_value, molecular_mass);
+                                            // param_value = calculatePpm(param_value, molecular_mass);
+                                            param_value = parseFloat(raw);
                                             break;
                                         case 3:
-                                            param_value = calculatePpm(param_value, molecular_mass) * 1000;
+                                            param_value = parseFloat(raw) * 1000;
                                             break;
                                         case 1:
                                         default:

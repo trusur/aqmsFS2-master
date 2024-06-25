@@ -1,8 +1,8 @@
 <?php
 return [
     'Dashboard' => 'Dashboard',
-    'Configuration' => 'Configuration',
-    'Calibration' => 'Calibration',
+    'Configuration' => 'Config.',
+    'Calibration' => 'Calib.',
     'Export' => 'Export',
     'Configuration Instrument' => 'Configuration Instrument',
     'Location' => 'Location',

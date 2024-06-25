@@ -9,14 +9,15 @@
         let showHiddenMenuCount = 0;
         function showHiddenMenu() {
             showHiddenMenuCount++;
-            if (showHiddenMenuCount > 4 && !localStorage.getItem("showHiddenMenu")) {
+            if (showHiddenMenuCount > 4 && localStorage.getItem("showHiddenMenu") != "true") {
                 showHiddenMenuCount = 0
                 localStorage.setItem("showHiddenMenu", "true");
                 $("#parameters_nav").removeClass("d-none");
-                // $("#calibrations_nav").removeClass("d-none");
+                $("#calibrations_nav").removeClass("d-none");
             }
             if(showHiddenMenuCount > 4 && localStorage.getItem("showHiddenMenu")) {
-                localStorage.removeItem("showHiddenMenu");
+                showHiddenMenuCount = 0
+                localStorage.setItem("showHiddenMenu","false");
                 $("#parameters_nav").addClass("d-none");
                 $("#calibrations_nav").addClass("d-none");
             }

@@ -2,10 +2,10 @@
     <div class="container-md">
         <span class="navbar-brand d-flex align-items-center" href="<?= base_url() ?>" style="column-gap:12px;font-weight:bolder;font-size:30px;">
             <a href="<?=base_url()?>">
-            <img src="<?= base_url('img/logo.png') ?>" width="50" height="50" class="d-inline-block align-top" alt="Logo TRUSUR"> 
+            <img src="<?= base_url('img/logo.png') ?>" width="50" class="d-inline-block align-top" alt="Logo TRUSUR"> 
             </a>
             <div id="logo-text" style="cursor:pointer;" class="position-relative d-flex align-items-center">
-                <span style="font-size:20px">AQMS</span>
+                <span style="font-size:20px">ISPUTEK</span>
                 <div class="position-absolute" style="top: -2px;right: -11px">
                     <small class="badge badge-dark" style="font-size:10px">EFS2</small>
                 </div>
