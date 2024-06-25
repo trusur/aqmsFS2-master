@@ -144,6 +144,7 @@ def check_pump(ser):
 # Running Main Function
 def main():
     driver = get_driver()
+    db.set_configuration("pump_has_trigger_change","1")
     try:
         ser = serial.Serial(driver['sensor_code'], driver['baud_rate'], timeout=3)
         atexit.register(exit_handler, ser)
