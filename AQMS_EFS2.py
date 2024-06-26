@@ -39,3 +39,6 @@ subprocess.Popen("firefox --kiosk=http://localhost:8080", shell=True)
 print("CTRL+C to exit")
 
 atexit.register(exit_handler)
+while True:
+    # Running Loop
+    time.sleep(1)
