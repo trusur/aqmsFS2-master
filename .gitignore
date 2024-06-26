@@ -7,3 +7,4 @@ gui/.env
 gui/.env
 gui/public/export/*
 *.pyc
+*.DS_Store
