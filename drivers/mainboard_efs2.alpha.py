@@ -4,9 +4,15 @@ import sys
 from datetime import datetime, timedelta
 import time
 import atexit
+import subprocess
 
 def exit_handler(ser):
-    print("Closing Serial Port..")
+    print("Checking AQMS Driver Service...")
+    subprocess.Popen("echo mx | sudo -S systemctl restart aqms-driver-alpha", shell=True)
+    time.sleep(1)
+    print("Checking AQMS Averaging Service...")
+    subprocess.Popen("echo mx | sudo -S systemctl restart aqms-averaging", shell=True)
+    print("Closing Serial Port...")
     if(ser is not None):
         ser.close()
 

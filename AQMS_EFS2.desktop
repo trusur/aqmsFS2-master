@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name='AQMS EFS2'
 Comment=AQMS-EFS2
-Icon=/home/mx/aqms-efs1/gui/public/img/logo.png
+Icon=/home/mx/aqms-efs2/gui/public/img/logo.png
 Exec=xfce4-terminal -e 'sh /home/mx/aqms-efs1/aqms_start.sh'
 Terminal=true
 Type=Application

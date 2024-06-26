@@ -4,8 +4,9 @@
 ```bash
 * * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:average1min >/dev/null 2>&1
 ```
-2. Sent Data 1 Seconds Every Minute
+2. Sent Data 1 Seconds Every 30sec
 ```bash
+* * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1sec >/dev/null 2>&1
 * * * * * sleep 30; /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1sec >/dev/null 2>&1
 ```
 3. Average Data 30 Mins
@@ -14,5 +15,5 @@
 ```
 4. Sent Data 1 Minutes Every Half Hour
 ```bash
-*/31 * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1min >/dev/null 2>&1
+*/30 * * * * sleep 60; /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1min >/dev/null 2>&1
 ```

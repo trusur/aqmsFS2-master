@@ -1,4 +1,5 @@
-pymodbus==2.5.3
+#pymodbus==2.5.3
+pymodbus
 pyvantagepro
 mysql_connector
 crcmod
