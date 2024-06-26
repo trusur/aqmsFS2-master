@@ -2,7 +2,7 @@ from drivers import db
 import subprocess
 import time
 import atexit
-def exit_handler(ser):
+def exit_handler():
     print("Stopping AQMS Driver Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
     time.sleep(1)
