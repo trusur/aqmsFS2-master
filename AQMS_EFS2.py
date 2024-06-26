@@ -11,7 +11,9 @@ def init_pump():
         cnx.close()
     except Exception as e:
         print('Init Pump Error: ',e)
-
+        
+print("Starting Pump...")
+init_pump()
 print("Checking AQMS Driver Service...")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-driver-alpha", shell=True)
 time.sleep(1)
