@@ -1,6 +1,13 @@
 from drivers import db
 import subprocess
 import time
+import atexit
+def exit_handler(ser):
+    print("Stopping AQMS Driver Service...\n")
+    subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
+    time.sleep(1)
+    print("Stopping AQMS Averaging Service...\n")
+    subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
 def init_pump():
     try:
         cnx = db.connect()
@@ -31,3 +38,4 @@ print("Trying to open application...")
 subprocess.Popen("firefox --kiosk=http://localhost:8080", shell=True)
 print("CTRL+C to exit")
 
+atexit.register(exit_handler)
