@@ -26,25 +26,46 @@ sudo cp services/*.service /etc/systemd/system/
 ```
 6. Start Services
 ```bash
-systemctl start aqms-driver
+systemctl start aqms-driver-alpha
 systemctl start aqms-averaging
-systemctl start aqms-sending
 ```
-7. Enable automaticly on boot:
+7. Stop Services
 ```bash
-systemctl enable aqms-driver
+systemctl stop aqms-driver-alpha
+systemctl stop aqms-averaging
+```
+8. Enable automaticly on boot:
+```bash
+systemctl enable aqms-driver-alpha
 systemctl enable aqms-averaging
-systemctl enable aqms-sending
 ```
-8. Disable service:
+9. Disable service:
 ```bash
-systemctl disable aqms-driver
+systemctl disable aqms-driver-alpha
 systemctl disable aqms-averaging
-systemctl disable aqms-sending
 ```
-9. Check service:
+10. Check service:
 ```bash
-systemctl status aqms-driver
+systemctl status aqms-driver-alpha
 systemctl status aqms-averaging
-systemctl status aqms-sending
+```
+
+## Setup Crontab
+`sudo crontab -e` then choose `nano`
+1. Average Data 1 Minute Every Minute
+```bash
+* * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:average1min >/dev/null 2>&1
+```
+2. Sent Data 1 Seconds Every 30sec
+```bash
+* * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1sec >/dev/null 2>&1
+* * * * * sleep 30; /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1sec >/dev/null 2>&1
+```
+3. Average Data 30 Mins
+```bash
+*/30 * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1min >/dev/null 2>&1
+```
+4. Sent Data 1 Minutes Every Half Hour
+```bash
+*/30 * * * * sleep 60; /user/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1min >/dev/null 2>&1
 ```
