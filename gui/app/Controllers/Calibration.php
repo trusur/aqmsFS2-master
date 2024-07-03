@@ -77,6 +77,18 @@ class Calibration extends BaseController
 			return redirect()->with('error', $e->getMessage());
 		}
 	}
+	public function stopSpan($calibration_id){
+		try{
+			update_config("is_calibration",null);
+			$this->calibrations->update($calibration_id,[
+				"is_executed" => 2
+			]);
+			return redirect()->to(base_url("calibration/log/{$calibration_id}"));
+		}catch(Exception $e){
+			dd($e->getMessage());
+			return redirect()->with('error', $e->getMessage());
+		}
+	}
 
 
 	public function logs(){

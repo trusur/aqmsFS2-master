@@ -166,7 +166,7 @@ def main():
         try:
             check_pump(ser)
             motherboards = get_motherboards()
-            is_calibration = db.get_configuration("is_calibration") # 0 = Inactive, 1 = Calibration Running, 2 = Calibration Done
+            is_calibration = db.get_configuration("is_calibration") # ID table calibrations
             calibration_mode = db.get_configuration("calibration_mode") # 0 = Zero, 1 = Span
             set_span = db.get_configuration("set_span")
             if(set_span not in [None,'']):

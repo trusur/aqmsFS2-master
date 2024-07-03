@@ -57,7 +57,8 @@ $routes->get('calibration/log/(:num)', 'Calibration::detail_log/$1');
 $routes->get('calibration/log/calibration-log/(:num)', 'Calibration::get_calibration_logs/$1');
 $routes->get('calibration/datatable-logs', 'Calibration::datatable_logs');
 
-$routes->get('calibration/span/{:num}', 'Calibration::span/$1');
+$routes->get('calibration/span/(:num)', 'Calibration::span/$1');
+$routes->post('calibration/span/(:num)', 'Calibration::stopSpan/$1');
 // $routes->get('calibration/zero/{:num}', 'Calibration::zero');
 // $routes->get('calibration/datatable', 'Calibration::datatable');
 

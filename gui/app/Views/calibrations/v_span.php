@@ -39,9 +39,12 @@
                                 <tr>
                                     <th>Action</th>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-primary">
-                                            Set SPAN
-                                        </button>
+                                        <form action="<?= base_url('calibration/span/'.$calibration->id)?>" method="post">
+                                            <input type="hidden" value="<?=$calibration->id?>">
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                Set SPAN
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             </tbody>
