@@ -85,7 +85,6 @@ class Calibration extends BaseController
 			]);
 			return redirect()->to(base_url("calibration/log/{$calibration_id}"));
 		}catch(Exception $e){
-			dd($e->getMessage());
 			return redirect()->with('error', $e->getMessage());
 		}
 	}
