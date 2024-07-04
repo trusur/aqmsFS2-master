@@ -82,6 +82,7 @@ class Sentdata1sec extends BaseCommand
 	 */
 	public function run(array $params)
 	{
+		$start = time();
 		$is_sentto_trusur = (int) get_config("is_sentto_trusur", 1);
 		if($is_sentto_trusur == 0) return;
 		// if(date("s") != "00") return;
@@ -105,6 +106,9 @@ class Sentdata1sec extends BaseCommand
 					if(empty($parameter)) continue;
 
 					$arr[$key][$parameter->code] = $measurement->value;
+					if($parameter->p_type == "gas"){
+						$arr[$key]["{$parameter->code}_raw"] = $measurement->sensor_value;
+					}
 					if($measurement->sub_avg_id){
 						$arr[$key]["sub_avg_id"] = $measurement->sub_avg_id;
 					}
@@ -113,8 +117,10 @@ class Sentdata1sec extends BaseCommand
 					}
 				}
 			}
+			// exit();
 
-			$is_exist = count($arr) > 0; 
+			$is_exist = count($arr) > 0;
+			CLI::write("Total data :". count($arr),"green"); 
 
 			if ($is_exist) {
 				// Sent to Server
@@ -124,7 +130,8 @@ class Sentdata1sec extends BaseCommand
 				$data = json_encode($arr);
 				$curl = curl_init();
 				curl_setopt_array($curl, array(
-					CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data_sec.php",
+					// CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data_sec.php",
+					CURLOPT_URL => "http:/localhost:3000/put_data_sec.php",
 					CURLOPT_RETURNTRANSFER => true,
 					CURLOPT_ENCODING => "",
 					CURLOPT_MAXREDIRS => 10,
@@ -158,6 +165,7 @@ class Sentdata1sec extends BaseCommand
 				} else {
 					print_r($response);
 				}
+				CLI::write("Executed time :".time()-$start);
 			}
 		}
 	}
