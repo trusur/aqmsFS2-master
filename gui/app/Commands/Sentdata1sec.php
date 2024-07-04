@@ -130,8 +130,7 @@ class Sentdata1sec extends BaseCommand
 				$data = json_encode($arr);
 				$curl = curl_init();
 				curl_setopt_array($curl, array(
-					// CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data_sec.php",
-					CURLOPT_URL => "http:/localhost:3000/put_data_sec.php",
+					CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data_sec.php",
 					CURLOPT_RETURNTRANSFER => true,
 					CURLOPT_ENCODING => "",
 					CURLOPT_MAXREDIRS => 10,
