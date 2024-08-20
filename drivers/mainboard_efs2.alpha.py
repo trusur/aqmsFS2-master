@@ -62,13 +62,13 @@ def is_motherboard_ready(ser):
         response = ""
         timeout = 0
         max_timeout = 5
-        while response.find("Ready") == -1 and timeout < max_timeout:
+        while response.find("DEVICE_READY;") == -1 and timeout < max_timeout:
             response = ser.readline().decode('utf-8').strip('\r\n')
-            if(response == "Ready"):
+            if(response == "DEVICE_READY;"):
                 timeout = max_timeout
                 break
             timeout+1
-        if(response.find("Ready") == 0):
+        if(response.find("DEVICE_READY;") == 0):
             return True
         
         return False
