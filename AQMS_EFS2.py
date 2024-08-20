@@ -2,6 +2,7 @@ from drivers import db
 import subprocess
 import time
 import atexit
+import signal
 def exit_handler():
     print("Stopping AQMS Driver Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
@@ -39,6 +40,7 @@ print("Trying to open application...")
 subprocess.Popen("firefox --kiosk=http://localhost:8080", shell=True)
 print("CTRL+C to exit")
 
+signal.signal(signal.SIGTERM, exit_handler)
 atexit.register(exit_handler)
 while True:
     # Running Loop
