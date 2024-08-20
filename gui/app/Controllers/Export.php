@@ -40,7 +40,7 @@ class Export extends BaseController
 
 			$where = "1=1";
 			if($begindate) $where.=" and time_group >= '{$begindate}'";
-			if($enddate) $where.=" and time_group <= '{$begindate}'";
+			if($enddate) $where.=" and time_group <= '{$enddate}'";
 
 			$tGroups = $db->table($data_source)
 				->selectMax('id')
@@ -121,7 +121,7 @@ class Export extends BaseController
 
 			$where = "1=1";
 			if($begindate) $where.=" and time_group >= '{$begindate}'";
-			if($enddate) $where.=" and time_group <= '{$begindate}'";
+			if($enddate) $where.=" and time_group <= '{$enddate}'";
 
 			$recordsTotal = $db->table($data_source)
 				->selectMax('id')
