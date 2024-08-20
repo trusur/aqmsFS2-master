@@ -8,6 +8,7 @@ def exit_handler():
     time.sleep(1)
     print("Stopping AQMS Averaging Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
+    print("AQMS should be stopped...")
 def init_pump():
     try:
         cnx = db.connect()

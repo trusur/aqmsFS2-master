@@ -8,9 +8,6 @@ import os
 def exit_handler(ser):
     print("Closing Serial Port...")
     if(ser is not None):
-        os.system('systemctl stop aqms-averaging')
-        os.system('systemctl stop aqms-driver-alpha')
-        os.system('killall -9 php')
         ser.close()
 
 
