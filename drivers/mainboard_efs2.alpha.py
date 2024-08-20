@@ -150,10 +150,10 @@ def main():
         max_timeout = 5
         timeout = 0
         responseReady = ""
-        while responseReady != "Ready" and timeout < max_timeout:
+        while responseReady != "DEVICE_READY;" and timeout < max_timeout:
             responseReady = ser.readline().decode('utf-8').strip('\r\n')
             timeout += 1
-            if(responseReady == "Ready"):
+            if(responseReady == "DEVICE_READY;"):
                 break
     except Exception as e:
         print("Serial Port Error : ")
@@ -181,12 +181,12 @@ def main():
                 prefix_return = motherboard['prefix_return']
                 response = get_motherboard_value(ser, command, prefix_return)
                 # print(response)
-                if(command.find("data.semeatech") == 0):
-                    sematech = response.split(" END;")
+                if(command.find("getData,semeatech,batch,1,4,#") == 0):
+                    sematech = response.split("END_SEMEATECH;")
                     for index,res in enumerate(sematech):
                         new_pin = str(pin) +  str(index)
-                        final_str = res.replace("SEMEATECH START;","")
-                        final_str = final_str.replace("SEMEATECH FINISH;","")
+                        final_str = res.replace("SEMEATECH_BATCH;","")
+                        final_str = final_str.replace("END_SEMEATECH_BATCH;","")
                         if(final_str not in ['', None]):
                             db.update_sensor_values(sensor_reader_id,new_pin, final_str)
                             if (is_calibration != None and calibration_mode == '1' and final_str.find(_parameter) > -1):
@@ -195,8 +195,8 @@ def main():
                                     if(calibration['is_executed'] == 0):
                                         # Send Signal to Mainboard here 
                                         None
-                                    ppm_value = final_str.split(";")[2] if len(final_str.split(";")) > 4 else None
-                                    db.set_calibration_log(calibration['id'],calibration['parameter_id'],ppm_value,datetime.now())
+                                    ppb_value = final_str.split(";")[4] if len(final_str.split(";")) > 6 else None
+                                    db.set_calibration_log(calibration['id'],calibration['parameter_id'],ppb_value,datetime.now())
 
                 if(response not in ['', None]):
                     db.update_sensor_values(sensor_reader_id,pin, response)
