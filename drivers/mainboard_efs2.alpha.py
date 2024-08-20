@@ -3,10 +3,12 @@ import db
 import sys
 from datetime import datetime, timedelta
 import atexit
+import os
 
 def exit_handler(ser):
     print("Closing Serial Port...")
     if(ser is not None):
+        os.system('killall -9 php')
         ser.close()
 
 
