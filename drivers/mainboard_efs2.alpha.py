@@ -164,7 +164,7 @@ def main():
     while True:
         # start_time = time.time()
         try:
-            check_pump(ser)
+            #check_pump(ser)
             motherboards = get_motherboards()
             is_calibration = db.get_configuration("is_calibration") # ID table calibrations
             calibration_mode = db.get_configuration("calibration_mode") # 0 = Zero, 1 = Span
@@ -182,7 +182,7 @@ def main():
                 response = get_motherboard_value(ser, command, prefix_return)
                 # print(response)
                 if(command.find("getData,semeatech,batch,1,4,#") == 0):
-                    sematech = response.split("END_SEMEATECH;")
+                    sematech = response.split("END_SEMEATECH_DATA;")
                     for index,res in enumerate(sematech):
                         new_pin = str(pin) +  str(index)
                         final_str = res.replace("SEMEATECH_BATCH;","")
