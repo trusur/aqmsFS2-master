@@ -3,6 +3,7 @@ import subprocess
 import time
 import atexit
 import signal
+import sys
 def exit_handler():
     print("Stopping AQMS Driver Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
@@ -10,6 +11,14 @@ def exit_handler():
     print("Stopping AQMS Averaging Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
     print("AQMS should be stopped...")
+def exit_handler_signal(signum,frame):
+    print("Stopping AQMS Driver Service...\n")
+    subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
+    time.sleep(1)
+    print("Stopping AQMS Averaging Service...\n")
+    subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
+    print("AQMS should be stopped...")
+    sys.exit(1)
 def init_pump():
     try:
         cnx = db.connect()
@@ -40,7 +49,7 @@ print("Trying to open application...")
 subprocess.Popen("firefox --kiosk=http://localhost:8080", shell=True)
 print("CTRL+C to exit")
 
-signal.signal(signal.SIGHUP, exit_handler)
+signal.signal(signal.SIGTERM, exit_handler_signal)
 atexit.register(exit_handler)
 while True:
     # Running Loop
