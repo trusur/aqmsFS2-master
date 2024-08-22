@@ -3,7 +3,13 @@ import subprocess
 import time
 import atexit
 import signal
-import sys
+import psutil
+import os
+def is_process_running(pid):
+    try:
+        return psutil.Process(pid).is_running()
+    except psutil.NoSuchProcess:
+        return False
 def exit_handler():
     print("Stopping AQMS Driver Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
@@ -11,14 +17,19 @@ def exit_handler():
     print("Stopping AQMS Averaging Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
     print("AQMS should be stopped...")
+    file = open('test.txt','w')
+    file.write('1')
+    file.close()
 def exit_handler_signal(signum,frame):
     print("Stopping AQMS Driver Service...\n")
-    subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
+    # subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
     time.sleep(1)
     print("Stopping AQMS Averaging Service...\n")
-    subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
+    # subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
     print("AQMS should be stopped...")
-    sys.exit(1)
+    file = open('test.txt','w')
+    file.write('1')
+    file.close()
 def init_pump():
     try:
         cnx = db.connect()
@@ -29,7 +40,7 @@ def init_pump():
         cnx.close()
     except Exception as e:
         print('Init Pump Error: ',e)
-
+subprocess.Popen("~/aqms-efs2/services/monitoring-aqms-service.sh", shell=True)
 print("Starting Pump...")
 init_pump()
 print("Checking AQMS Driver Service...\n")
@@ -49,6 +60,7 @@ print("Trying to open application...")
 subprocess.Popen("firefox --kiosk=http://localhost:8080", shell=True)
 print("CTRL+C to exit")
 
+pid = os.getpid()
 signal.signal(signal.SIGTERM, exit_handler_signal)
 atexit.register(exit_handler)
 while True:
