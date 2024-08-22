@@ -40,7 +40,6 @@ def init_pump():
         cnx.close()
     except Exception as e:
         print('Init Pump Error: ',e)
-subprocess.Popen("~/aqms-efs2/services/monitoring-aqms-service.sh", shell=True)
 print("Starting Pump...")
 init_pump()
 print("Checking AQMS Driver Service...\n")
