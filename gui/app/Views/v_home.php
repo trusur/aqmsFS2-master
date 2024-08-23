@@ -44,7 +44,7 @@
                             </div>
                         </div>
                         <div class="row text-right text-light d-none p-0 m-0">
-                            <small class="col-12 xtimestamp" id="time_<?= $particulate->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
+                            <small class="col-12 xtimestamp" id="time_<?= $gas->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -63,7 +63,7 @@
                             </div>
                         </div>
                         <div class="row text-right text-light d-none p-0 m-0">
-                            <small class="col-12 xtimestamp" id="time_<?= $particulate->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
+                            <small class="col-12 xtimestamp" id="time_<?= $wheather->code ?>" style="font-size: 10px"><?=date("Y-m-d H:i:s")?></small>
                         </div>
                     </div>
                 <?php endforeach; ?>
