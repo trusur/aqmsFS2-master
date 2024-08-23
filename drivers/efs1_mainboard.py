@@ -74,7 +74,7 @@ def update_sensor(mode = ""):
         
     motherboards = mycursor.fetchall()
     for motherboard in motherboards:
-        print(motherboard[1])
+        # print(motherboard[1])
         retval = ""
         try:
             ser.write(bytes(motherboard[1] + "#",'utf-8'))
@@ -119,7 +119,7 @@ def pump_switch():
             pump_state = mycursor.fetchone()[0]
             if pump_state != current_state:
                 current_state = pump_state
-                print("pump.state." + str(current_state) + "#")
+                #print("pump.state." + str(current_state) + "#")
                 ser.write(bytes('pump.state.' + str(current_state) + "#",'utf-8'))
                 data = ser.readline().decode('utf-8').strip('/r/n')
                 
