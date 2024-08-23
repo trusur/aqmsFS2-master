@@ -180,7 +180,7 @@ class Sentdata_klhk extends BaseCommand
 						if ($err) {
 							echo "cURL Error #:" . $err;
 						} else {
-							echo "\n" . $arr["id_stasiun"] . " => " . $response;
+							// echo "\n" . $arr["id_stasiun"] . " => " . $response;
 							if (strpos(" " . $response, "\"status\":1") > 0) {
 								$this->measurements->where(["time_group" => $time_group])->set(["is_sent_klhk" => 1, "sent_klhk_at" => date("Y-m-d H:i:s")])->update();
 								// $this->measurements->where("id IN (" . $measurement_ids . ")")->set(["is_sent_klhk" => 1, "sent_klhk_at" => date("Y-m-d H:i:s")])->update();

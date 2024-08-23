@@ -23,6 +23,7 @@ class Sentdata extends BaseCommand
 	protected $measurement_logs;
 	protected $configurations;
 	protected $lastPutData;
+	protected $measurements;
 
 	public function __construct()
 	{
