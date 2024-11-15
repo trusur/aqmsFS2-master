@@ -23,6 +23,7 @@ class Mainboard extends BaseController
         try{
             $data = [
                 'sensorname' => request()->getPost('sensorname'),
+                'type' => request()->getPost('type'),
                 'is_enable' => request()->getPost('is_enable'),
                 'is_priority' => request()->getPost('is_priority'),
                 'command' => request()->getPost('command'),
@@ -46,6 +47,7 @@ class Mainboard extends BaseController
         try{
             $data = [
                 'sensorname' => request()->getPost('sensorname'),
+                'type' => request()->getPost('type'),
                 'is_enable' => request()->getPost('is_enable'),
                 'is_priority' => request()->getPost('is_priority'),
                 'command' => request()->getPost('command'),
