@@ -26,11 +26,19 @@ $routes->get('lang/(:any)', 'Language::index');
 $routes->get('configurations', 'Configuration::index');
 $routes->post('configuration/update', 'Configuration::update');
 
+// Configuration Driver from table sensor_reader
 $routes->get('configuration/drivers/datatable', 'Configuration::datatable_drivers');
 $routes->get('configuration/get-driver/(:num)', 'Configuration::get_driver/$1');
 $routes->post('configuration/add-driver', 'Configuration::add_driver');
 $routes->post('configuration/edit-driver', 'Configuration::edit_driver');
 $routes->post('configuration/delete-driver/(:num)', 'Configuration::delete_driver/$1');
+
+// Configuraion Device Id
+$routes->get('configuration/device-id/datatable-device_id', 'Configuration::datatable_device_id');
+$routes->get('configuration/get-device_id/(:num)', 'Configuration::get_device_id/$1');
+$routes->post('configuration/add-device_id', 'Configuration::add_device_id');
+$routes->post('configuration/edit-device_id', 'Configuration::edit_device_id');
+$routes->post('configuration/delete-device_id/(:num)', 'Configuration::delete_device_id/$1');
 // 
 $routes->get('configuration/raw', 'ConfigurationRaw::index');
 $routes->get('configuration/raw/datatable', 'ConfigurationRaw::datatable');

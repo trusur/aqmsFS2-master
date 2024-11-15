@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\m_configuration;
+use App\Models\m_device_id;
 use App\Models\m_sensor_reader;
 use Exception;
 
@@ -11,11 +12,13 @@ class Configuration extends BaseController
 
 	protected $configuration;
 	protected $sensor_reader;
+	protected $device_id;
 	public function __construct()
 	{
 		parent::__construct();
 		$this->configuration = new m_configuration();
 		$this->sensor_reader = new m_sensor_reader();
+		$this->device_id = new m_device_id();
 	}
 	public function index()
 	{
@@ -159,6 +162,122 @@ class Configuration extends BaseController
 			return $this->configuration->where('name', $name)->first()->content ?? null;
 		}catch(Exception $e){
 			return null;
+		}
+	}
+
+
+	public function datatable_device_id(){
+		try{
+			$start = request()->getGet("start") ?? 0;
+			$length = request()->getGet("length") ?? 10;
+			$search = request()->getGet("search")["value"] ?? "";
+
+			$where = "1=1";
+			if($search) $where.=" and (parameter like '%{$search}%')";
+			$data['draw'] = request()->getGet("draw");
+			$data['recordsTotal'] = $this->device_id->countAllResults();
+			$data['recordsFiltered'] = $this->device_id->where($where)->countAllResults();
+			$data['data'] = $this->device_id->where($where)->orderBy('id', 'asc')->findAll($length, $start);
+			return response()->setJSON($data);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON(['message' => $e->getMessage()]);
+		}
+	}
+
+	public function get_device_id($id){
+		try{
+			return response()->setJSON([
+				'success' => true,
+				'data' => $this->device_id->find($id)
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+
+	public function add_device_id(){
+		try{
+			$this->validate([
+				'device_id' => 'required',
+				'parameter' => 'required'
+			]);
+			
+			$data = [
+				'device_id' => request()->getPost('device_id'),
+				'parameter' => request()->getPost('parameter')
+			];
+
+			$existingDevice = $this->device_id->where('device_id', $data['device_id'])->first();
+        
+			if ($existingDevice) {
+				return response()->setStatusCode(400)->setJSON([
+					'success' => false,
+					'message' => 'Device ID already exists.',
+				]);
+			}
+	
+			$this->device_id->insert($data);
+			
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Device ID has been added',
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+
+	public function edit_device_id(){
+
+		try{
+			$id = request()->getPost('id');
+			$this->validate([
+				'device_id' => 'required',
+				'parameter' => 'permit_empty',
+			]);
+			$data = [
+				'device_id' => request()->getPost('device_id'),
+				'parameter' => request()->getPost('parameter'),
+			];
+			
+			$existingDevice = $this->device_id->where('device_id', $data['device_id'])->first();
+        
+			if ($existingDevice) {
+				return response()->setStatusCode(400)->setJSON([
+					'success' => false,
+					'message' => 'Device ID already exists.',
+				]);
+			}
+	
+			$this->device_id->update($id, $data);
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Device ID has been updated',
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
+		}
+	}
+
+
+	public function delete_device_id($id){
+		try{
+			$param = request()->getPost('parameter');
+			$this->device_id->delete($id);
+			return response()->setJSON([
+				'success' => true,
+				'message' => 'Paremeter '. $param. ' has been deleted',
+			]);
+		}catch(Exception $e){
+			return response()->setStatusCode(500)->setJSON([
+				'message' => $e->getMessage(),
+			]);
 		}
 	}
 }
