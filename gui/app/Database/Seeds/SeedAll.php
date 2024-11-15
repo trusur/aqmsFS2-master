@@ -13,5 +13,6 @@ class SeedAll extends Seeder
 		$this->call('Parameters');
 		$this->call('SensorReaders');
 		$this->call('Motherboard');
+		$this->call('DeviceId');
 	}
 }
