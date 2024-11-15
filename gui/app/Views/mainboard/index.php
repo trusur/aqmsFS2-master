@@ -8,7 +8,7 @@
                     <h5 class="card-title">List Mainboard Command</h5>
                     <div class="d-flex justify-content-between align-items-center" style="gap:5px">
                         <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-create"><i class="fas fa-plus"></i> Add new</button>
-                        <a href="<?= base_url('configurations') ?>" class="btn btn-sm btn-secondary">Back</a>
+                        <a href="<?= base_url('configurations') ?>" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
 
                     </div>
                 </div>
@@ -27,6 +27,7 @@
                                         <tr>
                                             <th>Active</th>
                                             <th>Sensor Name</th>
+                                            <th>Type</th>
                                             <th>Status</th>
                                             <th>Priority</th>
                                             <th>Command</th>
@@ -43,6 +44,7 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td><?= $mainboard->sensorname ?></td>
+                                                <td><?= $mainboard->type ?></td>
                                                 <td><?= $mainboard->is_enable == 1 ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>' ?></td>
                                                 <td><?= $mainboard->is_priority ?></td>
                                                 <td><?= $mainboard->command ?></td>
@@ -78,14 +80,21 @@
                         <label>Sensor Name</label>
                         <input type="text" placeholder="Sensor Name" name="sensorname" class="form-control" required>
                     </div>
-                    <div class="col-md-6 form-group mb-1">
+                    <div class="col-md-4 form-group mb-1">
+                        <label>Type</label>
+                        <select name="type" class="form-control" required>
+                            <option value="read">Read</option>
+                            <option value="setting">Setting</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mb-1">
                         <label>Status</label>
                         <select name="is_enable" class="form-control" required>
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-6 form-group mb-1">
+                    <div class="col-md-4 form-group mb-1">
                         <label>Priority</label>
                         <input type="number" placeholder="Priority" name="is_priority" class="form-control" required>
                     </div>
@@ -123,14 +132,21 @@
                         <label>Sensor Name</label>
                         <input type="text" placeholder="Sensor Name" name="sensorname" class="form-control" required>
                     </div>
-                    <div class="col-md-6 form-group mb-1">
+                    <div class="col-md-4 form-group mb-1">
+                        <label>Type</label>
+                        <select name="type" class="form-control" required>
+                            <option value="read">Read</option>
+                            <option value="setting">Setting</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mb-1">
                         <label>Status</label>
                         <select name="is_enable" class="form-control" required>
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-6 form-group mb-1">
+                    <div class="col-md-4 form-group mb-1">
                         <label>Priority</label>
                         <input type="number" placeholder="Priority" name="is_priority" class="form-control" required>
                     </div>
@@ -177,6 +193,7 @@
                         $("#modal-edit").modal('show');
                         $("#form-edit").attr('action', `<?= base_url('configuration/mainboard') ?>/${id}`);
                         $("#form-edit").find('input[name="sensorname"]').val(data.data.sensorname);
+                        $("#form-edit").find('select[name="type"]').val(data.data.type);
                         $("#form-edit").find('select[name="is_enable"]').val(data.data.is_enable);
                         $("#form-edit").find('input[name="is_priority"]').val(data.data.is_priority);
                         $("#form-edit").find('input[name="command"]').val(data.data.command);

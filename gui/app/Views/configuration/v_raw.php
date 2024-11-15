@@ -6,8 +6,8 @@
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="h6 card-title my-0">Configurations</h1>
             <div>
-                <a href="<?= base_url('configuration')?>" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
                 <button type="button" data-toggle="modal" data-target="#modal-add" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Add New</button>
+                <a href="<?= base_url('configuration')?>" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
         </div>
     </div>
