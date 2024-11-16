@@ -7,6 +7,7 @@
                 <h1 class="card-title py-0 my-0 h6">Parameter</h1>
                 <div>
                     <button type="button" data-toggle="modal" data-target="#modal-filter" class="btn btn-sm btn-secondary">Filter</button>
+                    <a href="<?= base_url('configuration')?>" class="btn btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
                 </div>
             </div>
         </div>
@@ -83,7 +84,7 @@
 <script>
     $(document).ready(function(){
         const table = $('#table-parameter').DataTable({
-            lengthMenu: [[5,10, 25, 50, 100, -1], [5,10, 25, 50, 100, "All"]],
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             processing:true,
             serverSide:true,
             ajax: {

@@ -10,6 +10,7 @@
         <a href="<?= base_url('configuration/raw') ?>" class="btn btn-secondary">Full Configuration</a>
         <a href="<?= base_url('configuration/mainboard') ?>" class="btn btn-secondary">Mainboards</a>
         <a href="<?= base_url('calibrations') ?>" class="btn btn-secondary">Calibrations</a>
+        <a href="<?= base_url('parameters') ?>" class="btn btn-secondary">Parameters</a>
     </div>
     <div class="row pt-3" id="content-overlay">
         <div class="col-md-6 mx-auto" id="config-general">
