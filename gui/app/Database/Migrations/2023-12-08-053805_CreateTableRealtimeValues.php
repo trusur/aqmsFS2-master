@@ -26,6 +26,11 @@ class CreateTableRealtimeValues extends Migration
 				'null' => true,
 				'default' => 0
 			],
+			'ppb_value' => [
+				'type' => 'DOUBLE',
+				'null' => true,
+				'default' => 0
+			],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', true);
