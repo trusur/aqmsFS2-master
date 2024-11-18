@@ -16,6 +16,7 @@ use DivisionByZeroError;
 use Error;
 use Exception;
 use ParseError;
+use stdClass;
 
 class FormulaMeasurementLogs extends BaseCommand
 {
@@ -101,71 +102,85 @@ class FormulaMeasurementLogs extends BaseCommand
 	public function run(array $params)
 	{
 		$start = microtime(true);
-		try{
+
+		try {
+			// Loop through sensor values and process them
 			foreach ($this->sensor_values->findAll() as $sensor_value) {
-				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
+				if ($sensor_value->type === "PM") {
+					list($flow_pm25, $flow_pm10, $value_pm25, $value_pm10) = $this->getPMData($sensor_value->value);
+					$sensor['PM25']['value'] = $value_pm25;
+					$sensor['PM25_FLOW']['value'] = $flow_pm25;
+					$sensor['PM10']['value'] = $value_pm10;
+					$sensor['PM10_FLOW']['value'] = $flow_pm25;
+				} else if ($sensor_value->type === "WEATHER") {
+					$data_meteoroligi = $this->getMeteorologiData($sensor_value->value);
+					foreach ($data_meteoroligi as $key => $value) {
+						$sensor[$key]['value'] = $value;
+					}
+				} else if ($sensor_value->type === "HC") {
+					$value = $this->getGasHC($sensor_value->value);
+					$sensor['HC']['value'] = $value;
+				} else  {
+					list($p_type, $ug_value, $ppb_values) = $this->getGasData($sensor_value->value);
+					$sensor[$p_type]['value_ppb'] = $ppb_values;
+					$sensor[$p_type]['value'] = $ug_value;
+				}
 			}
-			$flow_pm25 = $this->getPMFlow("pm25_flow",$sensor);
-			$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
+
+			// Process parameters and perform necessary calculations
 			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
-				try{
+				try {
 					$measured = 0;
-					$sensor_value = $this->sensor_values->select("sensor_reader_id,pin")->find($parameter->sensor_value_id);
-					try{
-						eval("\$measured = $parameter->formula ?? -1;");
-						$raw = $measured;
-						if($parameter->p_type == "gas"){
-							if($parameter->code == "hc"){
-								$raw = explode(";",$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin])[1] ?? -999;
-							}else{
-								$raw = explode(";",$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin])[2] ?? -999;
-							}
-						}
-					}catch(ParseError | Error | DivisionByZeroError $e){
+					$raw = 0;
+					$parameter_code = strtoupper($parameter->code);
+					$value_ppb = $sensor[$parameter_code]['value_ppb'] ?? null;
+
+					try {
+						$measured =  $sensor[$parameter_code]['value'] ?? -1;
+						$raw = $sensor[$parameter_code]['value'] ?? -999;
+
+					} catch (ParseError | Error | DivisionByZeroError $e) {
 						$measured = 0;
 						$raw = 0;
-					}catch(Exception $e){
+					} catch (Exception $e) {
 						$measured = 0;
 						$raw = 0;
 					}
+
 					$isInsertLog = true;
-					
 					$is_valid = '';
-					//START VALIDIASI
-					if(!empty($parameter->range_max)){ // Mengecek apakah colom range_max tidak kosong
-						if($parameter->p_type == "particulate"){
-							if($parameter->code == "pm25" && $flow_pm25 < 1.6){
+
+					//START VALIDASI
+					if (!empty($parameter->range_max)) {
+						if ($parameter->p_type == "particulate") {
+							if ($parameter->code == "pm25" && $flow_pm25 < 1.6) {
 								$is_valid = 20;
-							} else if($parameter->code == "pm10" && $flow_pm10 < 1.6){
+							} else if ($parameter->code == "pm10" && $flow_pm10 < 1.6) {
 								$is_valid = 20;
 							} else {
-								if($measured <= 0){
-									//validasi Abnormal
-									$is_valid = 12;
-								}else if($measured > $parameter->range_max){
-									//out of range
-									$is_valid = 13;
-								}else{
+								if ($measured <= 0) {
+									$is_valid = 12; // Abnormal
+								} else if ($measured > $parameter->range_max) {
+									$is_valid = 13; // Out of range
+								} else {
 									$is_valid = $this->isFlat($parameter->id, $measured);
 								}
 							}
-						}else{
-							if($measured <= 0){
-								//validasi Abnormal
-								$is_valid = 12;
-							}else if($measured > $parameter->range_max){
-								//out of range
-								$is_valid = 13;
-							}else{
+						} else {
+							if ($measured <= 0) {
+								$is_valid = 12; // Abnormal
+							} else if ($measured > $parameter->range_max) {
+								$is_valid = 13; // Out of range
+							} else {
 								$is_valid = $this->isFlat($parameter->id, $measured);
 							}
 						}
-						
-					}else{
-						$is_valid = 1;
+					} else {
+						$is_valid = 1; // Valid
 					}
-					//END VALIDASI				
+					//END VALIDASI
 
+					// Insert log data
 					$this->insert_logs([
 						"parameter_id" => $parameter->id,
 						"value" => $measured,
@@ -174,97 +189,151 @@ class FormulaMeasurementLogs extends BaseCommand
 						"time_group" => date("Y-m-d H:i:s"),
 						"is_valid" => $is_valid,
 						"xtimestamp" => date('Y-m-d H:i:s'),
-					], $isInsertLog);
-
-				}catch(Exception $e){
-					log_message("error","Formula Error [$parameter->code] : ".$e->getMessage());
+					], $isInsertLog, $value_ppb);
+				} catch (Exception $e) {
+					log_message("error", "Formula Error [$parameter->code] : " . $e->getMessage());
 				}
 			}
-		}catch(Exception $e){
-			log_message("error","Formula Convertion Service Error : ".$e->getMessage());
+		} catch (Exception $e) {
+			log_message("error", "Formula Convertion Service Error : " . $e->getMessage());
 		}
+
+		// Calculate and log execution time for debugging
 		$end = microtime(true);
-		CLI::write("Total Time : ".($end-$start)."s");
-		CLI::write("Done");
-		sleep(1);
+		CLI::write("Done in  : " . ($end - $start) . "s");
 	}
 
-	public function isFlat($parameterId, $measured){
+
+	public function isFlat($parameterId, $measured)
+	{
 		//check data Flat
 		$lastValue = $this->measurement_logs
-				->where("parameter_id='{$parameterId}'")
-				->orderBy("id","desc")->first();
+			->where("parameter_id='{$parameterId}'")
+			->orderBy("id", "desc")->first();
 		$lastValueAVG = $this->measurement_logs
-				->where("parameter_id='{$parameterId}'")
-				->orderBy("id","desc")->findAll(60);
+			->where("parameter_id='{$parameterId}'")
+			->orderBy("id", "desc")->findAll(60);
 		$flat = 0;
-		foreach ($lastValueAVG as $avg){
-			if($lastValue->value == $avg->value){
-				$flat +=1; 	
+		foreach ($lastValueAVG as $avg) {
+			if ($lastValue->value == $avg->value) {
+				$flat += 1;
 			}
 		}
-		if($flat == 60){
+		if ($flat == 60) {
 			$is_valid = 14;
 			$ids = array_column($lastValueAVG, 'id');
 			$this->measurement_logs->set(['is_valid' => $is_valid])->whereIn('id', $ids)->update();
-			if($lastValue->value != $measured){
+			if ($lastValue->value != $measured) {
 				$is_valid = 11;
 			}
-		}else{
+		} else {
 			//data normal
 			$is_valid = 11;
 		}
 		return $is_valid;
 	}
 
-	public function getPMFlow($code, $sensor){
-		try{
-			// $sensor for exec formula
-			$sensor = $sensor;
+	public function getPMData($value)
+	{
+		try {
 			$measured = 2;
-			$parameter = $this->parameters->select("sensor_value_id,formula")->where("code",$code)->first();
-			eval("\$measured = $parameter->formula ?? -1;");
-			return $measured;
-		}catch(Exception $e){
-			CLI::write($e->getMessage(),"red");
+			$data = explode(";", $value);
+			return [$data[6], $data[6], $data[2], $data[3]];
+		} catch (Exception $e) {
+			CLI::write($e->getMessage(), "red pm");
 			return false;
 		}
 	}
-	public function insert_logs($logs, $insertLogs = true){
-		try{
-			if($insertLogs){
+
+	public function getGasData($value)
+	{
+		try {
+			$data = explode(";", $value);
+			return [$data[2], $data[3], $data[4]];
+		} catch (Exception $e) {
+			CLI::write($e->getMessage(), "red gas");
+			return false;
+		}
+	}
+
+	public function getMeteorologiData($value)
+	{
+		try {
+			$data = explode(";", $value);
+			$response = new stdClass();
+			$response->WD = (int) ($data[1] ?? 0);        // Arah angin (Wind Direction)
+			$response->WS = (float) ($data[2] ?? 0); // Kecepatan angin (Wind Speed)
+			$response->TEMPERATURE = (float) ($data[3] ?? 0); // Suhu udara (Temperature)
+			$response->HUMIDITY = (int) ($data[4] ?? 0);  // Kelembapan udara (Humidity)
+			$response->PRESSURE = (float)($data[5] ?? 0); // Tekanan udara (Pressure)
+			$response->RAIN_INTENSITY = (float) ($data[6] ?? 0); // Curah hujan (Rainfall)
+			$response->SR = (float) ($data[10] ?? 0); // Radiasi matahari (Solar Radiation)
+
+			// Mengembalikan objek response
+			return $response;
+		} catch (Exception $e) {
+			CLI::write($e->getMessage(), "red weather");
+			return false;
+		}
+	}
+
+	public function getGasHC($value)
+	{
+		try {
+			$data = explode(";", $value);
+			# using senovol
+			if (stripos($value, 'SENOVOL') === 0) {
+				$hc_data = $data[2];
+			# using semeatech
+			} else if (stripos($value, '4ECM') === 0)  {
+				$hc_data = $data[5];
+			}
+			return $hc_data;
+		} catch (Exception $e) {
+			CLI::write($e->getMessage(), "red hc senovol");
+			return false;
+		}
+	}
+	public function insert_logs($logs, $insertLogs = true, $value_ppb)
+	{
+		try {
+			if ($insertLogs) {
 				$this->measurement_logs->insert($logs);
 			}
 			// Check is parameter exist
 			$parameterId = $logs["parameter_id"];
 			$isParameterExist = $this->realtime_value->where("parameter_id={$parameterId}")->countAllResults() > 0 ? true : false;
-			if($isParameterExist){
+			if ($isParameterExist) {
 				// Update value is parameter exist
 				return $this->realtime_value->where("parameter_id={$parameterId}")
-				->set([
-					"measured" => $logs["value"],
-					"raw" => $logs['sensor_value'],
-					"xtimestamp" => date("Y-m-d H:i:s"),
-				])->update();
+					->set([
+						"measured" => $logs["value"],
+						"raw" => $logs['sensor_value'],
+						"ppb_value" => $value_ppb,
+						"xtimestamp" => date("Y-m-d H:i:s"),
+					])->update();
 			}
 			// Insert parameter
 			return $this->realtime_value->insert([
 				"parameter_id" => $parameterId,
 				"measured" => $logs["value"],
 			]);
-
-		}catch(Exception $e){
-			log_message("error","Insert Logs : ".$e->getMessage());
+		} catch (Exception $e) {
+			log_message("error", "Insert Logs : " . $e->getMessage());
 			return false;
 		}
 	}
-	public function remove_outliers($dataset, $magnitude = 1) {
-        $count = count($dataset);
-        $mean = array_sum($dataset) / $count; // Calculate the mean
-        $deviation = sqrt(array_sum(array_map([$this, "sd_square"], $dataset, array_fill(0, $count, $mean))) / $count) * $magnitude; // Calculate standard deviation and times by magnitude
-        return array_filter($dataset, function($x) use ($mean, $deviation) { return ($x <= $mean + $deviation && $x >= $mean - $deviation); }); // Return filtered array of values that lie within $mean +- $deviation.
-    }
-	public function sd_square($x, $mean) {
+	public function remove_outliers($dataset, $magnitude = 1)
+	{
+		$count = count($dataset);
+		$mean = array_sum($dataset) / $count; // Calculate the mean
+		$deviation = sqrt(array_sum(array_map([$this, "sd_square"], $dataset, array_fill(0, $count, $mean))) / $count) * $magnitude; // Calculate standard deviation and times by magnitude
+		return array_filter($dataset, function ($x) use ($mean, $deviation) {
+			return ($x <= $mean + $deviation && $x >= $mean - $deviation);
+		}); // Return filtered array of values that lie within $mean +- $deviation.
+	}
+	public function sd_square($x, $mean)
+	{
 		return pow($x - $mean, 2);
 	}
 }
