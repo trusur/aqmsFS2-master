@@ -45,7 +45,7 @@
         }, 1000);
         /* Change Navbar */
         window.addEventListener('scroll', function() {
-            console.log(window.scrollY);
+            // console.log(window.scrollY);
             if (window.scrollY > 19) {
                 $('#top-navbar').addClass('bg-dark');
             } else {
