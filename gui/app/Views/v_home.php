@@ -136,17 +136,21 @@
                                 let default_unit = cleanStr(value?.default_unit);
                                 let molecular_mass = cleanStr(value?.molecular_mass);
                                 let raw = cleanStr(value?.raw);
+                                let ppb_value = cleanStr(value?.ppb_value);
                                 let p_type = value?.p_type
                                 if (p_type == 'gas' && default_unit == "µg/m<sup>3") {
                                     let unit_id = parseInt(localStorage.getItem('unit_id'));
                                     switch (unit_id) {
+                                        // unit type = ppm
                                         case 2:
                                             // param_value = calculatePpm(param_value, molecular_mass);
-                                            param_value = parseFloat(raw);
+                                            param_value = parseFloat(value?.ppb_value) / 1000;
                                             break;
+                                        // unit type = ppb
                                         case 3:
-                                            param_value = parseFloat(raw) * 1000;
+                                            param_value = parseFloat(ppb_value);
                                             break;
+                                        // unit type  = ug
                                         case 1:
                                         default:
                                             param_value = param_value
