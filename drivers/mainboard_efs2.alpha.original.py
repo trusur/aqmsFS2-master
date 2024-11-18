@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import atexit
 import os
 
+
 def exit_handler(ser):
     print("Closing Serial Port...")
     if(ser is not None):
