@@ -3,6 +3,24 @@ import db
 import sys
 from datetime import datetime, timedelta
 import atexit
+import os
+import time
+from concurrent.futures import ProcessPoolExecutor
+
+
+def process_motherboard(motherboard, ser, sensor_reader_id):
+    pin = motherboard['id']
+    command = motherboard['command']
+    prefix_return = motherboard['prefix_return']
+
+    response = get_motherboard_value(ser, command, prefix_return)
+
+    if response in ['', None, 'COMMAND_ERROR;']:
+        db.update_sensor_values(sensor_reader_id, pin, -999, "ERROR")
+        print(f"Sensor Value : -999 (Pin: {pin})")
+        return  
+
+    execute_command(command, sensor_reader_id, pin, response)
 
 
 def exit_handler(ser):
@@ -244,25 +262,17 @@ def main():
     sensor_reader_id = driver['id']
     while True:
         try:
+            start_time = time.time()
+            
             # get command to get data
             motherboards = get_read_data_from_motherboard()
-           
-            # process get data sensor
-            for motherboard in motherboards:
-                pin = motherboard['id']
-                command = motherboard['command']
-                prefix_return = motherboard['prefix_return']
-               
-                response = get_motherboard_value(ser, command, prefix_return)
 
-                if response in ['',None, 'COMMAND_ERROR;']:
-                    db.update_sensor_values(sensor_reader_id,pin, -999, "ERROR")
-                    print("Pin "+str(pin)+" Error")
-                    continue
-           
-                execute_command(command,sensor_reader_id, pin, response)
-                print(f"Get Data Pin {pin} " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                  
+            with ProcessPoolExecutor(max_workers=4) as executor:
+                futures = [executor.submit(process_motherboard, motherboard, ser, sensor_reader_id) for motherboard in motherboards]
+
+            
+            print("Done in: " + str(time.time() - start_time))
+              
         except Exception as e:
             print('main function error: ',e)
         

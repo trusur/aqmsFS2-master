@@ -9,13 +9,13 @@ def connect():
         print('DB Connection Error :',e)
         return False
     
-def update_sensor_values(id,pin,value):
+def update_sensor_values(id,pin,value,type):
     try:
         cnx = connect()
         if not is_sensor_values_exist(id,pin):
             return insert_sensor_values(id,pin,value)
         cursor = cnx.cursor()
-        cursor.execute("UPDATE sensor_values SET value=%s, updated_at=NOW() WHERE sensor_reader_id=%s AND pin=%s",(value,id,pin))
+        cursor.execute("UPDATE sensor_values SET value=%s, updated_at=NOW(),type=%s WHERE sensor_reader_id=%s AND pin=%s",(value,id,pin,type))
         cnx.commit()
         cursor.close()
         cnx.close()
