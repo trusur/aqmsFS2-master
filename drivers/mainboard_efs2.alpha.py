@@ -73,20 +73,20 @@ def store_data_hc_semeatech(sensor_reader_id:str,pin:str,data:str):
 
     
 # Hashing by command
-def execute_command(command, sensor_reader_id, pin, data):
-    command_to_function = {
-        'getData,pm_opc,#': store_data_pm,
+def execute_command(p_type, sensor_reader_id, pin, data):
+    p_type_function = {
+        'particulate': store_data_pm,
         'getData,semeatech,[devID],#': "store_semeatech_single",
-        'getData,semeatech,batch,1,4,#': store_data_gas,
-        'getData,senovol,[AnalogInPin],[PIDValue],[AREF],#': store_data_hc_senovol,
-        '4ECM;[deviceID];[SensorType];[SensorUnit];[SensorConcentrationValue];[MeasurementRange];[CalibrationGas];END_4ECM;' : store_data_hc_semeatech,
-        'getData,RK900-011,#': store_data_weather
+        'gas': store_data_gas,
+        'p_typegas_hc_senovol': store_data_hc_senovol,
+        'gas_hc_semeatech' : store_data_hc_semeatech,
+        'weather': store_data_weather
     }
 
-    if command in command_to_function:
-        command_to_function[command](sensor_reader_id,pin,data)
+    if p_type in p_type_function:
+        p_type_function[p_type](sensor_reader_id,pin,data)
     else:
-        print(f"Unknown command: {command}")
+        print(f"Unknown p_type: {p_type}")
         return None
 
 # Get Motherboard Command List
@@ -251,6 +251,7 @@ def main():
             for motherboard in motherboards:
                 pin = motherboard['id']
                 command = motherboard['command']
+                p_type = motherboard['p_type']
                 prefix_return = motherboard['prefix_return']
                
                 response = get_motherboard_value(ser, command, prefix_return)
@@ -260,7 +261,7 @@ def main():
                     print("Pin "+str(pin)+" Error")
                     continue
            
-                execute_command(command,sensor_reader_id, pin, response)
+                execute_command(p_type,sensor_reader_id, pin, response)
                 print(f"Read Pin {pin}")
                 #print(f"Get Data Pin {pin} " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                   
