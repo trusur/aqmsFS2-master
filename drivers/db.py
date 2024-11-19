@@ -4,7 +4,7 @@ import logging
 
 def connect():
     try:
-        return mysql.connector.connect(host="localhost",user="root",passwd="R2h2s12*",database="aqms_efs2")
+        return mysql.connector.connect(host="localhost",user="root",passwd="R2h2s12*",database="aqms_efs1")
     except Exception as e: 
         print('DB Connection Error :',e)
         return False
@@ -15,7 +15,7 @@ def update_sensor_values(id,pin,value,type):
         if not is_sensor_values_exist(id,pin):
             return insert_sensor_values(id,pin,value)
         cursor = cnx.cursor()
-        cursor.execute("UPDATE sensor_values SET value=%s, updated_at=NOW(),type=%s WHERE sensor_reader_id=%s AND pin=%s",(value,id,pin,type))
+        cursor.execute("UPDATE sensor_values SET value=%s,type=%s, updated_at=NOW() WHERE sensor_reader_id=%s AND pin=%s",(value,type,id,pin))
         cnx.commit()
         cursor.close()
         cnx.close()
