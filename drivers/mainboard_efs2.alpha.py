@@ -261,7 +261,8 @@ def main():
                     continue
            
                 execute_command(command,sensor_reader_id, pin, response)
-                print(f"Get Data Pin {pin} " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                print(f"Read Pin {pin}")
+                #print(f"Get Data Pin {pin} " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                   
         except Exception as e:
             print('main function error: ',e)
