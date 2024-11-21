@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Models\m_calibration;
 use App\Models\m_configuration;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
@@ -12,6 +13,7 @@ use App\Models\m_measurement_history;
 use App\Models\m_parameter;
 use App\Models\m_formula_reference;
 use App\Models\m_realtime_value;
+use DateTime;
 use DivisionByZeroError;
 use Error;
 use Exception;
@@ -36,6 +38,7 @@ class FormulaMeasurementLogs extends BaseCommand
 	protected $lastPutData;
 	protected $measurements;
 	protected $realtime_value;
+	protected $calibrations;
 
 	public function __construct()
 	{
@@ -47,6 +50,7 @@ class FormulaMeasurementLogs extends BaseCommand
 		$this->configurations =  new m_configuration();
 		$this->measurements =  new m_measurement();
 		$this->realtime_value = new m_realtime_value();
+		$this->calibrations = new m_calibration();
 		$this->lastPutData = "0000-00-00 00:00";
 	}
 
@@ -103,6 +107,41 @@ class FormulaMeasurementLogs extends BaseCommand
 	{
 		$start = microtime(true);
 
+		$check_calibration = $this->configurations
+			->select("calibrations.id,parameters.code,calibrations.calibration_type,calibrations.is_executed, calibrations.start_calibration, calibrations.end_calibration")
+			->join('calibrations', 'calibrations.id = configurations.content AND calibrations.end_calibration IS NULL AND calibrations.is_executed != 2')
+			->join("parameters", "parameters.id = calibrations.parameter_id")
+			->where("configurations.name", "is_calibration")
+			->orderBy('calibrations.id', 'desc')
+			->first();
+
+		
+
+		if ($check_calibration) {
+			CLI::write("Calibration start at " . $check_calibration['start_calibration']);
+			return;
+		}
+
+		# check for minute delay after calibration
+		// $delay_1_minute_after_calibration = $this->calibrations
+		// 	->select("start_calibration,end_calibration")
+		// 	->where('is_executed', 2)
+		// 	->orderBy('id','desc')
+		// 	->first();
+		
+		// if ($delay_1_minute_after_calibration) {
+		// 	$end_calibration = new \DateTime($delay_1_minute_after_calibration->end_calibration);
+    	// 	$end_calibration->modify('+1 minute');
+		// 	if (new \DateTime() <= $end_calibration) {
+		// 		CLI::write("1 minute delay at : ".$delay_1_minute_after_calibration->end_calibration);
+		// 		return;
+		// 	} 
+		// }
+			
+		#$parameter_calibration = $check_calibration['code'] ?? null;
+		#$id_calibariont = $check_calibartion['id'] ?? null;
+		#$type_calibration = isset($check_calibration) ? ($check_calibration['calibration_type'] == 1 ? 'span' : ($check_calibration['calibration_type'] == 0 ? 'zero' : null)) : null;
+
 		try {
 			// Loop through sensor values and process them
 			foreach ($this->sensor_values->findAll() as $sensor_value) {
@@ -120,7 +159,7 @@ class FormulaMeasurementLogs extends BaseCommand
 				} else if ($sensor_value->type === "HC") {
 					$value = $this->getGasHC($sensor_value->value);
 					$sensor['HC']['value'] = $value;
-				} else  {
+				} else {
 					list($p_type, $ug_value, $ppb_values) = $this->getGasData($sensor_value->value);
 					$sensor[$p_type]['value_ppb'] = $ppb_values;
 					$sensor[$p_type]['value'] = $ug_value;
@@ -138,7 +177,6 @@ class FormulaMeasurementLogs extends BaseCommand
 					try {
 						$measured =  $sensor[$parameter_code]['value'] ?? -1;
 						$raw = $sensor[$parameter_code]['value'] ?? -999;
-
 					} catch (ParseError | Error | DivisionByZeroError $e) {
 						$measured = 0;
 						$raw = 0;
@@ -261,13 +299,13 @@ class FormulaMeasurementLogs extends BaseCommand
 		try {
 			$data = explode(";", $value);
 			$response = new stdClass();
-			$response->WD = (int) ($data[1] ?? 0);        // Arah angin (Wind Direction)
-			$response->WS = (float) ($data[2] ?? 0); // Kecepatan angin (Wind Speed)
-			$response->TEMPERATURE = (float) ($data[3] ?? 0); // Suhu udara (Temperature)
-			$response->HUMIDITY = (int) ($data[4] ?? 0);  // Kelembapan udara (Humidity)
-			$response->PRESSURE = (float)($data[5] ?? 0); // Tekanan udara (Pressure)
-			$response->RAIN_INTENSITY = (float) ($data[6] ?? 0); // Curah hujan (Rainfall)
-			$response->SR = (float) ($data[10] ?? 0); // Radiasi matahari (Solar Radiation)
+			$response->WD = (int) ($data[2] ?? 0);        // Arah angin (Wind Direction)
+			$response->WS = (float) ($data[3] ?? 0); // Kecepatan angin (Wind Speed)
+			$response->TEMPERATURE = (float) ($data[4] ?? 0); // Suhu udara (Temperature)
+			$response->HUMIDITY = (int) ($data[5] ?? 0);  // Kelembapan udara (Humidity)
+			$response->PRESSURE = (float)($data[6] ?? 0); // Tekanan udara (Pressure)
+			$response->RAIN_INTENSITY = (float) ($data[69] ?? 0); // Curah hujan (Rainfall)
+			// $response->SR = (float) ($data[10] ?? 0); // Radiasi matahari (Solar Radiation)
 
 			// Mengembalikan objek response
 			return $response;
@@ -284,8 +322,8 @@ class FormulaMeasurementLogs extends BaseCommand
 			# using senovol
 			if (stripos($value, 'SENOVOL') === 0) {
 				$hc_data = $data[2];
-			# using semeatech
-			} else if (stripos($value, '4ECM') === 0)  {
+				# using semeatech
+			} else if (stripos($value, '4ECM') === 0) {
 				$hc_data = $data[5];
 			}
 			return $hc_data;
