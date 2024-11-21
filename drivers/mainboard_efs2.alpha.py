@@ -90,7 +90,7 @@ def execute_command(p_type, sensor_reader_id, pin, data):
         return None
 
 # Get Motherboard Command List
-def get_read_data_from_motherboard():
+def get_data_from_motherboard(type):
     try:
         cnx = db.connect()
         cursor = cnx.cursor(dictionary=True, buffered=True)
@@ -245,8 +245,20 @@ def main():
     while True:
         try:
             # get command to get data
-            motherboards = get_read_data_from_motherboard()
-           
+            motherboards = get_data_from_motherboard('read')
+            check_calibration = db.get_calibration_active()
+            is_calibration = bool(check_calibration)
+
+            # if calibration start but not executed, send command to start calibration
+            if is_calibration :
+                parameter_calibration = check_calibration['code']
+                calibration_type = 'zero' if check_calibration['calibration_type'] == 0 else 'span'
+                get_motherboard = get_data_from_motherboard(calibration_type)
+                if check_calibration['is_executed'] == 0:
+                    command = get_motherboard['command']
+                    prefix_return = get_motherboard['prefix_return']
+                    response = get_motherboard_value(ser,command,prefix_return)
+
             # process get data sensor
             for motherboard in motherboards:
                 pin = motherboard['id']

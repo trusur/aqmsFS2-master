@@ -50,11 +50,14 @@ def is_sensor_values_exist(id,pin):
         return False
     
 
-def get_configuration(name):
+def get_configuration(name,content=None):
     try:
         cnx = connect()
         cursor = cnx.cursor(dictionary=True, buffered=True)
-        cursor.execute("SELECT * FROM configurations WHERE name=%s",(name,))
+        if content is None:
+            cursor.execute("SELECT * FROM configurations WHERE name = %s", (name,))
+        else:
+            cursor.execute("SELECT * FROM configurations WHERE name = %s AND content = %s", (name, content))
         row = cursor.fetchone()
         cursor.close()
         cnx.close()
@@ -112,3 +115,27 @@ def set_calibration_log(calibration_id,parameter_id,value,created_at):
         print(e)
         logging.error("set_calibration_log: "+str(e))
         return False
+
+def get_calibration_active():
+    try:
+        cnx = connect()
+        cursor = cnx.cursor(dictionary=True,buffered=True)
+        
+        #finding calibration thats still running is_executed != 2
+        cursor.execute("""
+                    SELECT c2.id,p.code, c2.calibration_type ,c2.is_executed , c2.start_calibration, c2.end_calibration FROM configurations c 
+                    JOIN calibrations c2 on c2.id = c.content and c2.end_calibration is null and c2.is_executed = 2
+                    LEFT JOIN parameters p on p.id = c2.parameter_id
+                    WHERE c.name = 'is_calibration' AND c.content is not null
+                    ORDER BY c2.id DESC
+                """,)
+        row = cursor.fetchone()     
+        cursor.close()
+        cnx.close()
+        if row is None:
+            return None
+        return row  
+    except Exception as e: 
+        print(e)
+        logging.error("get_calibration_active: "+str(e))
+        return None

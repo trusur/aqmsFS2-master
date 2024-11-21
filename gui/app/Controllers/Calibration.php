@@ -29,7 +29,14 @@ class Calibration extends BaseController
 	public function index(){
 		$data['__modulename'] = 'Calibrations'; /* Title */
 		$data['__routename'] = 'calibration'; /* Route for check menu */
-		$data['parameters'] = $this->parameters->where(["p_type" => "gas","is_view" => 1])->findAll();
+		// $data['parameters'] = $this->parameters->where(["p_type" => "gas","is_view" => 1])->findAll();
+		$data['parameters'] = $this->parameters->where("is_view", 1)
+                                       ->groupStart() 
+                                       ->where("p_type", "gas")
+                                       ->orWhere("p_type", "particulate")
+                                       ->groupEnd() 
+                                       ->findAll();
+
 		return view("calibrations/v_index", $data);
 	}
 
