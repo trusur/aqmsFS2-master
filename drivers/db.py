@@ -124,7 +124,7 @@ def get_calibration_active():
         #finding calibration thats still running is_executed != 2
         cursor.execute("""
                     SELECT c2.id,p.code, c2.calibration_type ,c2.is_executed , c2.start_calibration, c2.end_calibration FROM configurations c 
-                    JOIN calibrations c2 on c2.id = c.content and c2.end_calibration is null and c2.is_executed = 2
+                    JOIN calibrations c2 on c2.id = c.content and c2.end_calibration is null and c2.is_executed != 2
                     LEFT JOIN parameters p on p.id = c2.parameter_id
                     WHERE c.name = 'is_calibration' AND c.content is not null
                     ORDER BY c2.id DESC
