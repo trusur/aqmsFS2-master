@@ -304,7 +304,7 @@ class FormulaMeasurementLogs extends BaseCommand
 			$response->TEMPERATURE = (float) ($data[4] ?? 0); // Suhu udara (Temperature)
 			$response->HUMIDITY = (int) ($data[5] ?? 0);  // Kelembapan udara (Humidity)
 			$response->PRESSURE = (float)($data[6] ?? 0); // Tekanan udara (Pressure)
-			$response->RAIN_INTENSITY = (float) ($data[69] ?? 0); // Curah hujan (Rainfall)
+			$response->RAIN_INTENSITY = (float) ($data[9] ?? 0); // Curah hujan (Rainfall)
 			// $response->SR = (float) ($data[10] ?? 0); // Radiasi matahari (Solar Radiation)
 
 			// Mengembalikan objek response
