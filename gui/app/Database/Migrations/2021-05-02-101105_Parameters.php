@@ -16,6 +16,7 @@ class Parameters extends Migration
 			'default_unit'		=> ['type' => 'VARCHAR', 'constraint' => 10],
 			'molecular_mass'	=> ['type' => 'double', 'default' => 0],
 			'formula'			=> ['type' => 'VARCHAR', 'constraint' => 255],
+			'formula1'			=> ['type' => 'VARCHAR', 'constraint' => 255],
 			'is_view'			=> ['type' => 'tinyint', 'default' => 0],
 			'p_type'			=> ['type' => 'VARCHAR', 'constraint' => 30, 'default' => 'gas'],
 			'is_graph'			=> ['type' => 'tinyint', 'default' => 0],

@@ -93,7 +93,7 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- <?php if ($pump_interval > 0) : ?>
+                        <?php if ($pump_interval > 0) : ?>
                             <div id="pump" class="my-1 d-flex flex-column flex-md-row justify-content-between align-md-items-center">
                                 <div class="mr-3">
                                     <h7 class="text-light" style="display:inline-block;"><b><?= lang('Global.Pump') ?></b></h7>
@@ -107,7 +107,7 @@
                                     </button>
                                 </div>
                             </div>
-                        <?php endif ?> -->
+                        <?php endif ?> 
                     </div>
                 </div>
             </div>

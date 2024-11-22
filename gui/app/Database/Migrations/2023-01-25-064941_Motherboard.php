@@ -17,6 +17,7 @@ class Motherboard extends Migration
 			'is_priority'		=> ['type' => 'tinyint', 'default' => 0],
 			'command'			=> ['type' => 'VARCHAR', 'constraint' => 255],
 			'prefix_return'		=> ['type' => 'VARCHAR', 'constraint' => 255],
+			'prefix_return_batch'		=> ['type' => 'VARCHAR', 'constraint' => 255],
 			'xtimestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()'
 		]);
 		$this->forge->addKey('id', TRUE);
