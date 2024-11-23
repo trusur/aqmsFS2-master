@@ -3,24 +3,8 @@ import db
 import sys
 from datetime import datetime, timedelta
 import atexit
-import os
-import time
-from concurrent.futures import ProcessPoolExecutor
+import concurrent.futures
 
-
-def process_motherboard(motherboard, ser, sensor_reader_id):
-    pin = motherboard['id']
-    command = motherboard['command']
-    prefix_return = motherboard['prefix_return']
-
-    response = get_motherboard_value(ser, command, prefix_return)
-
-    if response in ['', None, 'COMMAND_ERROR;']:
-        db.update_sensor_values(sensor_reader_id, pin, -999, "ERROR")
-        print(f"Sensor Value : -999 (Pin: {pin})")
-        return  
-
-    execute_command(command, sensor_reader_id, pin, response)
 
 
 def exit_handler(ser):
@@ -29,86 +13,60 @@ def exit_handler(ser):
         ser.close()
 
 # Store Data Gas
-def store_data_gas(sensor_reader_id:str,pin:str,data:str):
+def store_data_gas_batch(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
     try:
-        sematech = data.replace("END_SEMEATECH_BATCH;", "").replace("SEMEATECH_BATCH;", "").replace(" ","").split("END_SEMEATECH_DATA;")
-        for index, res in enumerate(sematech):
-            new_pin = str(pin) + str(index+1)
-            data_gas = res.split(";")
-            if data_gas not in ['', None] and len(data_gas) > 7:
-                db.update_sensor_values(sensor_reader_id, new_pin, res,data_gas[2])
+        datas = data.replace(" ","").split(prefix_return)
+        for index, res in enumerate(datas):
+            datas = res.split(";")
+            if datas not in ['', None] and len(datas) > 2:
+                new_pin = str(pin) + str(index+1)
+                db.update_sensor_values(sensor_reader_id, new_pin, res,datas[2].lower())
     except Exception as e: 
         print('Gas Data Validation Error: '+str(e))
 
+def store_data_gas_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+    try:
+        datas = data.replace(" ", "").split(";")
+        if datas not in ['', None]:
+            db.update_sensor_values(sensor_reader_id, pin, data,datas[2].lower())
+            pass
+    except Exception as e: 
+        print('Gas Data Validation Error: '+str(e))
+
+
     
-def store_data_pm(sensor_reader_id:str,pin:str,data:str):
+def store_data(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
     try:
-        data_pm = data.replace(" ", "").split(";")
-        print("masuk kesini")
-        if data_pm not in ['', None] and len(data_pm) >= 11:
+        datas = data.replace(" ", "").split(";")
+        if datas not in ['', None] and len(datas) >= 11:
             new_pin = str(pin) + str(0)
-            db.update_sensor_values(sensor_reader_id, new_pin, data_pm,'PM')
-        else :
-            raise Exception(f"PM Response Doesnt match : {data}")
+            db.update_sensor_values(sensor_reader_id, new_pin, data,sensor_type)
     except Exception as e:
-        print('PM Data Validation Error: '+str(e))
+        print(f'{sensor_type} Data Validation Error: '+str(e))
 
-
-def store_data_weather(sensor_reader_id:str,pin:str,data:str):
-    try:
-        data_meteorologi = data.replace(" ", "").split(";")
-        if data_meteorologi not in ['',None] and len(data_meteorologi) > 12:
-            new_pin = str(pin) + str(0)
-            db.update_sensor_values(sensor_reader_id, new_pin, data,'WEATHER')
-        else :
-            raise Exception(f"PM Response Doesnt match : {data}")
-    except Exception as e:
-        print('PM Data Validation Error: '+str(e))
-
-
-def store_data_hc_senovol(sensor_reader_id:str,pin:str,data:str):
-    try:
-        data_senovol = data.replace(" ", "").split(";")
-        if data_senovol not in ['',None] and len(data_senovol) == 3:
-            new_pin = str(pin) + str(0)
-            db.update_sensor_values(sensor_reader_id, new_pin, data,'HC')
-        else :
-            raise Exception(f"HC Senovol Response Doesnt match : {data}")
-    except Exception as e:
-        print('HC Senovol Data Validation Error: '+str(e))
-
-
-def store_data_hc_semeatech(sensor_reader_id:str,pin:str,data:str):
-    try:
-        store_data_hc_semeatech = data.replace(" ", "").split(";")
-        if store_data_hc_semeatech not in ['',None] and len(store_data_hc_semeatech) > 7:
-            new_pin = str(pin) + str(0)
-            db.update_sensor_values(sensor_reader_id, new_pin, data,'HC')
-        else :
-            raise Exception(f"HC Semeatech Response Doesnt match : {data}")
-    except Exception as e:
-        print('HC Semeatech Data Validation Error: '+str(e))
 
     
 # Hashing by command
-def execute_command(command, sensor_reader_id, pin, data):
-    command_to_function = {
-        'getData,pm_opc,#': store_data_pm,
-        'getData,semeatech,[devID],#': "store_semeatech_single",
-        'getData,semeatech,batch,1,4,#': store_data_gas,
-        'getData,senovol,[AnalogInPin],[PIDValue],[AREF],#': store_data_hc_senovol,
-        '4ECM;[deviceID];[SensorType];[SensorUnit];[SensorConcentrationValue];[MeasurementRange];[CalibrationGas];END_4ECM;' : store_data_hc_semeatech,
-        'getData,RK900-011,#': store_data_weather
+def execute_command(p_type, sensor_reader_id, pin, data,prefix_return_batch=None):
+    p_type_function = {
+        'particulate': store_data,
+        'gas_batch' : store_data_gas_single,
+        'gas': store_data_gas_batch,
+        'gas_hc': store_data,
+        'gas_hc' : store_data,
+        'weather': store_data
     }
 
-    if command in command_to_function:
-        command_to_function[command](sensor_reader_id,pin,data)
+    sensor_types = "hc" if p_type == "gas_hc" else "pm" if p_type == "particulate" else p_type
+    
+    if p_type in p_type_function:
+        p_type_function[p_type](sensor_reader_id,pin,data,sensor_types,prefix_return_batch,)
     else:
-        print(f"Unknown command: {command}")
+        print(f"Unknown p_type: {p_type}")
         return None
 
 # Get Motherboard Command List
-def get_read_data_from_motherboard():
+def get_data_from_motherboard(type):
     try:
         cnx = db.connect()
         cursor = cnx.cursor(dictionary=True, buffered=True)
@@ -120,6 +78,7 @@ def get_read_data_from_motherboard():
     except Exception as e: 
         print('Get Motherboards Error: ',e)
         return []
+
     
 # Get Response Values From Motherboard
 def get_motherboard_value(ser, command, prefix_return):
@@ -128,14 +87,18 @@ def get_motherboard_value(ser, command, prefix_return):
             return None
         max_timeout = 50
         timeout = 0
-        response = ""
+        responses = ""
         ser.write(bytes(command, 'utf-8'))
         timeout = 0
-        while response.find(prefix_return) == -1 and timeout < max_timeout:
-            response += ser.readline().decode('utf-8').strip('\r\n')
+        while responses.find(prefix_return) == -1 and timeout < max_timeout:
+            line = ser.readline().decode('utf-8').strip('\r\n')
+
+            #tambahakan kode pengecheckan apakah response = SELESAI CALIBRATION?
+
+            responses += line
             timeout += 1
         # ser.close()
-        return response
+        return responses
     except Exception as e: 
         print('Connect Serial Error: ',e)
         return None
@@ -236,6 +199,38 @@ def check_pump(ser):
         print('Check Pump Error: '+str(e))
         return False
 
+def process_motherboard(motherboard, ser, sensor_reader_id, db):
+    pin = motherboard['id']
+    command = motherboard['command']
+    p_type = motherboard['p_type']
+    prefix_return = motherboard['prefix_return']
+    prefix_return_batch = motherboard['prefix_return_batch']
+
+
+    response = get_motherboard_value(ser, command, prefix_return)
+
+    if response in ['', None, 'COMMAND_ERROR;']:
+        db.update_sensor_values(sensor_reader_id, pin, -999, "ERROR")
+        print(f"Pin {pin} Error")
+        return  
+
+    execute_command(p_type, sensor_reader_id, pin, response, prefix_return_batch)
+    print(f"Read Pin {pin}")
+
+# Main logic for using ThreadPoolExecutor
+def process_motherboards_in_parallel(motherboards, ser, sensor_reader_id, db):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(process_motherboard, motherboard, ser, sensor_reader_id, db)
+            for motherboard in motherboards
+        ]
+
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()  
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
 
 # Running Main Function
 def main():
@@ -262,17 +257,44 @@ def main():
     sensor_reader_id = driver['id']
     while True:
         try:
-            start_time = time.time()
-            
             # get command to get data
-            motherboards = get_read_data_from_motherboard()
+            motherboards = get_data_from_motherboard('read')
 
-            with ProcessPoolExecutor(max_workers=4) as executor:
-                futures = [executor.submit(process_motherboard, motherboard, ser, sensor_reader_id) for motherboard in motherboards]
+            # # check proses calibration
+            # check_calibration = db.get_calibration_active()
+            # is_calibration = bool(check_calibration)
 
-            
-            print("Done in: " + str(time.time() - start_time))
-              
+            # # if calibration start but not executed, send command to start calibration
+            # if is_calibration :
+            #     parameter_calibration = check_calibration['code']
+            #     calibration_type = 'zero' if check_calibration['calibration_type'] == 0 else 'span'
+            #     get_motherboard = get_data_from_motherboard(calibration_type)
+            #     if check_calibration['is_executed'] == 0:
+            #         command = get_motherboard['command']
+            #         prefix_return = get_motherboard['prefix_return']
+            #         response = get_motherboard_value(ser,command,prefix_return)
+
+            # process get data sensor
+
+            process_motherboards_in_parallel(motherboards, ser, sensor_reader_id, db)
+            # for motherboard in motherboards:
+            #     pin = motherboard['id']
+            #     command = motherboard['command']
+            #     p_type = motherboard['p_type']
+            #     prefix_return = motherboard['prefix_return']
+            #     prefix_return_batch = motherboard['prefix_return_batch']
+               
+            #     response = get_motherboard_value(ser, command, prefix_return)
+
+            #     if response in ['',None, 'COMMAND_ERROR;']:
+            #         db.update_sensor_values(sensor_reader_id,pin, -999, "ERROR")
+            #         print("Pin "+str(pin)+" Error")
+            #         continue
+           
+            #     execute_command(p_type,sensor_reader_id, pin, response,prefix_return_batch)
+            #     print(f"Read Pin {pin}")
+                #print(f"Get Data Pin {pin} " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                  
         except Exception as e:
             print('main function error: ',e)
         
