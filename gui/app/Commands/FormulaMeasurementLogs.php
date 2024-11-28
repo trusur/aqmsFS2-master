@@ -162,6 +162,7 @@ class FormulaMeasurementLogs extends BaseCommand
 
 					try {
 						eval("\$measured = $parameter->formula ?? -1;");
+						$raw = $measured;
 						if ($parameter->formula1) {
 							eval("\$value_ppb = $parameter->formula1;");
 						}
