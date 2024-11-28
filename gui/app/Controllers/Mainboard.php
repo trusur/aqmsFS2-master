@@ -28,6 +28,7 @@ class Mainboard extends BaseController
                 'is_priority' => request()->getPost('is_priority'),
                 'command' => request()->getPost('command'),
                 'prefix_return' => request()->getPost('prefix_return'),
+                'prefix_return_batch' => request()->getPost('prefix_return_batch'),
             ];
             $this->motherboards->insert($data);
             return redirect()->to("configuration/mainboard?success=1")->with('success', 'Mainboard has been added');
@@ -52,6 +53,7 @@ class Mainboard extends BaseController
                 'is_priority' => request()->getPost('is_priority'),
                 'command' => request()->getPost('command'),
                 'prefix_return' => request()->getPost('prefix_return'),
+                'prefix_return_batch' => request()->getPost('prefix_return_batch'),
             ];
             $this->motherboards->update($id, $data);
             return redirect()->to("configuration/mainboard?success=1")->with('success', 'Mainboard has been updated');

@@ -29,12 +29,11 @@
                                             <th>Pin Id</th>
                                             <th>Sensor Name</th>
                                             <th>Type</th>
-                                            <th>P_Type</th>
                                             <th>Status</th>
                                             <th>Priority</th>
                                             <th>Command</th>
                                             <th>Prexif Return</th>
-                                            <th>Prexif Batch ( First, End )</th>
+                                            <th>Prexif Batch </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -49,12 +48,11 @@
                                                 <td><?= $mainboard->id ?></td>
                                                 <td><?= $mainboard->sensorname ?></td>
                                                 <td><?= $mainboard->type ?></td>
-                                                <td><?= $mainboard->p_type ?></td>
                                                 <td><?= $mainboard->is_enable == 1 ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>' ?></td>
                                                 <td><?= $mainboard->is_priority ?></td>
                                                 <td><?= $mainboard->command ?></td>
                                                 <td><?= $mainboard->prefix_return ?></td>
-                                                <td><?= $mainboard->prefix_return_batch ?></td>
+                                                <td><?= $mainboard->prefix_return_batch ? $mainboard->prefix_return_batch : "-"?></td>
                                             </tr>
                                         <?php endforeach ?>
                                     </tbody>
@@ -94,10 +92,6 @@
                         </select>
                     </div>
                     <div class="col-md-4 form-group mb-1">
-                        <label>Parameter TYpe</label>
-                        <input type="text" placeholder="Parameter Type" name="p_type" class="form-control" required>
-                    </div>
-                    <div class="col-md-4 form-group mb-1">
                         <label>Status</label>
                         <select name="is_enable" class="form-control" required>
                             <option value="1">Active</option>
@@ -118,7 +112,7 @@
                     </div>
                     <div class="col-md-6 form-group mb-1">
                         <label>Prefix Return Batch</label>
-                        <input type="text" placeholder="Prefix Batch" name="prefix_return_batch" class="form-control" required>
+                        <input type="text" placeholder="Prefix Batch" name="prefix_return_batch" class="form-control" >
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                         <button type="reset" class="d-none">Reset</button>
@@ -171,6 +165,10 @@
                     <div class="col-md-6 form-group mb-1">
                         <label>Prefix Return</label>
                         <input type="text" placeholder="Prefix Return" name="prefix_return" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 form-group mb-1">
+                        <label>Prefix Return Batch</label>
+                        <input type="text" placeholder="Prefix Batch" name="prefix_return_batch" class="form-control" >
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                         <button type="reset" class="d-none">Reset</button>
