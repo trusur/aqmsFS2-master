@@ -20,7 +20,7 @@ def store_data_batch(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefi
                 new_pin = str(pin) + str(index+1)
                 db.update_sensor_values(sensor_reader_id, new_pin, res)
     except Exception as e: 
-        print('Gas Data Validation Error: '+str(e))
+        print('Data Batch Validation Error: '+str(e))
 
 def store_data_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
     try:
@@ -29,7 +29,7 @@ def store_data_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,pref
             new_pin = str(pin) + str(0)
             db.update_sensor_values(sensor_reader_id, pin)
     except Exception as e: 
-        print('Gas Data Validation Error: '+str(e))
+        print('Data Batch Validation Error: '+str(e))
 
 
     
