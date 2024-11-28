@@ -35,7 +35,8 @@ class Motherboard extends Seeder
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,semeatech,batch,1,4,#",
-                "prefix_return" => "END_SEMEATECH_BATCH;"
+                "prefix_return" => "END_SEMEATECH_BATCH;",
+                "prefix_return_batch" => "END_SEMEATECH_DATA;"
             ],
             [
                 "sensorname" => "Gas HC Sensor Senovol",
