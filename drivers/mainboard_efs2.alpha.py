@@ -11,7 +11,7 @@ def exit_handler(ser):
         ser.close()
 
 # Store Data Gas
-def store_data_batch(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+def store_data_batch(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
         datas = data.replace(" ","").split(prefix_return)
         for index, res in enumerate(datas):
@@ -53,7 +53,7 @@ def execute_command( sensor_reader_id, pin, data,prefix_return_batch=None):
             }
 
         sensor_types = "single" if prefix_return_batch == None else "batch"
-        hash_function[sensor_types](sensor_reader_id,pin,data,sensor_types,prefix_return_batch,)
+        hash_function[sensor_types](sensor_reader_id,pin,data,prefix_return_batch)
         
     except Exception as e:
         print(f'Data Validation Error: '+str(e))
@@ -248,7 +248,7 @@ def main():
                 response = get_motherboard_value(ser, command, prefix_return)
 
                 if response in ['',None, 'COMMAND_ERROR;']:
-                    db.update_sensor_values(sensor_reader_id,pin, -999, "ERROR")
+                    db.update_sensor_values(sensor_reader_id,pin, -999)
                     print("Pin "+str(pin)+" Error")
                     continue
            
