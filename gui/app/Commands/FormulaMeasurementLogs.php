@@ -134,7 +134,7 @@ class FormulaMeasurementLogs extends BaseCommand
 		// 		return;
 		// 	} 
 		// }
-		
+
 
 		// $id_calibration = $check_calibartion['id'] ?? null;
 		// $type_calibration = isset($check_calibration) ? ($check_calibration['calibration_type'] == 1 ? 'span' : ($check_calibration['calibration_type'] == 0 ? 'zero' : null)) : null;
@@ -225,8 +225,6 @@ class FormulaMeasurementLogs extends BaseCommand
 		} catch (Exception $e) {
 			log_message("error", "Formula Convertion Service Error : " . $e->getMessage());
 		}
-
-		
 	}
 
 
@@ -368,9 +366,11 @@ class FormulaMeasurementLogs extends BaseCommand
 		try {
 			// $sensor for exec formula
 			$sensor = $sensor;
-			$measured = 2;
+			$measured = -1;
 			$parameter = $this->parameters->select("sensor_value_id,formula")->where("code", $code)->first();
-			eval("\$measured = $parameter->formula ?? -1;");
+			if ($parameter->formula && $parameter->formula != 0) {
+				eval("\$measured = $parameter->formula ?? -1;");
+			}
 			return $measured;
 		} catch (Exception $e) {
 			CLI::write($e->getMessage(), "red");
