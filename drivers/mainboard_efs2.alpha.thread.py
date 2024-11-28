@@ -13,57 +13,38 @@ def exit_handler(ser):
         ser.close()
 
 # Store Data Gas
-def store_data_gas_batch(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+def store_data_batch(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
-        datas = data.replace(" ","").split(prefix_return)
+        datas = data.replace(" ", "").split(prefix_return) if prefix_return else data.replace(" ", "")
         for index, res in enumerate(datas):
             datas = res.split(";")
             if datas not in ['', None] and len(datas) > 2:
                 new_pin = str(pin) + str(index+1)
-                db.update_sensor_values(sensor_reader_id, new_pin, res,datas[2].lower())
+                db.update_sensor_values(sensor_reader_id, new_pin, res)
     except Exception as e: 
-        print('Gas Data Validation Error: '+str(e))
+        print('Data Batch Validation Error: '+str(e))
 
-def store_data_gas_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+def store_data_single(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
         datas = data.replace(" ", "").split(";")
         if datas not in ['', None]:
-            db.update_sensor_values(sensor_reader_id, pin, data,datas[2].lower())
-            pass
-    except Exception as e: 
-        print('Gas Data Validation Error: '+str(e))
-
-
-    
-def store_data(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
-    try:
-        datas = data.replace(" ", "").split(";")
-        if datas not in ['', None] and len(datas) >= 11:
             new_pin = str(pin) + str(0)
-            db.update_sensor_values(sensor_reader_id, new_pin, data,sensor_type)
-    except Exception as e:
-        print(f'{sensor_type} Data Validation Error: '+str(e))
+            db.update_sensor_values(sensor_reader_id, new_pin)
+    except Exception as e: 
+        print('Data Batch Validation Error: '+str(e))
 
-
-    
 # Hashing by command
-def execute_command(p_type, sensor_reader_id, pin, data,prefix_return_batch=None):
-    p_type_function = {
-        'particulate': store_data,
-        'gas_batch' : store_data_gas_single,
-        'gas': store_data_gas_batch,
-        'gas_hc': store_data,
-        'gas_hc' : store_data,
-        'weather': store_data
+def execute_command(sensor_reader_id, pin, data, prefix_return_batch=None):
+    sensor_types = 'batch' if prefix_return_batch else 'single'
+
+    function_map = {
+        'single': store_data_single,
+        'batch': store_data_batch
     }
 
-    sensor_types = "hc" if p_type == "gas_hc" else "pm" if p_type == "particulate" else p_type
-    
-    if p_type in p_type_function:
-        p_type_function[p_type](sensor_reader_id,pin,data,sensor_types,prefix_return_batch,)
-    else:
-        print(f"Unknown p_type: {p_type}")
-        return None
+    # Panggil fungsi yang sesuai, atau tampilkan pesan jika tidak ditemukan
+    function_map.get(sensor_types, lambda *args: print(f"Unknown p_type: {sensor_types}"))(sensor_reader_id, pin, data, prefix_return_batch)
+
 
 # Get Motherboard Command List
 def get_data_from_motherboard(type):
@@ -199,22 +180,20 @@ def check_pump(ser):
         print('Check Pump Error: '+str(e))
         return False
 
-def process_motherboard(motherboard, ser, sensor_reader_id, db):
+def process_motherboard(motherboard, ser, sensor_reader_id, db:db):
     pin = motherboard['id']
     command = motherboard['command']
-    p_type = motherboard['p_type']
     prefix_return = motherboard['prefix_return']
     prefix_return_batch = motherboard['prefix_return_batch']
-
 
     response = get_motherboard_value(ser, command, prefix_return)
 
     if response in ['', None, 'COMMAND_ERROR;']:
-        db.update_sensor_values(sensor_reader_id, pin, -999, "ERROR")
+        db.update_sensor_values(sensor_reader_id, pin, -999)
         print(f"Pin {pin} Error")
         return  
 
-    execute_command(p_type, sensor_reader_id, pin, response, prefix_return_batch)
+    execute_command( sensor_reader_id, pin, response, prefix_return_batch)
     print(f"Read Pin {pin}")
 
 # Main logic for using ThreadPoolExecutor

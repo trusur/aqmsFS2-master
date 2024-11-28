@@ -22,7 +22,7 @@ def store_data_batch(sensor_reader_id:str,pin:str,data:str,prefix_return:str=Non
     except Exception as e: 
         print('Data Batch Validation Error: '+str(e))
 
-def store_data_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+def store_data_single(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
         datas = data.replace(" ", "").split(";")
         if datas not in ['', None]:
