@@ -48,8 +48,8 @@ def store_data(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_retu
 def execute_command( sensor_reader_id, pin, data,prefix_return_batch=None):
     try:
         hash_function = {
-            'single': store_data_batch,
-            'batch' : store_data_single
+            'single': store_data_single,
+            'batch' : store_data_batch
             }
 
         sensor_types = "single" if prefix_return_batch == None else "batch"
