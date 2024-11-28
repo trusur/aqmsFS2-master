@@ -13,7 +13,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "PM 2.5 & PM 10",
                 "type"      => "read",
-                "p_type"    => "particulate",
+                // "p_type"    => "particulate",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,pm_opc,#",
@@ -22,7 +22,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Sensor Gas Semeatech Series 7 ( Single ) ",
                 "type"      => "read",
-                "p_type"    => "gas",
+                // "p_type"    => "gas",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,semeatech,[devID],#",
@@ -31,7 +31,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Sensor Gas Semeatech Series 7 ( Batch ) ",
                 "type"      => "read",
-                "p_type"    => "gas",
+                // "p_type"    => "gas",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,semeatech,batch,1,4,#",
@@ -40,7 +40,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Gas HC Sensor Senovol",
                 "type"      => "read",
-                "p_type"    => "gas_hc_senovol",
+                // "p_type"    => "gas_hc_senovol",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,senovol,[AnalogInPin],[PIDValue],[AREF],#",
@@ -49,7 +49,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Gas HC Sensor Semeatech",
                 "type"      => "read",
-                "p_type"    => "gas_hc_semeatech",
+                // "p_type"    => "gas_hc_semeatech",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,4ECM,[devID],#",
@@ -58,7 +58,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Sensor Weather Station RIika RK900-011",
                 "type"      => "read",
-                "p_type"    => "weather",
+                // "p_type"    => "weather",
                 "is_enable" => 1,
                 "is_priority" => 0,
                 "command" => "getData,RK900-011,#",

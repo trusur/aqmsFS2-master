@@ -12,7 +12,7 @@ class Motherboard extends Migration
 			'id'				=> ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
 			'sensorname'		=> ['type' => 'VARCHAR', 'constraint' => 50],
 			'type'				=> ['type' => 'VARCHAR', 'constraint' => 50],
-			'p_type'			=> ['type' => 'VARCHAR', 'constraint' => 30],
+			// 'p_type'			=> ['type' => 'VARCHAR', 'constraint' => 30],
 			'is_enable'			=> ['type' => 'tinyint', 'default' => 0],
 			'is_priority'		=> ['type' => 'tinyint', 'default' => 0],
 			'command'			=> ['type' => 'VARCHAR', 'constraint' => 255],

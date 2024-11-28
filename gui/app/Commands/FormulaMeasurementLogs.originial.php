@@ -54,7 +54,7 @@ class FormulaMeasurementLogs extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $name = 'command:formula_measurement_logs';
+	protected $name = 'command:formula_measurement_logs.original';
 
 	/**
 	 * The Command's Description

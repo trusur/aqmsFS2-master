@@ -69,6 +69,12 @@
                             <textarea name="formula" id="formula" rows="3" placeholder="Formula" class="form-control form-control-sm"></textarea>
                         </div>
                     </div>
+                    <div class="col-12">
+                        <div class="mb-1">
+                            <label>Formula PPB Value</label>
+                            <textarea name="formula1" id="formula1" rows="3" placeholder="Formula" class="form-control form-control-sm"></textarea>
+                        </div>
+                    </div>
                     <div class="col-12 d-flex justify-content-end">
                         <button type="reset" class="d-none">Reset</button>
                         <button type="submit" class="btn btn-sm btn-success">Save Changes</button>

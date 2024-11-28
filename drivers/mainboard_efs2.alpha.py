@@ -11,23 +11,23 @@ def exit_handler(ser):
         ser.close()
 
 # Store Data Gas
-def store_data_gas_batch(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+def store_data_batch(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
     try:
         datas = data.replace(" ","").split(prefix_return)
         for index, res in enumerate(datas):
             datas = res.split(";")
             if datas not in ['', None] and len(datas) > 2:
                 new_pin = str(pin) + str(index+1)
-                db.update_sensor_values(sensor_reader_id, new_pin, res,datas[2].lower())
+                db.update_sensor_values(sensor_reader_id, new_pin, res)
     except Exception as e: 
         print('Gas Data Validation Error: '+str(e))
 
-def store_data_gas_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
+def store_data_single(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
     try:
         datas = data.replace(" ", "").split(";")
         if datas not in ['', None]:
-            db.update_sensor_values(sensor_reader_id, pin, data,datas[2].lower())
-            pass
+            new_pin = str(pin) + str(0)
+            db.update_sensor_values(sensor_reader_id, pin)
     except Exception as e: 
         print('Gas Data Validation Error: '+str(e))
 
@@ -45,23 +45,20 @@ def store_data(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_retu
 
     
 # Hashing by command
-def execute_command(p_type, sensor_reader_id, pin, data,prefix_return_batch=None):
-    p_type_function = {
-        'particulate': store_data,
-        'gas_batch' : store_data_gas_single,
-        'gas': store_data_gas_batch,
-        'gas_hc': store_data,
-        'gas_hc' : store_data,
-        'weather': store_data
-    }
+def execute_command( sensor_reader_id, pin, data,prefix_return_batch=None):
+    try:
+        hash_function = {
+            'single': store_data_batch,
+            'batch' : store_data_single
+            }
 
-    sensor_types = "hc" if p_type == "gas_hc" else "pm" if p_type == "particulate" else p_type
-    
-    if p_type in p_type_function:
-        p_type_function[p_type](sensor_reader_id,pin,data,sensor_types,prefix_return_batch,)
-    else:
-        print(f"Unknown p_type: {p_type}")
+        sensor_types = "single" if prefix_return_batch == None else "batch"
+        hash_function[sensor_types](sensor_reader_id,pin,data,sensor_types,prefix_return_batch,)
+        
+    except Exception as e:
+        print(f'Data Validation Error: '+str(e))
         return None
+    
 
 # Get Motherboard Command List
 def get_data_from_motherboard(type):
@@ -245,7 +242,6 @@ def main():
             for motherboard in motherboards:
                 pin = motherboard['id']
                 command = motherboard['command']
-                p_type = motherboard['p_type']
                 prefix_return = motherboard['prefix_return']
                 prefix_return_batch = motherboard['prefix_return_batch']
                
@@ -256,7 +252,7 @@ def main():
                     print("Pin "+str(pin)+" Error")
                     continue
            
-                execute_command(p_type,sensor_reader_id, pin, response,prefix_return_batch)
+                execute_command(sensor_reader_id, pin, response,prefix_return_batch)
                 print(f"Read Pin {pin}")
                 #print(f"Get Data Pin {pin} " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                   

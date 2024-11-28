@@ -2,7 +2,7 @@
 <?= $this->section('content') ?>
 <div class="container-md py-3">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12" style="font-size: 12px;">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title">List Mainboard Command</h5>
@@ -21,34 +21,40 @@
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
                             </p>
                             <?php endif; ?>
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="width: 100%;overflow:hidden">
                                 <table class="table table-sm table-striped" id="table-mainboards">
                                     <thead>
                                         <tr>
-                                            <th>Active</th>
+                                            <th>Action</th>
+                                            <th>Pin Id</th>
                                             <th>Sensor Name</th>
                                             <th>Type</th>
+                                            <th>P_Type</th>
                                             <th>Status</th>
                                             <th>Priority</th>
                                             <th>Command</th>
                                             <th>Prexif Return</th>
+                                            <th>Prexif Batch ( First, End )</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($mainboards as $mainboard) : ?>
                                             <tr>
                                                 <td>
-                                                    <button class="btn btn-sm btn-primary btn-edit" data-id="<?= $mainboard->id ?>"><i class="fas fa-pen"></i></button>
+                                                    <button class="btn btn-sm btn-primary btn-edit" data-id="<?= $mainboard->id ?>"><i style="max-width: 12px;" class="fas fa-pen"></i></button>
                                                     <?php if (request()->getGet("mode") == 1) : ?>
                                                         <a href="<?= base_url("configuration/mainboard/delete/$mainboard->id") ?>" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
                                                     <?php endif; ?>
                                                 </td>
+                                                <td><?= $mainboard->id ?></td>
                                                 <td><?= $mainboard->sensorname ?></td>
                                                 <td><?= $mainboard->type ?></td>
+                                                <td><?= $mainboard->p_type ?></td>
                                                 <td><?= $mainboard->is_enable == 1 ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>' ?></td>
                                                 <td><?= $mainboard->is_priority ?></td>
                                                 <td><?= $mainboard->command ?></td>
                                                 <td><?= $mainboard->prefix_return ?></td>
+                                                <td><?= $mainboard->prefix_return_batch ?></td>
                                             </tr>
                                         <?php endforeach ?>
                                     </tbody>
@@ -88,6 +94,10 @@
                         </select>
                     </div>
                     <div class="col-md-4 form-group mb-1">
+                        <label>Parameter TYpe</label>
+                        <input type="text" placeholder="Parameter Type" name="p_type" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 form-group mb-1">
                         <label>Status</label>
                         <select name="is_enable" class="form-control" required>
                             <option value="1">Active</option>
@@ -105,6 +115,10 @@
                     <div class="col-md-6 form-group mb-1">
                         <label>Prefix Return</label>
                         <input type="text" placeholder="Prefix Return" name="prefix_return" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 form-group mb-1">
+                        <label>Prefix Return Batch</label>
+                        <input type="text" placeholder="Prefix Batch" name="prefix_return_batch" class="form-control" required>
                     </div>
                     <div class="col-12 d-flex justify-content-end">
                         <button type="reset" class="d-none">Reset</button>
@@ -198,6 +212,7 @@
                         $("#form-edit").find('input[name="is_priority"]').val(data.data.is_priority);
                         $("#form-edit").find('input[name="command"]').val(data.data.command);
                         $("#form-edit").find('input[name="prefix_return"]').val(data.data.prefix_return);
+                        $("#form-edit").find('input[name="prefix_return_batch"]').val(data.data.prefix_return_batch);
                     }
                 }
             })

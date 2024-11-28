@@ -114,13 +114,10 @@ class FormulaMeasurementLogs extends BaseCommand
 			->where("configurations.name", "is_calibration")
 			->orderBy('calibrations.id', 'desc')
 			->first();
+		$parameter_calibration = $check_calibration['code'] ?? null;
 
-		
-
-		if ($check_calibration) {
-			CLI::write("Calibration start at " . $check_calibration['start_calibration']);
-			return;
-		}
+		#tambahkan logic untuk ketika dia is_executed = 1, check data terakhir di measurement_log untuk waktu start  berdasarkan parameter
+		# ketika is_executed = 2, update data terakhir di measurement_log untuk waktu end berdasarkan parameter
 
 		# check for minute delay after calibration
 		// $delay_1_minute_after_calibration = $this->calibrations
@@ -128,58 +125,46 @@ class FormulaMeasurementLogs extends BaseCommand
 		// 	->where('is_executed', 2)
 		// 	->orderBy('id','desc')
 		// 	->first();
-		
+
 		// if ($delay_1_minute_after_calibration) {
 		// 	$end_calibration = new \DateTime($delay_1_minute_after_calibration->end_calibration);
-    	// 	$end_calibration->modify('+1 minute');
+		// 	$end_calibration->modify('+1 minute');
 		// 	if (new \DateTime() <= $end_calibration) {
 		// 		CLI::write("1 minute delay at : ".$delay_1_minute_after_calibration->end_calibration);
 		// 		return;
 		// 	} 
 		// }
-			
-		#$parameter_calibration = $check_calibration['code'] ?? null;
-		#$id_calibariont = $check_calibartion['id'] ?? null;
-		#$type_calibration = isset($check_calibration) ? ($check_calibration['calibration_type'] == 1 ? 'span' : ($check_calibration['calibration_type'] == 0 ? 'zero' : null)) : null;
+		
+
+		// $id_calibration = $check_calibartion['id'] ?? null;
+		// $type_calibration = isset($check_calibration) ? ($check_calibration['calibration_type'] == 1 ? 'span' : ($check_calibration['calibration_type'] == 0 ? 'zero' : null)) : null;
 
 		try {
 			// Loop through sensor values and process them
 			foreach ($this->sensor_values->findAll() as $sensor_value) {
-				if ($sensor_value->type === "PM") {
-					list($flow_pm25, $flow_pm10, $value_pm25, $value_pm10) = $this->getPMData($sensor_value->value);
-					$sensor['PM25']['value'] = $value_pm25;
-					$sensor['PM25_FLOW']['value'] = $flow_pm25;
-					$sensor['PM10']['value'] = $value_pm10;
-					$sensor['PM10_FLOW']['value'] = $flow_pm25;
-				} else if ($sensor_value->type === "WEATHER") {
-					$data_meteoroligi = $this->getMeteorologiData($sensor_value->value);
-					foreach ($data_meteoroligi as $key => $value) {
-						$sensor[$key]['value'] = $value;
-					}
-				} else if ($sensor_value->type === "HC") {
-					$value = $this->getGasHC($sensor_value->value);
-					$sensor['HC']['value'] = $value;
-				} else {
-					list($p_type, $ug_value, $ppb_values) = $this->getGasData($sensor_value->value);
-					$sensor[$p_type]['value_ppb'] = $ppb_values;
-					$sensor[$p_type]['value'] = $ug_value;
-				}
+				$sensor[$sensor_value->sensor_reader_id][$sensor_value->pin] = $sensor_value->value;
 			}
+			$flow_pm25 = $this->getPMFlow("pm25_flow", $sensor);
+			$flow_pm10 = $this->getPMFlow("pm10_flow", $sensor);
 
 			// Process parameters and perform necessary calculations
 			foreach ($this->parameters->where("is_view=1 and formula is not null")->findAll() as $parameter) {
 				try {
 					$measured = 0;
+					$value_ppb = null;
 					$raw = 0;
-					$parameter_code = strtoupper($parameter->code);
-					$value_ppb = $sensor[$parameter_code]['value_ppb'] ?? null;
+
+					// If calibration parameter in process then skip, not get any data
+					if ($parameter->code == $parameter_calibration) {
+						CLI::write("Calibration in process : " . $parameter->code);
+						continue;
+					}
 
 					try {
-						$measured =  $sensor[$parameter_code]['value'] ?? -1;
-						$raw = $sensor[$parameter_code]['value'] ?? -999;
-					} catch (ParseError | Error | DivisionByZeroError $e) {
-						$measured = 0;
-						$raw = 0;
+						eval("\$measured = $parameter->formula ?? -1;");
+						if ($parameter->formula1) {
+							eval("\$value_ppb = $parameter->formula1;");
+						}
 					} catch (Exception $e) {
 						$measured = 0;
 						$raw = 0;
@@ -232,13 +217,15 @@ class FormulaMeasurementLogs extends BaseCommand
 					log_message("error", "Formula Error [$parameter->code] : " . $e->getMessage());
 				}
 			}
+
+			// Calculate and log execution time for debugging
+			$end = microtime(true);
+			CLI::write("Done in  : " . ($end - $start) . "s");
 		} catch (Exception $e) {
 			log_message("error", "Formula Convertion Service Error : " . $e->getMessage());
 		}
 
-		// Calculate and log execution time for debugging
-		$end = microtime(true);
-		CLI::write("Done in  : " . ($end - $start) . "s");
+		
 	}
 
 
@@ -373,5 +360,20 @@ class FormulaMeasurementLogs extends BaseCommand
 	public function sd_square($x, $mean)
 	{
 		return pow($x - $mean, 2);
+	}
+
+	public function getPMFlow($code, $sensor)
+	{
+		try {
+			// $sensor for exec formula
+			$sensor = $sensor;
+			$measured = 2;
+			$parameter = $this->parameters->select("sensor_value_id,formula")->where("code", $code)->first();
+			eval("\$measured = $parameter->formula ?? -1;");
+			return $measured;
+		} catch (Exception $e) {
+			CLI::write($e->getMessage(), "red");
+			return false;
+		}
 	}
 }

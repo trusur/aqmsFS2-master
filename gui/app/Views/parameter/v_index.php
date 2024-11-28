@@ -21,7 +21,8 @@
                         <th>Parameter</th>
                         <th>Unit</th>
                         <th>Is Active</th>
-                        <th>Formula</th>
+                        <th>Formula(Raw)</th>
+                        <th>Formula(PPB)</th>
                     </thead>
                     <tbody>
 
@@ -150,7 +151,17 @@
                         return row?.formula ? `
                             <div class="d-flex align-items-center" style="gap:5px">
                                 <button type="button" class="btn-copy btn p-1 btn-primary btn-edit" style="font-size:smaller"><i class="fas fa-copy"></i></button>
-                                <textarea class="form-control" readonly style="resize:none">${row.formula ?? 'Not Set'}</textarea>
+                                <textarea name="formula1" class="form-control" readonly style="resize:none">${row.formula ?? 'Not Set'}</textarea>
+                            </div>` : `<span class="badge badge-secondary">Not Set</span>`
+                    }
+                },
+                {
+                    data : 'formula',
+                    render: function(data,type,row){
+                        return row?.formula1 ? `
+                            <div class="d-flex align-items-center" style="gap:5px">
+                                <button type="button" class="btn-copy btn p-1 btn-primary btn-edit" style="font-size:smaller"><i class="fas fa-copy"></i></button>
+                                <textarea name="formula1" class="form-control" readonly style="resize:none">${row.formula1 ?? 'Not Set'}</textarea>
                             </div>` : `<span class="badge badge-secondary">Not Set</span>`
                     }
                 },
@@ -179,6 +190,7 @@
                         $('#form-edit select[name="is_view"]').val(parameter?.is_view)
                         $('#form-edit select[name="sensor_value_id"]').val(parameter?.sensor_value_id)
                         $('#form-edit textarea[name="formula"]').val(parameter?.formula)
+                        $('#form-edit textarea[name="formula1"]').val(parameter?.formula1)
                         if(parameter?.sensor_value_id){
                             $('#sensor_value_id').trigger('change')
                         }

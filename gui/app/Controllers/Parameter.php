@@ -57,7 +57,7 @@ class Parameter extends BaseController
 			$data['where'] = $where;
 			$data['recordsTotal'] = $this->parameter->countAllResults();
 			$data['recordsFiltered'] = $this->parameter->where($where)->countAllResults();
-			$data['data'] = $this->parameter->select('id, caption_en,molecular_mass, code, default_unit, p_type, is_view, formula')
+			$data['data'] = $this->parameter->select('id, caption_en,molecular_mass, code, default_unit, p_type, is_view, formula,formula1')
 			->where($where)
 			->orderBy('id', 'DESC')->findAll($length, $start);
 			return response()->setJSON($data);
