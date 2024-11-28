@@ -87,6 +87,9 @@ def get_motherboard_value(ser, command, prefix_return):
         timeout = 0
         while responses.find(prefix_return) == -1 and timeout < max_timeout:
             line = ser.readline().decode('utf-8').strip('\r\n')
+            
+            if "ERROR" in line:
+                raise Exception(line)
 
             #tambahakan kode pengecheckan apakah response = SELESAI CALIBRATION?
 
@@ -210,6 +213,7 @@ def main():
             responseReady = ser.readline().decode('utf-8').strip('\r\n')
             timeout += 1
             if(responseReady == "DEVICE_READY;"):
+                print(responseReady)
                 break
     except Exception as e:
         print("Serial Port Error : ")
