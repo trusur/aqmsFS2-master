@@ -86,6 +86,7 @@ class Parameter extends BaseController
 			$data['is_view'] = request()->getPost('is_view');
 			$data['sensor_value_id'] = (int) request()->getPost('sensor_value_id') ;
 			$data['formula'] = request()->getPost('formula');
+			$data['formula1'] = request()->getPost('formula1');
 			$this->parameter->update($id, $data);
 			return response()->setJSON([
 				'success' => true,
