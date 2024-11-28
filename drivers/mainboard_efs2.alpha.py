@@ -13,7 +13,7 @@ def exit_handler(ser):
 # Store Data Gas
 def store_data_batch(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
-        datas = data.replace(" ","").split(prefix_return)
+        datas = data.replace(" ", "").split(prefix_return) if prefix_return else data.replace(" ", "")
         for index, res in enumerate(datas):
             datas = res.split(";")
             if datas not in ['', None] and len(datas) > 2:
