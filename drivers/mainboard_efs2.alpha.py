@@ -52,7 +52,7 @@ def execute_command( sensor_reader_id, pin, data,prefix_return_batch=None):
             'batch' : store_data_batch
             }
 
-        sensor_types = "single" if prefix_return_batch == None else "batch"
+        sensor_types = "single" if not prefix_return_batch else "batch"
         hash_function[sensor_types](sensor_reader_id,pin,data,prefix_return_batch)
         
     except Exception as e:
