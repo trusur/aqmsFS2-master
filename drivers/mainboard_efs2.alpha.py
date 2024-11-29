@@ -27,7 +27,7 @@ def store_data_single(sensor_reader_id:str,pin:str,data:str,prefix_return:str=No
         datas = data.replace(" ", "").split(";")
         if datas not in ['', None]:
             new_pin = str(pin) + str(0)
-            db.update_sensor_values(sensor_reader_id,new_pin, datas)
+            db.update_sensor_values(sensor_reader_id,new_pin, data)
     except Exception as e: 
         print('Data Batch Validation Error: '+str(e))
 
