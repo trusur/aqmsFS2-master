@@ -13,25 +13,22 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "PM 2.5 & PM 10",
                 "type"      => "read",
-                // "p_type"    => "particulate",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,PMOPC,#",
                 "prefix_return" => "END_PM_OPC;"
             ],
             [
-                "sensorname" => "Sensor Gas Semeatech Series 7 ( Single ) ",
+                "sensorname" => "Gas Semeatech - Single",
                 "type"      => "read",
-                // "p_type"    => "gas",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,semeatech,[devID],#",
                 "prefix_return" => "END_SEMEATECH;"
             ],
             [
-                "sensorname" => "Sensor Gas Semeatech Series 7 ( Batch ) ",
+                "sensorname" => "Gas Semeatech - Batch",
                 "type"      => "read",
-                // "p_type"    => "gas",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,semeatech,batch,1,4,#",
@@ -39,31 +36,36 @@ class Motherboard extends Seeder
                 "prefix_return_batch" => "END_SEMEATECH_DATA;"
             ],
             [
-                "sensorname" => "Gas HC Sensor Senovol",
+                "sensorname" => "HC Senovol",
                 "type"      => "read",
-                // "p_type"    => "gas_hc_senovol",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,senovol,[AnalogInPin],[PIDValue],[AREF],#",
                 "prefix_return" => "END_SENOVOL;"
             ],
             [
-                "sensorname" => "Gas HC Sensor Semeatech",
+                "sensorname" => "HC Semeatech",
                 "type"      => "read",
-                // "p_type"    => "gas_hc_semeatech",
                 "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,4ECM,[devID],#",
                 "prefix_return" => "END_SENOVOL;"
             ],
             [
-                "sensorname" => "Sensor Weather Station RIika RK900-011",
+                "sensorname" => "Weather Rika RK900-011",
                 "type"      => "read",
-                // "p_type"    => "weather",
                 "is_enable" => 1,
                 "is_priority" => 0,
                 "command" => "getData,RIKA,11,#",
                 "prefix_return" => "END_RIKA_WS_11;"
+            ],
+            [
+                "sensorname" => "Read SMART PUMP",
+                "type"      => "pompa",
+                "is_enable" => 1,
+                "is_priority" => 0,
+                "command" => "getData,SmartPump,#",
+                "prefix_return" => "END_SMART_PUMP;"
             ],
 
            
