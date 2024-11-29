@@ -16,7 +16,7 @@ class Motherboard extends Seeder
                 // "p_type"    => "particulate",
                 "is_enable" => 0,
                 "is_priority" => 0,
-                "command" => "getData,pm_opc,#",
+                "command" => "getData,PMOPC,#",
                 "prefix_return" => "END_PM_OPC;"
             ],
             [
@@ -62,8 +62,8 @@ class Motherboard extends Seeder
                 // "p_type"    => "weather",
                 "is_enable" => 1,
                 "is_priority" => 0,
-                "command" => "getData,RK900-011,#",
-                "prefix_return" => "END_RK900-011;"
+                "command" => "getData,RIKA,11,#",
+                "prefix_return" => "END_RIKA_WS_11;"
             ],
 
            
