@@ -66,7 +66,7 @@ def get_data_from_motherboard(type):
         cnx = db.connect()
         cursor = cnx.cursor(dictionary=True, buffered=True)
         cursor.execute("SELECT * FROM motherboard where type=%s and is_enable = 1 order by is_priority desc", (type,))
-        rows = cursor.fetchone() if type == "pump" else cursor.fetchall()
+        rows = cursor.fetchall() if type == "read" else cursor.fetchone()
         cursor.close()
         cnx.close()
         return rows
