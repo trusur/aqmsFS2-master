@@ -68,11 +68,65 @@ class Motherboard extends Seeder
             ],
             [
                 "sensorname" => "Read SMART PUMP",
-                "type"      => "pump",
+                "type"      => "read_pump",
                 "is_enable" => 1,
                 "is_priority" => 0,
                 "command" => "getData,SmartPump,#",
                 "prefix_return" => "END_SMART_PUMP;",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Set Pump Speed",
+                "type"      => "set_pump_speed",
+                "is_enable" => 1,
+                "is_priority" => 0,
+                "command" => "setData,SmartPump,PWM,value#",
+                "prefix_return" => "END_SMART_PUMP;",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Set Pump Interval",
+                "type"      => "set_pump_interval",
+                "is_enable" => 1,
+                "is_priority" => 0,
+                "command" => "setData,SmartPump,Timer,value,#",
+                "prefix_return" => "END_SMART_PUMP;",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Switch Pump",
+                "type"      => "switch_pump",
+                "is_enable" => 0,
+                "is_priority" => 0,
+                "command" => "perlu disesuaikan",
+                "prefix_return" => "perlu disesuaikan",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Zero Calibration",
+                "type"      => "zero",
+                "is_enable" => 0,
+                "is_priority" => 0,
+                "command" => "perlu disesuaikan",
+                "prefix_return" => "perlu disesuaikan",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Span Calibration",
+                "type"      => "span",
+                "is_enable" => 0,
+                "is_priority" => 0,
+                "command" => "perlu disesuaikan",
+                "prefix_return" => "perlu disesuaikan",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Check Calibration",
+                "type"      => "read_calibration",
+                "is_enable" => 0,
+                "is_priority" => 0,
+                "command" => "perlu disesuaikan",
+                "prefix_return" => "perlu disesuaikan",
                 "prefix_return_batch" => null
             ],
            
