@@ -231,8 +231,8 @@ def main():
             get_pump = get_data_from_motherboard('read_pump')
             
             #  check trigger smart pump
-            pump_has_trigger_change = db.get_configuration("pump_has_trigger_change")
-            if int(pump_has_trigger_change) == 1:
+            pump_has_trigger_change = db.get_configuration("pump_has_trigger_change","1")
+            if pump_has_trigger_change :
                 # set speed pump
                 set_pump_speed = get_data_from_motherboard('set_pump_speed')
                 pump_speed = db.get_configuration("pump_speed") or 100
