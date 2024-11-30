@@ -1,4 +1,4 @@
-# AQMS EFS2-2024
+# AQMS EFS2-HYBRID ARTHUR
 ## Requirements
 `php8.0` or newest, `python3`, `pip3`, `composer`
 
