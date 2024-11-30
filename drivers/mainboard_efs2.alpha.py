@@ -227,12 +227,36 @@ def main():
             # get command to get data
             motherboards = get_data_from_motherboard('read')
 
-            # get command to get pump data
-            get_pump = get_data_from_motherboard('pump')
+            #  command to get and set smart pump 
+            get_pump = get_data_from_motherboard('read_pump')
+            
+            #  check trigger smart pump
+            pump_has_trigger_change = db.get_configuration("pump_has_trigger_change")
+            if int(pump_has_trigger_change) == 1:
+                # set speed pump
+                set_pump_speed = get_data_from_motherboard('set_pump_speed')
+                pump_speed = db.get_configuration("pump_speed") or 100
+                command_pump_speed = set_pump_speed['command'].replace('value', str(pump_speed))
+                prefix_return_pump_speed = set_pump_speed['prefix_return']
+                response = get_motherboard_value(ser, command_pump_speed, prefix_return_pump_speed)
+                if not 'SUCCESS' in response:
+                    print("Error Set Pump Speed ")
+                    continue
+
+                # set pump interval
+                set_pump_interval = get_data_from_motherboard('set_pump_interval')
+                pump_interval = db.get_configuration("pump_interval") or 21600
+                command_pump_interval = set_pump_interval['command'].replace('value', str(pump_interval))
+                prefix_return_pump_interval = set_pump_interval['prefix_return']
+                response = get_motherboard_value(ser, command_pump_interval, prefix_return_pump_interval)
+                if not 'SUCCESS' in response:
+                    print("Error Set Pump Interval")
+                    continue
+
+                db.set_configuration("pump_has_trigger_change","")
 
             # check last pump
             last_pump = db.get_configuration("pump_last")
-            
             if(last_pump in [None,'']):
                 command = get_pump['command']
                 prefix_return = get_pump['prefix_return']
@@ -247,10 +271,11 @@ def main():
                 db.set_configuration("pump_speed",res[13])
                 db.set_configuration("pump_state",res[14])
                 db.set_configuration("pump_interval",res[16])
-                db.set_configuration("pump_last",str(datetime.now()))
+                time_runner = int(res[16])-int(res[15])
+                pump_last = datetime.now() - timedelta(seconds=time_runner)
+                db.set_configuration("pump_last",pump_last.strftime("%Y-%m-%d %H:%M:%S"))
         
                 
-
             # # check proses calibration
             # check_calibration = db.get_calibration_active()
             # is_calibration = bool(check_calibration)
