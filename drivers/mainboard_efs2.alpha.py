@@ -227,6 +227,30 @@ def main():
             # get command to get data
             motherboards = get_data_from_motherboard('read')
 
+            # get command to get pump data
+            get_pump = get_data_from_motherboard('pump')
+
+            # check last pump
+            last_pump = db.get_configuration("pump_last")
+            
+            if(last_pump in [None,'']):
+                command = get_pump['command']
+                prefix_return = get_pump['prefix_return']
+                response = get_motherboard_value(ser, command, prefix_return)
+                res = response.split(";")
+
+                # ERROR Reading SMART PUMP, repeat process
+                if "COMMAND_ERROR;" in response or not response or len(res) <= 16:
+                    print("Pump Error")
+                    continue  
+                
+                db.set_configuration("pump_speed",res[13])
+                db.set_configuration("pump_state",res[14])
+                db.set_configuration("pump_interval",res[16])
+                db.set_configuration("pump_last",str(datetime.now()))
+        
+                
+
             # # check proses calibration
             # check_calibration = db.get_calibration_active()
             # is_calibration = bool(check_calibration)
