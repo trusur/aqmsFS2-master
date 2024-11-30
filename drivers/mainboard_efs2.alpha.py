@@ -65,7 +65,7 @@ def get_data_from_motherboard(type):
     try:
         cnx = db.connect()
         cursor = cnx.cursor(dictionary=True, buffered=True)
-        cursor.execute("SELECT * FROM motherboard where type='read' and is_enable = 1 order by is_priority desc")
+        cursor.execute("SELECT * FROM motherboard where type=%s and is_enable = 1 order by is_priority desc", (type,))
         rows = cursor.fetchall()
         cursor.close()
         cnx.close()
