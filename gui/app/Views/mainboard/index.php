@@ -88,7 +88,13 @@
                         <label>Type</label>
                         <select name="type" class="form-control" required>
                             <option value="read">Read</option>
-                            <option value="setting">Setting</option>
+                            <option value="read_pump">Read Pump</option>
+                            <option value="set_pump_speed">Set Pump Speed</option>
+                            <option value="set_pump_interval">Set Pump Interval</option>
+                            <option value="switch_pump">Switching Pump</option>
+                            <option value="zero">Zero Calibration</option>
+                            <option value="span">Span Calibration</option>
+                            <option value="read_calibration">Check Calibration Status</option>
                         </select>
                     </div>
                     <div class="col-md-4 form-group mb-1">
@@ -144,7 +150,13 @@
                         <label>Type</label>
                         <select name="type" class="form-control" required>
                             <option value="read">Read</option>
-                            <option value="setting">Setting</option>
+                            <option value="read_pump">Read Pump</option>
+                            <option value="set_pump_speed">Set Pump Speed</option>
+                            <option value="set_pump_interval">Set Pump Interval</option>
+                            <option value="switch_pump">Switching Pump</option>
+                            <option value="zero">Zero Calibration</option>
+                            <option value="span">Span Calibration</option>
+                            <option value="read_calibration">Check Calibration Status</option>
                         </select>
                     </div>
                     <div class="col-md-4 form-group mb-1">
