@@ -287,7 +287,7 @@ def main():
                 if not update_pump_data(ser, db, get_pump):
                     continue
             else :
-                result = datetime.now() - timedelta(seconds=interval) > datetime.strptime(last_pump, '%Y-%m-%d %H:%M:%S')
+                result = datetime.now() - timedelta(seconds=int(interval)) > datetime.strptime(last_pump, '%Y-%m-%d %H:%M:%S')
                 if result:
                     if not update_pump_data(ser, db, get_pump):
                         continue
