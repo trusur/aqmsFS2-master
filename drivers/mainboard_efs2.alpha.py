@@ -3,6 +3,7 @@ import db
 import sys
 from datetime import datetime, timedelta
 import atexit
+from time import sleep
 
 
 def exit_handler(ser):
@@ -249,6 +250,10 @@ def main():
 
             #  command to get and set smart pump 
             get_pump = get_data_from_motherboard('read_pump')
+            if not get_pump:
+                print("Command Read Pump not active or not exist")
+                sleep(5)
+                continue
             
             #  check trigger smart pump for setting interval and speed
             pump_has_trigger_change = db.get_configuration("pump_has_trigger_change","1")
