@@ -281,11 +281,17 @@ def main():
 
             # check last pump to update data pump
             last_pump = db.get_configuration("pump_last")
+            interval = db.get_configuration("pump_interval")
             if last_pump in [None,'']:
                 # if fails read pump data then repeat proccess
                 if not update_pump_data(ser, db, get_pump):
                     continue
-        
+            else :
+                result = datetime.now() - timedelta(seconds=interval) > datetime.strptime(last_pump, '%Y-%m-%d %H:%M:%S')
+                if result:
+                    if not update_pump_data(ser, db, get_pump):
+                        continue
+
             #  check trigger smart pump for setting interval and speed
             pump_switch = db.get_configuration("pump_switch","1")
             if pump_switch :
