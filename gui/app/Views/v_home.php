@@ -169,15 +169,16 @@
                         try {
                             let pump_state = data?.config?.pump_state;
                             let curent = new Date(data?.config?.now);
-                            let pump_last = new Date(data?.config?.pump_last);
-                            let pump_interval = data?.config?.pump_interval;
-                            let pump_state_time = (curent - pump_last) / 1000;
+                            let pump_last = new Date(data?.config?.pump_last);                            
+                            let pump_interval = data?.config?.pump_interval / 60;
+                            let pump_state_time = (curent - pump_last) / 1000;                            
                             let remaining = (pump_interval * 60) - pump_state_time;
                             let h = Math.floor(remaining / 3600);
                             let m = Math.floor((remaining - (h * 3600)) / 60);
                             let s = Math.floor(remaining % 60);
-                            let pumpTimer = `${h}:${m}:${s}`;
-                            $('#pumpState').html(`(Pump ${Math.floor(parseInt(pump_state)+1)})`)
+                            let pumpTimer = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                            // let pumpTimer = `${h}:${m}:${s}`;
+                            $('#pumpState').html(pump_state)
                             if (pumpTimer == `0:0:0` || parseInt(h) < 0 || parseInt(m) < 0 || parseInt(s) < 0) {
                                 $('#pumpTimer').html('Switching...');
                             }else{

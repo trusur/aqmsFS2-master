@@ -110,13 +110,17 @@
                         <div class="row p-0">
                             <div class="mb-1 col-6">
                                 <label class="small">Interval Data Avg. <small class="text-muted" style="font-size: smaller;">(mins)</small></label>
-                                <input type="number" min="5" inputmode="numeric" placeholder="Interval in mins" name="name[data_interval]" value="<?= get_config('data_interval') ?>" class="form-control form-control-sm">
+                                <input type="number" min="5" required inputmode="numeric" placeholder="Interval in mins" name="name[data_interval]" value="<?= get_config('data_interval') ?>" class="form-control form-control-sm">
                             </div>
                             <div class="mb-1 col-6">
                                 <label class="small">Pump Speed. <small class="text-muted" style="font-size: smaller;">(%)</small></label>
-                                <input type="number" min="1" inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= get_config('pump_speed') ?>" class="form-control form-control-sm">
+                                <input type="number" min="1" required inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= get_config('pump_speed') ?>" class="form-control form-control-sm">
                             </div>
                             <div class="mb-1 col-6">
+                                <label class="small">Pump Interval. <small class="text-muted" style="font-size: smaller;">(%)</small></label>
+                                <input type="number" min="5" required inputmode="numeric" placeholder="Pump Interval in mins" name="name[pump_interval]" value="<?= get_config('pump_interval') / 60 ?>" class="form-control form-control-sm">
+                            </div>
+                            <!-- <div class="mb-1 col-6">
                                 <label class="d-block small">Auto Restart?</label>
                                 <select name="name[is_auto_restart]" class="form-control form-control-sm">
                                     <option value="1" <?= get_config("is_auto_restart") == 1 ? 'selected' : '' ?>>Yes</option>
@@ -126,7 +130,7 @@
                             <div class="mb-1 col-6">
                                 <label class="small">Restart Schedule</label>
                                 <input type="time" name="restart_schedule" value="<?= get_config("restart_schedule") ?>" class="form-control form-control-sm">
-                            </div>
+                            </div> -->
                             <div class="col-12 d-flex justify-content-end">
                                 <button type="submit" class="btn btn-info">Save Changes</button>
                             </div>
@@ -633,7 +637,7 @@
                 url: $(this).attr('action'),
                 data: $(this).serialize(),
                 dataType: 'json',
-                success: function(data) {
+                success: function(data) {                    
                     if (data?.success) {
                         toastr.success(data?.message)
                     }

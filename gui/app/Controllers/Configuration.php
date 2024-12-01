@@ -136,18 +136,27 @@ class Configuration extends BaseController
 	public function update(){
 		try{
 			$inputs = request()->getPost('name');
+
 			foreach ($inputs as $name => $content) {
 				if($name == "pump_speed" && $content != get_config('pump_speed')){
 					/* 
 						Validasi jika ada perubahan nilai pada kecepatan pompa, maka otomatis trigger bahwa ada perubahan data pada pompa untuk dijalakan oleh driver pompa
 					*/
-					update_config("pump_has_trigger_change",get_config("pump_state"));
+					update_config("pump_has_trigger_change",1);
 				}
+				if($name == "pump_interval" && $content != get_config('pump_interval')){
+					/* 
+						Validasi jika ada perubahan nilai pada kecepatan pompa, maka otomatis trigger bahwa ada perubahan data pada pompa untuk dijalakan oleh driver pompa
+					*/
+					update_config("pump_has_trigger_change",1);
+				}
+
+				$content = ($name == "pump_interval") ? (int)$content * 60 : $content;
 				update_config($name, $content);
 			}
 			return response()->setJSON([
 				'success' => true,
-				'message' => 'Configuration has been updated',
+				'message' => 'Configuration has been updated ',
 			]);
 		}catch(Exception $e){
 			return response()->setStatusCode(500)->setJSON([

@@ -252,7 +252,7 @@ def main():
             get_pump = get_data_from_motherboard('read_pump')
             if not get_pump:
                 print("Command Read Pump not active or not exist")
-                sleep(5)
+                sleep(3)
                 continue
             
             #  check trigger smart pump for setting interval and speed
@@ -265,6 +265,7 @@ def main():
                 response = get_motherboard_value(ser, command_pump_speed, prefix_return_pump_speed)
                 if not 'SUCCESS' in response:
                     print("Error Set Pump Speed ")
+                    sleep(3)
                     continue
 
                 # set pump interval
@@ -275,6 +276,7 @@ def main():
                 response = get_motherboard_value(ser, command_pump_interval, prefix_return_pump_interval)
                 if not 'SUCCESS' in response:
                     print("Error Set Pump Interval")
+                    sleep(3)
                     continue
 
                 db.set_configuration("pump_has_trigger_change","")
