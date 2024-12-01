@@ -259,6 +259,10 @@ def main():
             pump_has_trigger_change = db.get_configuration("pump_has_trigger_change","1")
             if pump_has_trigger_change :
                 set_pump_speed = get_data_from_motherboard('set_pump_speed')
+                if not set_pump_speed:
+                    print("Command Set Pump Speed not active or not exist")
+                    sleep(3)
+                    continue
                 pump_speed = db.get_configuration("pump_speed") or 100 # set default 100% for pump speed
                 command_pump_speed = set_pump_speed['command'].replace('value', str(pump_speed))
                 prefix_return_pump_speed = set_pump_speed['prefix_return']
@@ -270,6 +274,10 @@ def main():
 
                 # set pump interval
                 set_pump_interval = get_data_from_motherboard('set_pump_interval')
+                if not set_pump_speed:
+                    print("Command Set Pump Interval not active or not exist")
+                    sleep(3)
+                    continue
                 pump_interval = db.get_configuration("pump_interval") or 21600 # set default 6 hours for pump interval
                 command_pump_interval = set_pump_interval['command'].replace('value', str(pump_interval))
                 prefix_return_pump_interval = set_pump_interval['prefix_return']
