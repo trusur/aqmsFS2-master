@@ -1,43 +1,28 @@
-from pymodbus.client import ModbusSerialClient
-from pymodbus.exceptions import ModbusException
+from pymodbus.client.sync import ModbusSerialClient as ModbusClient
 import struct
 
-def read_sensor_hc():
-    # Konfigurasi MODBUS Serial
-    client = ModbusSerialClient(
-        port='/dev/ttyUSB0',  # Ganti dengan port serial perangkat Anda
-        baudrate=9600,
-        parity='N',           # Parity None
-        stopbits=1,           # Stop bits 1
-        bytesize=8,           # Data bits 8
-        timeout=1             # Timeout dalam detik
-    )
+# Initialize Modbus client (RS485, Modbus-RTU)
+client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=9600, stopbits=1, parity='N', bytesize=8)
 
-    # Alamat register untuk sensor HC (Base 40001 -> Address 40041 => Offset 40)
-    register_address = 40
+# Connect to the Modbus server
+connection = client.connect()
+if not connection:
+    print("Failed to connect to the Modbus device")
+    exit()
 
-    try:
-        # Buka koneksi
-        if not client.connect():
-            print("Gagal terhubung ke perangkat MODBUS")
-            return
+# Read HC parameter from address 40041 (register 0x9D05)
+# Register 40041 is the 40000-based address, so we subtract 40001 to get the correct Modbus register address
+result = client.read_holding_registers(0x9D05, 2, unit=0x01)
 
-        # Membaca dua register (32-bit floating-point membutuhkan 2 register)
-        response = client.read_holding_registers(register_address, 2)
-        if response.isError():
-            print(f"Error membaca register: {response}")
-        else:
-            # Gabungkan 2 register menjadi float (IEEE 754)
-            raw = struct.pack('>HH', response.registers[0], response.registers[1])
-            hc_value = struct.unpack('>f', raw)[0]
-            print(f"Sensor HC: {hc_value:.2f} PPB")
-    except ModbusException as e:
-        print(f"Kesalahan MODBUS: {e}")
-    except Exception as e:
-        print(f"Terjadi kesalahan: {e}")
-    finally:
-        # Tutup koneksi
-        client.close()
+if result.isError():
+    print("Error reading register")
+else:
+    # Modbus returns the data as two 16-bit registers (32-bit floating point)
+    registers = result.registers
+    # Combine the two 16-bit registers into a single 32-bit value (big-endian)
+    hc_raw = struct.unpack('>f', struct.pack('>HH', registers[0], registers[1]))[0]
+    
+    print(f"HC (Hex) Raw Value: {hc_raw:.2f} PPB")
 
-if __name__ == "__main__":
-    read_sensor_hc()
+# Close the connection
+client.close()
