@@ -23,7 +23,7 @@ def read_sensor_hc():
             return
 
         # Membaca dua register (32-bit floating-point membutuhkan 2 register)
-        response = client.read_holding_registers(address=register_address, count=2, unit=0x01)
+        response = client.read_holding_registers(register_address, 2)
         if response.isError():
             print(f"Error membaca register: {response}")
         else:
