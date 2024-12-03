@@ -3,15 +3,14 @@ from pymodbus.exceptions import ModbusException
 import struct
 
 def read_sensor_hc():
-    # Konfigurasi MODBUS
+    # Konfigurasi MODBUS Serial
     client = ModbusSerialClient(
-        method='rtu',       # Mode komunikasi
-        port='/dev/ttyUSB0', # Ganti dengan port serial Anda
+        port='/dev/ttyUSB0',  # Ganti dengan port serial perangkat Anda
         baudrate=9600,
-        parity='N',
-        stopbits=1,
-        bytesize=8,
-        timeout=1
+        parity='N',           # Parity None
+        stopbits=1,           # Stop bits 1
+        bytesize=8,           # Data bits 8
+        timeout=1             # Timeout dalam detik
     )
 
     # Alamat register untuk sensor HC (Base 40001 -> Address 40041 => Offset 40)
@@ -24,7 +23,7 @@ def read_sensor_hc():
             return
 
         # Membaca dua register (32-bit floating-point membutuhkan 2 register)
-        response = client.read_holding_registers(address=register_address, count=2, slave=0x01)
+        response = client.read_holding_registers(address=register_address, count=2, unit=0x01)
         if response.isError():
             print(f"Error membaca register: {response}")
         else:
