@@ -12,7 +12,7 @@ def read_registers():
     for reg in registers:
         # Gunakan parameter 'slave' atau 'address' untuk menentukan alamat perangkat
         reg_address = reg - 40001  # Alamat register Modbus mulai dari 40001
-        result = client.read_holding_registers(reg_address, 2, address=device_address)
+        result = client.read_holding_registers(reg_address, 2)
         
         if result.isError():
             print(f"Error membaca register {reg}")
