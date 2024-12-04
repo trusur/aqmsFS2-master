@@ -1,4 +1,5 @@
 from pymodbus.client import ModbusSerialClient as ModbusClient
+import struct
 
 # Konfigurasi Modbus RTU
 client = ModbusClient(port='/dev/ttyUSB1', baudrate=9600, stopbits=1, parity='N', bytesize=8)
@@ -21,7 +22,8 @@ def read_registers():
             data = result.registers
             print(data)
             floating_point_value = (data[0] << 16) | data[1]
-            print(f"Register {reg}: {floating_point_value}")
+            float_value = struct.unpack('!f', struct.pack('!I', floating_point_value))[0]
+            print(f"Register {reg}: {floating_point_value} , {float_value}")
 
 # Connect ke client
 client.connect()
