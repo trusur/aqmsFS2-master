@@ -58,8 +58,9 @@ def read_modbus_registers(slave_address, start_address, count):
         # Extract the data (the data part starts from byte 3 to byte 3 + 2 * count)
         data = response[3:3 + 2 * count]
         if len(data) == 4:  # 2 registers (32-bit float)
+            swapped_data = data[2:4] + data[0:2]
             # Convert the 4 bytes directly to a float (big-endian)
-            return struct.unpack('!f', data)[0]  # Convert to float using IEEE 754 format
+            return struct.unpack('!f', swapped_data)[0]  # Convert to float using IEEE 754 format
         
         return None
 
