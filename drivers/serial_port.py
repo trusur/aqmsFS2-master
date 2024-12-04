@@ -42,9 +42,10 @@ def read_modbus_registers(slave_address, start_address, count):
     # Send the request via serial port
     with serial.Serial(SERIAL_PORT, BAUDRATE, timeout=1) as ser:
         test = ser.readline().decode('utf-8').strip('\r\n')
+        print(test)
         # If it's a 32-bit integer (4 bytes), unpack it as a big-endian 32-bit unsigned integer
-        integer_value = struct.unpack('>I', test)[0] 
-        print("32-bit integer value:", integer_value)
+        # integer_value = struct.unpack('>I', test)[0] 
+        # print("32-bit integer value:", integer_value)
 
         ser.write(request)  # Send request frame
         
