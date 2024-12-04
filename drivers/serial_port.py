@@ -45,7 +45,6 @@ def read_modbus_registers(slave_address, start_address, count):
         
         # Read the response
         response = ser.read(5 + 2 * count)  # 5 header bytes + 2 bytes per register
-        print(response)
         if len(response) < 5:
             print("Error: Invalid response")
             return None
@@ -57,7 +56,7 @@ def read_modbus_registers(slave_address, start_address, count):
         
         # Extract the data (the data part starts from byte 3 to byte 3 + 2 * count)
         data = response[3:3 + 2 * count]
-        
+        print(data)
         # Convert the 16-bit register pairs to a 32-bit float (for PM2.5 example)
         if len(data) == 4:  # 2 registers (32-bit float)
             msw = (data[0] << 8) | data[1]  # Most Significant Word
