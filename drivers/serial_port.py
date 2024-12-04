@@ -6,7 +6,7 @@ import time
 SERIAL_PORT = '/dev/ttyUSB1'  # Replace with your serial port
 BAUDRATE = 9600
 SLAVE_ADDRESS = 1  # Modbus slave address (e.g., 1)
-REGISTER_START = 40021  # Register address (e.g., PM2.5)
+REGISTER_START = 40021  # Register address (e.g., hc)
 REGISTER_COUNT = 2  # Number of registers to read (32-bit float needs 2 registers)
 
 # Modbus function codes
@@ -41,16 +41,11 @@ def read_modbus_registers(slave_address, start_address, count):
     
     # Send the request via serial port
     with serial.Serial(SERIAL_PORT, BAUDRATE, timeout=1) as ser:
-        test = ser.readline().decode('utf-8').strip('\r\n')
-        print(test)
-        # If it's a 32-bit integer (4 bytes), unpack it as a big-endian 32-bit unsigned integer
-        # integer_value = struct.unpack('>I', test)[0] 
-        # print("32-bit integer value:", integer_value)
-
         ser.write(request)  # Send request frame
         
         # Read the response
         response = ser.read(5 + 2 * count)  # 5 header bytes + 2 bytes per register
+
         if len(response) < 5:
             print("Error: Invalid response")
             return None
@@ -61,10 +56,11 @@ def read_modbus_registers(slave_address, start_address, count):
             return None
         
         # Extract the data (the data part starts from byte 3 to byte 3 + 2 * count)
-        data = response[3:3 + 2 * count]
-        print(data)
-        # Convert the 16-bit register pairs to a 32-bit float (for PM2.5 example)
+        data = response[3:3 + 2 * count]  # Get the 2 registers
+        
+        # Convert the 16-bit register pairs to a 32-bit float (correct byte order)
         if len(data) == 4:  # 2 registers (32-bit float)
+            # Combine the 2 registers into a single 32-bit integer
             msw = (data[0] << 8) | data[1]  # Most Significant Word
             lsw = (data[2] << 8) | data[3]  # Least Significant Word
             combined = (msw << 16) | lsw  # Combine into a 32-bit unsigned integer
@@ -77,11 +73,11 @@ def read_modbus_registers(slave_address, start_address, count):
 # Main loop to continuously read from the Modbus device
 while True:
     try:
-        # Read the PM2.5 data (Register 40021 -> Address 40021 - 40001 = 20)
-        pm2_5 = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT)
+        # Read the hc data (Register 40021 -> Address 40021 - 40001 = 20)
+        hc_5 = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT)
         
-        if pm2_5 is not None:
-            print(f"HC: {pm2_5} µg/m³")
+        if hc_5 is not None:
+            print(f"HC: {hc_5} µg/m³")
         else:
             print("Failed to read data or invalid response")
     
