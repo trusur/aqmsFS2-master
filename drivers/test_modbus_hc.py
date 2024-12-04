@@ -1,28 +1,26 @@
-from pymodbus.client import ModbusSerialClient as ModbusClient
-import struct
+from pymodbus.client import ModbusSerialClient as ModbusClient  # versi pymodbus 3.x
 
-# Initialize Modbus client (RS485, Modbus-RTU)
-client = ModbusClient(method='rtu', port='/dev/ttyUSB1', baudrate=9600, stopbits=1, parity='N', bytesize=8)
+# Membuat koneksi ke port serial (misalnya /dev/ttyUSB1)
+client = ModbusClient(
+    method='rtu',       # Modbus RTU
+    port='/dev/ttyUSB1',  # Port serial USB yang digunakan
+    baudrate=9600,       # Baudrate
+    stopbits=1,          # Stop bits
+    parity='N',          # Parity
+    bytesize=8           # Data bits (bytesize)
+)
 
-# Connect to the Modbus server
-connection = client.connect()
-if not connection:
-    print("Failed to connect to the Modbus device")
-    exit()
-
-# Read HC parameter from address 40041 (register 0x9D05)
-# Register 40041 is the 40000-based address, so we subtract 40001 to get the correct Modbus register address
-result = client.read_holding_registers(0x9D05, 2, unit=0x01)
-
-if result.isError():
-    print("Error reading register")
+# Coba membuka koneksi
+if client.connect():
+    print("Koneksi berhasil!")
+    # Membaca data dari register (misalnya, HC - 40041)
+    rr = client.read_holding_registers(40041, 2, unit=0x01)
+    if rr.isError():
+        print("Terjadi kesalahan saat membaca register.")
+    else:
+        print(f"Data register 40041: {rr.registers}")
 else:
-    # Modbus returns the data as two 16-bit registers (32-bit floating point)
-    registers = result.registers
-    # Combine the two 16-bit registers into a single 32-bit value (big-endian)
-    hc_raw = struct.unpack('>f', struct.pack('>HH', registers[0], registers[1]))[0]
-    
-    print(f"HC (Hex) Raw Value: {hc_raw:.2f} PPB")
+    print("Gagal membuka koneksi.")
 
-# Close the connection
+# Menutup koneksi
 client.close()
