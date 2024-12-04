@@ -19,6 +19,7 @@ def read_registers():
         else:
             # Gabungkan dua register 16-bit untuk mendapatkan nilai 32-bit
             data = result.registers
+            print(data)
             floating_point_value = (data[0] << 16) | data[1]
             print(f"Register {reg}: {floating_point_value}")
 
