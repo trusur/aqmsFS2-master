@@ -1,26 +1,25 @@
-from pymodbus.client import ModbusSerialClient as ModbusClient  # versi pymodbus 3.x
+from pymodbus.client import ModbusSerialClient as ModbusClient
 
-# Membuat koneksi ke port serial (misalnya /dev/ttyUSB1)
+# Menggunakan Modbus RTU dengan parameter yang sesuai
 client = ModbusClient(
-    method='rtu',       # Modbus RTU
-    port='/dev/ttyUSB1',  # Port serial USB yang digunakan
-    baudrate=9600,       # Baudrate
-    stopbits=1,          # Stop bits
-    parity='N',          # Parity
-    bytesize=8           # Data bits (bytesize)
+    port='/dev/ttyUSB0',  # Ganti dengan port yang sesuai
+    baudrate=9600,
+    stopbits=1,
+    parity='N',
+    bytesize=8
 )
 
-# Coba membuka koneksi
-if client.connect():
-    print("Koneksi berhasil!")
-    # Membaca data dari register (misalnya, HC - 40041)
-    rr = client.read_holding_registers(40041, 2, unit=0x01)
-    if rr.isError():
-        print("Terjadi kesalahan saat membaca register.")
-    else:
-        print(f"Data register 40041: {rr.registers}")
-else:
-    print("Gagal membuka koneksi.")
+# Membuka koneksi
+client.connect()
 
-# Menutup koneksi
+# Misalnya membaca data dari register 40033 (HC) yang Anda sebutkan sebelumnya
+result = client.read_holding_registers(40033, 2, unit=0x01)
+
+if result.isError():
+    print("Error:", result)
+else:
+    # Menampilkan hasil pembacaan
+    print(f"HC: {result.registers[0]} {result.registers[1]}")
+
+# Menutup koneksi setelah selesai
 client.close()
