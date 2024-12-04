@@ -6,14 +6,15 @@ client = ModbusClient(
     baudrate=9600,
     stopbits=1,
     parity='N',
-    bytesize=8
+    bytesize=8,
+    unit=0x01
 )
 
 # Membuka koneksi
 client.connect()
 
 
-result = client.read_holding_registers(40041, 2, unit=0x01)
+result = client.read_holding_registers(40041, 2)
 
 if result.isError():
     print("Error:", result)
