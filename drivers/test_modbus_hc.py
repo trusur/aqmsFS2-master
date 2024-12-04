@@ -13,7 +13,7 @@ client = ModbusClient(
 client.connect()
 
 
-result = client.read_holding_registers(40041, 2)
+result = client.read_holding_registers(40041, 2, unit=0x01)
 
 if result.isError():
     print("Error:", result)
