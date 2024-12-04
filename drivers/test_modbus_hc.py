@@ -2,7 +2,7 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 import struct
 
 # Initialize Modbus client (RS485, Modbus-RTU)
-client = ModbusClient(method='rtu', port='/dev/ttyUSB0', baudrate=9600, stopbits=1, parity='N', bytesize=8)
+client = ModbusClient(method='rtu', port='/dev/ttyUSB1', baudrate=9600, stopbits=1, parity='N', bytesize=8)
 
 # Connect to the Modbus server
 connection = client.connect()
