@@ -14,7 +14,7 @@ def read_registers():
         # Konversi alamat register Modbus (misalnya 40021) menjadi format yang benar untuk Modbus
         reg_address = reg - 40001  # Mengurangi 40001 untuk mendapatkan alamat yang benar dalam perangkat
         # Baca 2 register 16-bit untuk mendapatkan data 32-bit
-        result = client.read_holding_registers(reg_address, 2, unit=device_address)
+        result = client.read_holding_registers(reg_address, 3)
         
         if result.isError():
             print(f"Error membaca register {reg}")
