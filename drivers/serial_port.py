@@ -41,7 +41,7 @@ def read_modbus_registers(slave_address, start_address, count):
     
     # Send the request via serial port
     with serial.Serial(SERIAL_PORT, BAUDRATE, timeout=1) as ser:
-        response += ser.readline().decode('utf-8').strip('\r\n')
+        response = ser.readline().decode('utf-8').strip('\r\n')
         print(response)
         ser.write(request)  # Send request frame
         
