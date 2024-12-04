@@ -1,4 +1,4 @@
-from pymodbus.client.sync import ModbusSerialClient as ModbusClient
+from pymodbus.client import ModbusSerialClient as ModbusClient
 
 # Konfigurasi Modbus RTU
 client = ModbusClient(method='rtu', port='/dev/ttyUSB1', baudrate=9600, stopbits=1, parity='N', bytesize=8)
