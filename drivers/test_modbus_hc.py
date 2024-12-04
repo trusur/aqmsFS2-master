@@ -7,7 +7,6 @@ client = ModbusClient(
     stopbits=1,
     parity='N',
     bytesize=8,
-    unit=0x01
 )
 
 # Membuka koneksi
