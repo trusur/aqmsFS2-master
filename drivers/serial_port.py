@@ -56,28 +56,21 @@ def read_modbus_registers(slave_address, start_address, count):
             return None
         
         # Extract the data (the data part starts from byte 3 to byte 3 + 2 * count)
-        data = response[3:3 + 2 * count]  # Get the 2 registers
-        
-        # Convert the 16-bit register pairs to a 32-bit float (correct byte order)
+        data = response[3:3 + 2 * count]
         if len(data) == 4:  # 2 registers (32-bit float)
-            # Combine the 2 registers into a single 32-bit integer
-            msw = (data[0] << 8) | data[1]  # Most Significant Word
-            lsw = (data[2] << 8) | data[3]  # Least Significant Word
-            combined = (msw << 16) | lsw  # Combine into a 32-bit unsigned integer
-            
-            # Convert the 32-bit unsigned integer to a float (IEEE 754 format)
-            return struct.unpack('!f', struct.pack('!I', combined))[0]
+            # Convert the 4 bytes directly to a float (big-endian)
+            return struct.unpack('!f', data)[0]  # Convert to float using IEEE 754 format
         
         return None
 
 # Main loop to continuously read from the Modbus device
 while True:
     try:
-        # Read the hc data (Register 40021 -> Address 40021 - 40001 = 20)
-        hc_5 = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT)
+        # Read the HC data (Register 40041 -> Address 40041 - 40001 = 40)
+        hc = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT)
         
-        if hc_5 is not None:
-            print(f"HC: {hc_5} µg/m³")
+        if hc is not None:
+            print(f"HC: {hc} ppb")
         else:
             print("Failed to read data or invalid response")
     
