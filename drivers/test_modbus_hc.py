@@ -1,7 +1,7 @@
 from pymodbus.client import ModbusSerialClient as ModbusClient
 
 # Konfigurasi Modbus RTU
-client = ModbusClient(method='rtu', port='/dev/ttyUSB1', baudrate=9600, stopbits=1, parity='N', bytesize=8)
+client = ModbusClient(port='/dev/ttyUSB1', baudrate=9600, stopbits=1, parity='N', bytesize=8)
 
 # Tentukan alamat perangkat dan register yang ingin dibaca
 device_address = 1  # Address perangkat (0x01)
