@@ -2,7 +2,7 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 
 # Menggunakan Modbus RTU dengan parameter yang sesuai
 client = ModbusClient(
-    port='/dev/ttyUSB0',  # Ganti dengan port yang sesuai
+    port='/dev/ttyUSB0',  
     baudrate=9600,
     stopbits=1,
     parity='N',
@@ -12,8 +12,8 @@ client = ModbusClient(
 # Membuka koneksi
 client.connect()
 
-# Misalnya membaca data dari register 40033 (HC) yang Anda sebutkan sebelumnya
-result = client.read_holding_registers(40033, 2, unit=0x01)
+
+result = client.read_holding_registers(40041, 2, unit=0x01)
 
 if result.isError():
     print("Error:", result)
