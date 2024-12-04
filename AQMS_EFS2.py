@@ -30,6 +30,17 @@ def exit_handler_signal(signum,frame):
     file = open('test.txt','w')
     file.write('1')
     file.close()
+def truncate_sensor_values():
+    try:
+        cnx = db.connect()  
+        cursor = cnx.cursor(buffered=True)
+        cursor.execute("TRUNCATE TABLE sensor_values")
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        print("Table sensor_values truncated successfully!")
+    except Exception as e:
+        print('Truncate Table Error: ', e)
 def init_pump():
     try:
         cnx = db.connect()
@@ -42,6 +53,7 @@ def init_pump():
         print('Init Pump Error: ',e)
 # print("Starting Pump...")
 # init_pump()
+truncate_sensor_values()
 print("Checking AQMS Driver Service...\n")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-driver-alpha", shell=True)
 time.sleep(1)
