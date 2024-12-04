@@ -11,7 +11,9 @@ registers = [40041]  # PM2.5, PM10, CO (contoh)
 def read_registers():
     for reg in registers:
         # Gunakan parameter 'slave' atau 'address' untuk menentukan alamat perangkat
-        result = client.read_holding_registers(0X01, 2, address=device_address)
+        reg_address = reg - 40001  # Alamat register Modbus mulai dari 40001
+        result = client.read_holding_registers(reg_address, 2, unit=device_address)
+        
         if result.isError():
             print(f"Error membaca register {reg}")
         else:
