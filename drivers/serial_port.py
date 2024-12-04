@@ -45,7 +45,7 @@ def read_modbus_registers(slave_address, start_address, count):
         
         # Read the response
         response = ser.read(5 + 2 * count)  # 5 header bytes + 2 bytes per register
-        
+        print(response)
         if len(response) < 5:
             print("Error: Invalid response")
             return None
@@ -76,7 +76,7 @@ while True:
         pm2_5 = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT)
         
         if pm2_5 is not None:
-            print(f"PM2.5: {pm2_5} µg/m³")
+            print(f"HC: {pm2_5} µg/m³")
         else:
             print("Failed to read data or invalid response")
     
