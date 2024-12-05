@@ -347,6 +347,7 @@ def main():
                 response = get_motherboard_value(ser, command, prefix_return)
 
                 if response in ['',None, 'COMMAND_ERROR;']:
+                    new_pin = str(pin) + str(0)
                     db.update_sensor_values(sensor_reader_id,pin, -999)
                     print("Pin "+str(pin)+" Error")
                     continue
