@@ -11,6 +11,7 @@ class SensorReaders extends Seeder
 		$this->db->query("TRUNCATE TABLE sensor_readers");
 		$data = [
 			['driver' => 'mainboard_efs2.alpha.py', 'sensor_code' => '/dev/ttyMAINBOARD', 'baud_rate' => '9600', 'pins' => null],
+			['driver' => 'hc.usb.py', 'sensor_code' => '/dev/ttyUSBHC', 'baud_rate' => '9600', 'pins' => null],
 		];
 		$this->db->table('sensor_readers')->insertBatch($data);
 	}
