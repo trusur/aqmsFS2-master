@@ -348,7 +348,7 @@ def main():
 
                 if response in ['',None, 'COMMAND_ERROR;']:
                     new_pin = str(pin) + str(0)
-                    db.update_sensor_values(sensor_reader_id,pin, -999)
+                    db.update_sensor_values(sensor_reader_id,new_pin, -999)
                     print("Pin "+str(pin)+" Error")
                     continue
            
