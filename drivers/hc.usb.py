@@ -90,6 +90,7 @@ def main():
             hc = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT,driver)
             new_pin = str(driver['id']) + str(0)
             if hc is not None:
+                print(f"Read pin {new_pin}")
                 hc_ug = 0.0409 * hc / 1000  * 44
                 db.update_sensor_values(driver['id'],new_pin, f"HC;{hc};{hc_ug};END_HC")
             else:
