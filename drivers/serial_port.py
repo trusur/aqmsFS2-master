@@ -3,7 +3,7 @@ import struct
 import time
 
 # Define constants
-SERIAL_PORT = '/dev/ttyUSB1'  # Replace with your serial port
+SERIAL_PORT = '/dev/ttyUSBHC'  # Replace with your serial port
 BAUDRATE = 9600
 SLAVE_ADDRESS = 1  # Modbus slave address (e.g., 1)
 REGISTER_START = 40021  # Register address (e.g., hc)
