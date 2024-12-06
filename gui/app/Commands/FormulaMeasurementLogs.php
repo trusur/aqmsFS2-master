@@ -202,8 +202,8 @@ class FormulaMeasurementLogs extends BaseCommand
 					} else {
 						$is_valid = 1; // Valid
 					}
-					//END VALIDASI
 
+					//END VALIDASI
 					// Insert log data
 					$this->insert_logs([
 						"parameter_id" => $parameter->id,
@@ -341,6 +341,8 @@ class FormulaMeasurementLogs extends BaseCommand
 			return $this->realtime_value->insert([
 				"parameter_id" => $parameterId,
 				"measured" => $logs["value"],
+				"raw"	=> $logs['sensor_value'],
+				"ppb_value" => $value_ppb
 			]);
 		} catch (Exception $e) {
 			log_message("error", "Insert Logs : " . $e->getMessage());
