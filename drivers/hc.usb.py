@@ -110,9 +110,9 @@ def main():
                 mg_hc  =  0.0409 * ppm_hc * 44
                 value = f"HC:{hc}:{mg_hc};END_HC"
                 db.update_sensor_values(id,pin, value)
-                print(f"Read Pin {new_pin}")
+                print(f"Read Pin {pin}")
             else:
-                print(f"Pin {new_pin} Error")
+                print(f"Pin {pin} Error")
         
         except Exception as e:
             print(f"Error: {e}")
