@@ -96,7 +96,7 @@ def main():
     driver = get_driver()
 
     id = driver['id']
-    new_pin = str(id) + str(0)
+    pin = str(id) + str(0)
     # Main loop to continuously read from the Modbus device
     while True:
         try:
@@ -109,7 +109,7 @@ def main():
                 ppm_hc = hc / 1000
                 mg_hc  =  0.0409 * ppm_hc * 44
                 value = f"HC:{hc}:{mg_hc};END_HC"
-                db.update_sensor_values(id,new_pin, value)
+                db.update_sensor_values(id,pin, value)
                 print(f"Read Pin {new_pin}")
             else:
                 print(f"Pin {new_pin} Error")
