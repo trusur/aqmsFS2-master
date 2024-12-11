@@ -250,92 +250,87 @@ def main():
 
             #  command to get and set smart pump 
             get_pump = get_data_from_motherboard('read_pump')
-            if not get_pump:
-                print("Command Read Pump not active or not exist")
-                sleep(3)
-                continue
-            
-            #  check trigger smart pump for setting interval and speed
-            pump_has_trigger_change = db.get_configuration("pump_has_trigger_change","1")
-            if pump_has_trigger_change :
-                set_pump_speed = get_data_from_motherboard('set_pump_speed')
-                if not set_pump_speed:
-                    print("Command Set Pump Speed not active or not exist")
-                    sleep(3)
-                    continue
-                pump_speed = db.get_configuration("pump_speed") or 100 # set default 100% for pump speed
-                command_pump_speed = set_pump_speed['command'].replace('value', str(pump_speed))
-                prefix_return_pump_speed = set_pump_speed['prefix_return']
-                response = get_motherboard_value(ser, command_pump_speed, prefix_return_pump_speed)
-                if not 'SUCCESS' in response:
-                    print("Error Set Pump Speed ")
-                    sleep(3)
-                    continue
+            if get_pump:
+                #  check trigger smart pump for setting interval and speed
+                pump_has_trigger_change = db.get_configuration("pump_has_trigger_change","1")
+                if pump_has_trigger_change :
+                    set_pump_speed = get_data_from_motherboard('set_pump_speed')
+                    if not set_pump_speed:
+                        print("Command Set Pump Speed not active or not exist")
+                        sleep(3)
+                        continue
+                    pump_speed = db.get_configuration("pump_speed") or 100 # set default 100% for pump speed
+                    command_pump_speed = set_pump_speed['command'].replace('value', str(pump_speed))
+                    prefix_return_pump_speed = set_pump_speed['prefix_return']
+                    response = get_motherboard_value(ser, command_pump_speed, prefix_return_pump_speed)
+                    if not 'SUCCESS' in response:
+                        print("Error Set Pump Speed ")
+                        sleep(3)
+                        continue
 
-                # set pump interval
-                set_pump_interval = get_data_from_motherboard('set_pump_interval')
-                if not set_pump_speed:
-                    print("Command Set Pump Interval not active or not exist")
-                    sleep(3)
-                    continue
-                pump_interval = db.get_configuration("pump_interval") or 21600 # set default 6 hours for pump interval
-                command_pump_interval = set_pump_interval['command'].replace('value', str(pump_interval))
-                prefix_return_pump_interval = set_pump_interval['prefix_return']
-                response = get_motherboard_value(ser, command_pump_interval, prefix_return_pump_interval)
-                if not 'SUCCESS' in response:
-                    print("Error Set Pump Interval")
-                    sleep(3)
-                    continue
+                    # set pump interval
+                    set_pump_interval = get_data_from_motherboard('set_pump_interval')
+                    if not set_pump_speed:
+                        print("Command Set Pump Interval not active or not exist")
+                        sleep(3)
+                        continue
+                    pump_interval = db.get_configuration("pump_interval") or 21600 # set default 6 hours for pump interval
+                    command_pump_interval = set_pump_interval['command'].replace('value', str(pump_interval))
+                    prefix_return_pump_interval = set_pump_interval['prefix_return']
+                    response = get_motherboard_value(ser, command_pump_interval, prefix_return_pump_interval)
+                    if not 'SUCCESS' in response:
+                        print("Error Set Pump Interval")
+                        sleep(3)
+                        continue
 
-                db.set_configuration("pump_has_trigger_change","")
+                    db.set_configuration("pump_has_trigger_change","")
 
-            # check last pump to update data pump
-            last_pump = db.get_configuration("pump_last")
-            interval = db.get_configuration("pump_interval")
-            if last_pump in [None,'']:
-                # if fails read pump data then repeat proccess
-                if not update_pump_data(ser, db, get_pump):
-                    continue
-            else :
-                result = datetime.now() - timedelta(seconds=int(interval)) > datetime.strptime(last_pump, '%Y-%m-%d %H:%M:%S')
-                if result:
+                # check last pump to update data pump
+                last_pump = db.get_configuration("pump_last")
+                interval = db.get_configuration("pump_interval")
+                if last_pump in [None,'']:
+                    # if fails read pump data then repeat proccess
                     if not update_pump_data(ser, db, get_pump):
                         continue
+                else :
+                    result = datetime.now() - timedelta(seconds=int(interval)) > datetime.strptime(last_pump, '%Y-%m-%d %H:%M:%S')
+                    if result:
+                        if not update_pump_data(ser, db, get_pump):
+                            continue
 
-            #  check trigger smart pump for setting interval and speed
-            pump_switch = db.get_configuration("pump_switch","1")
-            if pump_switch :
-                # command for switching pump
-                switching_pump = get_data_from_motherboard('switch_pump')
-                command_switching_pump = switching_pump['command']
-                prefix_return_switching_pump = switching_pump['prefix_return']
-                response = get_motherboard_value(ser, command_switching_pump, prefix_return_switching_pump)
-                if not 'SUCCESS' in response:
-                    print("Error Switching Pump")
-                    continue
-                db.set_configuration("pump_switch","")
-
-                # if fails read pump data then repeat proccess
-                if not update_pump_data(ser, db, get_pump):
-                    continue
-                
-            # check proses calibration
-            check_calibration = db.get_calibration_active()
-            # parameter_calibration = check_calibration['code'] if check_calibration else None
-
-            if check_calibration:
-                calibration_type = 'zero' if check_calibration['calibration_type'] == 0 else 'span'
-                get_motherboard = get_data_from_motherboard(calibration_type)
-                
-                # start if not executed
-                if check_calibration['is_executed'] == 0:
-                    command = get_motherboard['command']
-                    prefix_return = get_motherboard['prefix_return']
-                    response = get_motherboard_value(ser,command,prefix_return)
+                #  check trigger smart pump for setting interval and speed
+                pump_switch = db.get_configuration("pump_switch","1")
+                if pump_switch :
+                    # command for switching pump
+                    switching_pump = get_data_from_motherboard('switch_pump')
+                    command_switching_pump = switching_pump['command']
+                    prefix_return_switching_pump = switching_pump['prefix_return']
+                    response = get_motherboard_value(ser, command_switching_pump, prefix_return_switching_pump)
                     if not 'SUCCESS' in response:
-                        print("Error Start Calibration")
+                        print("Error Switching Pump")
                         continue
+                    db.set_configuration("pump_switch","")
 
+                    # if fails read pump data then repeat proccess
+                    if not update_pump_data(ser, db, get_pump):
+                        continue
+                    
+                # check proses calibration
+                check_calibration = db.get_calibration_active()
+                # parameter_calibration = check_calibration['code'] if check_calibration else None
+
+                if check_calibration:
+                    calibration_type = 'zero' if check_calibration['calibration_type'] == 0 else 'span'
+                    get_motherboard = get_data_from_motherboard(calibration_type)
+                    
+                    # start if not executed
+                    if check_calibration['is_executed'] == 0:
+                        command = get_motherboard['command']
+                        prefix_return = get_motherboard['prefix_return']
+                        response = get_motherboard_value(ser,command,prefix_return)
+                        if not 'SUCCESS' in response:
+                            print("Error Start Calibration")
+                            continue
 
             # process get data sensor
             for motherboard in motherboards:
