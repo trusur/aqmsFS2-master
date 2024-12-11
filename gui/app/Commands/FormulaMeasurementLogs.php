@@ -107,14 +107,15 @@ class FormulaMeasurementLogs extends BaseCommand
 	{
 		$start = microtime(true);
 
-		$check_calibration = $this->configurations
-			->select("calibrations.id,parameters.code,calibrations.calibration_type,calibrations.is_executed, calibrations.start_calibration, calibrations.end_calibration")
-			->join('calibrations', 'calibrations.id = configurations.content AND calibrations.end_calibration IS NULL AND calibrations.is_executed != 2')
-			->join("parameters", "parameters.id = calibrations.parameter_id")
-			->where("configurations.name", "is_calibration")
-			->orderBy('calibrations.id', 'desc')
-			->first();
-		$parameter_calibration = $check_calibration['code'] ?? null;
+		# Untuk sementara menu calibrasi di non-aktifkan, info dari Pak Dodo (Via call, Jumat 6 Des 2024)
+		// $check_calibration = $this->configurations
+		// 	->select("calibrations.id,parameters.code,calibrations.calibration_type,calibrations.is_executed, calibrations.start_calibration, calibrations.end_calibration")
+		// 	->join('calibrations', 'calibrations.id = configurations.content AND calibrations.end_calibration IS NULL AND calibrations.is_executed != 2')
+		// 	->join("parameters", "parameters.id = calibrations.parameter_id")
+		// 	->where("configurations.name", "is_calibration")
+		// 	->orderBy('calibrations.id', 'desc')
+		// 	->first();
+		// $parameter_calibration = $check_calibration['code'] ?? null;
 
 		#tambahkan logic untuk ketika dia is_executed = 1, check data terakhir di measurement_log untuk waktu start  berdasarkan parameter
 		# ketika is_executed = 2, update data terakhir di measurement_log untuk waktu end berdasarkan parameter
@@ -155,10 +156,10 @@ class FormulaMeasurementLogs extends BaseCommand
 					$raw = 0;
 
 					// If calibration parameter in process then skip, not get any data
-					if ($parameter->code == $parameter_calibration) {
-						CLI::write("Calibration in process : " . $parameter->code);
-						continue;
-					}
+					// if ($parameter->code == $parameter_calibration) {
+					// 	CLI::write("Calibration in process : " . $parameter->code);
+					// 	continue;
+					// }
 
 					try {
 						eval("\$measured = $parameter->formula ?? -1;");
