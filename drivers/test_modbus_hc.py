@@ -1,4 +1,4 @@
-from pymodbus.client.sync import ModbusSerialClient
+from pymodbus.client import ModbusSerialClient
 import struct
 
 def read_register(client, address, count=2):
@@ -11,13 +11,14 @@ def read_register(client, address, count=2):
     """
     try:
         response = client.read_holding_registers(address, count, unit=1)
-        if not response.isError():
-            # Menggabungkan register ke float 32-bit
-            registers = response.registers
-            value = struct.unpack('>f', struct.pack('>HH', registers[0], registers[1]))[0]
-            return value
-        else:
+        if response.isError():
             print(f"Error reading address {address}: {response}")
+            return None
+
+        # Menggabungkan register ke float 32-bit
+        registers = response.registers
+        value = struct.unpack('>f', struct.pack('>HH', registers[0], registers[1]))[0]
+        return value
     except Exception as e:
         print(f"Exception occurred: {e}")
     return None
@@ -37,12 +38,11 @@ def main():
     if client.connect():
         print("Connected to Modbus device")
 
-        # Membaca sensor PM2.5 dan PM10 (alamat register dari manual)
-        hc_address = 40  # Alamat register untuk PM2.5 (40021 - 40001)
-
+        # Membaca sensor PHC
+        hc_address = 40 
+        pm10_address = 22  # Alamat register untuk PM10 (40023 - 40001)
 
         hc_value = read_register(client, hc_address)
-
 
         if hc_value is not None:
             print(f"PM2.5: {hc_value} µg/m³")
