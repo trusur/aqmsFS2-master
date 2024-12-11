@@ -38,16 +38,14 @@ def main():
         print("Connected to Modbus device")
 
         # Membaca sensor PM2.5 dan PM10 (alamat register dari manual)
-        pm25_address = 20  # Alamat register untuk PM2.5 (40021 - 40001)
-        pm10_address = 22  # Alamat register untuk PM10 (40023 - 40001)
+        hc_address = 40  # Alamat register untuk PM2.5 (40021 - 40001)
 
-        pm25_value = read_register(client, pm25_address)
-        pm10_value = read_register(client, pm10_address)
 
-        if pm25_value is not None:
-            print(f"PM2.5: {pm25_value} µg/m³")
-        if pm10_value is not None:
-            print(f"PM10: {pm10_value} µg/m³")
+        hc_value = read_register(client, hc_address)
+
+
+        if hc_value is not None:
+            print(f"PM2.5: {hc_value} µg/m³")
 
         # Tutup koneksi Modbus
         client.close()
