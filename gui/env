@@ -53,7 +53,7 @@ app.baseURL = 'http://localhost:8080'
 database.default.hostname = localhost
 database.default.database = aqms_efs2_hybrid
 database.default.username = root
-database.default.password = 
+database.default.password = R2h2s12*
 database.default.DBDriver = MySQLi
 
 # database.tests.hostname = localhost
