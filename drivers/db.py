@@ -17,12 +17,13 @@ def update_sensor_values(id,pin,value):
         cursor = cnx.cursor()
         cursor.execute("UPDATE sensor_values SET value=%s, updated_at=NOW() WHERE sensor_reader_id=%s AND pin=%s",(value,id,pin))
         cnx.commit()
-        cursor.close()
-        cnx.close()
         return True
     except Exception as e: 
         print('Error: ',e)
         return False
+    finally:
+        cursor.close()
+        cnx.close()
 def insert_sensor_values(id,pin,value):
     try:
         cnx = connect()

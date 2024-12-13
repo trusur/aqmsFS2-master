@@ -3,6 +3,34 @@ import struct
 import time
 import db
 import sys
+import serial
+import struct
+from pymodbus.client import ModbusSerialClient
+from pymodbus.exceptions import ModbusException
+
+
+SLAVE_SENSORPM = 1 # Sensor Gas & PM
+
+port = '/dev/ttyUSBHC' 
+baudrate = 9600
+parity = 'N'
+stopbits = 1
+bytesize = 8
+timeout=1
+
+client = ModbusSerialClient(
+    method='rtu',
+    port=port,
+    baudrate=baudrate,
+    parity=parity,
+    stopbits=stopbits,
+    bytesize=bytesize,
+    timeout=timeout,
+    auto_open=True
+)
+
+
+
 
 def get_data_from_motherboard(type):
     try:
@@ -13,9 +41,12 @@ def get_data_from_motherboard(type):
         cursor.close()
         cnx.close()
         return rows
-    except Exception as e: 
+    except Exception as e:
         print('Get Motherboards Error: ',e)
         return []
+    finally:
+        cursor.close()
+        cnx.close()
 
 def get_driver():
     try:
@@ -29,83 +60,28 @@ def get_driver():
         return row
     except Exception as e:
         return None
+    finally:
+        cursor.close()
+        cnx.close()
     
-# Define constants
-SERIAL_PORT = '/dev/ttyUSBHC'  # Replace with your serial port
-BAUDRATE = 9600
-SLAVE_ADDRESS = 1  # Modbus slave address (e.g., 1)
-REGISTER_START = 40021  # Register address (e.g., hc)
-REGISTER_COUNT = 2  # Number of registers to read (32-bit float needs 2 registers)
-
-# Modbus function codes
-FUNC_READ_HOLDING_REGISTERS = 0x03  # Function code to read holding registers
-
-# Helper function to calculate CRC16 for Modbus RTU
-def calculate_crc(data):
-    crc = 0xFFFF
-    for byte in data:
-        crc ^= byte
-        for _ in range(8):
-            if crc & 0x0001:
-                crc = (crc >> 1) ^ 0xA001
-            else:
-                crc >>= 1
-    return struct.pack('<H', crc)
-
-# Function to read holding registers using Modbus RTU
-def read_modbus_registers(slave_address, start_address, count):
-    # Construct Modbus RTU request frame
-    request = bytearray()
-    request.append(slave_address)  # Slave address
-    request.append(FUNC_READ_HOLDING_REGISTERS)  # Function code 0x03
-    request.append((start_address >> 8) & 0xFF)  # High byte of register address
-    request.append(start_address & 0xFF)  # Low byte of register address
-    request.append((count >> 8) & 0xFF)  # High byte of register count
-    request.append(count & 0xFF)  # Low byte of register count
-    
-    # Append CRC (calculated using the request data)
-    crc = calculate_crc(request)
-    request.extend(crc)
-    
-    # Send the request via serial port
-    with serial.Serial(SERIAL_PORT, BAUDRATE, timeout=1) as ser:
-        ser.write(request)  # Send request frame
-        
-        # Read the response
-        response = ser.read(5 + 2 * count)  # 5 header bytes + 2 bytes per register
-
-        if len(response) < 5:
-            print("Error: Invalid response")
-            return None
-        
-        # Check the CRC of the response
-        if calculate_crc(response[:-2]) != response[-2:]:
-            print("Error: Invalid CRC in response")
-            return None
-        
-        # Extract the data (the data part starts from byte 3 to byte 3 + 2 * count)
-        data = response[3:3 + 2 * count]
-        if len(data) == 4:  # 2 registers (32-bit float)
-            swapped_data = data[2:4] + data[0:2]
-            # Convert the 4 bytes directly to a float (big-endian)
-            return struct.unpack('!f', swapped_data)[0]  # Convert to float using IEEE 754 format
-        
-        return None
 
 def main():
-    driver = get_driver()
+    # driver = get_driver()
 
-    id = driver['id']
-    pin = str(id) + str(0)
+    # id = driver['id']
+    # motherboard = get_data_from_motherboard('read_hc')
+    # id_pin = motherboard[0]['id']
+    # pin = str(id) + str(id_pin)
+    id = 2
+    pin = 20
     # Main loop to continuously read from the Modbus device
     while True:
         try:
-            # Read the HC data (Register 40041 -> Address 40041 - 40001 = 40)
-            hc = read_modbus_registers(SLAVE_ADDRESS, 40041 - 40001, REGISTER_COUNT)
+            # Read Modbus registers ( address start from 20 , total coil = 22 )
+            result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM)   
+            hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2) if not result.isError() else None
             
-            if hc is not None:
-                # concentration (mg/m3) = 0.0409 x concentration (ppm) x molecular weight
-                # molecular weight = 44 g	/mo
+            if hc:
                 ppm_hc = hc / 1000
                 mg_hc  =  0.0409 * ppm_hc * 44
                 value = f"HC:{hc}:{mg_hc};END_HC"
