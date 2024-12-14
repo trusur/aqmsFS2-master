@@ -23,25 +23,14 @@ client = ModbusSerialClient(
     timeout=timeout,
 )
 
-def connect_client():
-    """Coba untuk terhubung dengan client Modbus dan pastikan koneksi berhasil."""
-    while not client.connect():
-        print("Not connected, trying to connect!")
-        time.sleep(2)  # Tunggu 2 detik sebelum mencoba lagi
-    print("Connected to Modbus device!")
-
 
 def main():
     id = 2
     pin = 20
-
-    connect_client()
-
     # Main loop to continuously read from the Modbus device
     while True:
         try:
             # Read Modbus registers ( address start from 20 , total coil = 22 )
-            
             result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
             if result.isError():
                 print(f"Error reading from Modbus slave {SLAVE_SENSORPM}.")
