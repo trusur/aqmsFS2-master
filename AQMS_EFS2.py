@@ -30,17 +30,18 @@ def exit_handler_signal(signum,frame):
     file = open('test.txt','w')
     file.write('1')
     file.close()
+
 def truncate_sensor_values():
     try:
-        cnx = db.connect()  
-        cursor = cnx.cursor(buffered=True)
-        cursor.execute("TRUNCATE TABLE sensor_values")
-        cnx.commit()
-        cursor.close()
-        cnx.close()
-        print("Table sensor_values truncated successfully!")
+        # Menggunakan with statement untuk memastikan koneksi ditutup setelah selesai
+        with db.connect() as cnx:
+            with cnx.cursor() as cursor:
+                cursor.execute("TRUNCATE TABLE sensor_values")
+                cnx.commit()  # Mengonfirmasi perubahan
+                print("Table sensor_values truncated successfully!")
     except Exception as e:
         print('Truncate Table Error: ', e)
+        
 def init_pump():
     try:
         cnx = db.connect()
