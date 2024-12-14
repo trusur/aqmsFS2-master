@@ -2,8 +2,6 @@ import struct
 import time
 import db
 import sys
-import serial
-import struct
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
 
@@ -77,8 +75,12 @@ def main():
             # Read Modbus registers ( address start from 20 , total coil = 22 )
 
             result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
-        
-            hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2) if not result.isError() else None
+            if result.isError():
+                print(f"Error reading from Modbus slave {SLAVE_SENSORPM}.")
+                time.sleep(1)  
+                continue
+
+            hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2) 
             
             if hc:
                 ppm_hc = hc / 1000
