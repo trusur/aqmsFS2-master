@@ -1,4 +1,3 @@
-import serial
 import struct
 import time
 import db
@@ -16,17 +15,15 @@ baudrate = 9600
 parity = 'N'
 stopbits = 1
 bytesize = 8
-timeout=1
+timeout=3
 
 client = ModbusSerialClient(
-    # method='rtu',
     port=port,
     baudrate=baudrate,
     parity=parity,
     stopbits=stopbits,
     bytesize=bytesize,
     timeout=timeout,
-    # auto_open=True
 )
 
 
@@ -65,7 +62,7 @@ def get_driver():
         cnx.close()
     
 
-def main():
+async def main():
     # driver = get_driver()
 
     # id = driver['id']
@@ -78,7 +75,9 @@ def main():
     while True:
         try:
             # Read Modbus registers ( address start from 20 , total coil = 22 )
-            result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM)   
+            await client.connect()
+            result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
+        
             hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2) if not result.isError() else None
             
             if hc:
