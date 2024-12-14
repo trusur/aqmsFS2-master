@@ -46,6 +46,7 @@ def main():
                 db.update_sensor_values(id,pin, value)
                 print(f"Read Pin {pin}")
             else:
+                db.update_sensor_values(id,pin, -999)
                 print(f"Pin {pin} Error")
         
         except Exception as e:
