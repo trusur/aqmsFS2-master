@@ -8,83 +8,85 @@ def connect():
     except Exception as e: 
         print('DB Connection Error :',e)
         return False
-    
-def update_sensor_values(id,pin,value):
+def update_sensor_values(id, pin, value):
     try:
-        cnx = connect()
-        if not is_sensor_values_exist(id,pin):
-            return insert_sensor_values(id,pin,value)
-        cursor = cnx.cursor()
-        cursor.execute("UPDATE sensor_values SET value=%s, updated_at=NOW() WHERE sensor_reader_id=%s AND pin=%s",(value,id,pin))
-        cnx.commit()
-        return True
-    except Exception as e: 
-        print('Error: ',e)
+        with connect() as cnx:
+            with cnx.cursor() as cursor:
+                if not is_sensor_values_exist(id, pin):
+                    return insert_sensor_values(id, pin, value)
+                
+                cursor.execute(
+                    "UPDATE sensor_values SET value=%s, updated_at=NOW() WHERE sensor_reader_id=%s AND pin=%s",
+                    (value, id, pin)
+                )
+                cnx.commit()  
+                return True
+    except Exception as e:
+        print('Error: ', e)
         return False
-    finally:
-        cursor.close()
-        cnx.close()
-def insert_sensor_values(id,pin,value):
+
+def insert_sensor_values(id, pin, value):
     try:
-        cnx = connect()
-        cursor = cnx.cursor()
-        cursor.execute("INSERT INTO sensor_values (sensor_reader_id,pin,value) VALUES (%s,%s,%s)",(id,pin,value))
-        cnx.commit()
-        cursor.close()
-        cnx.close()
+        with connect() as cnx:
+            with cnx.cursor() as cursor:
+                cursor.execute("INSERT INTO sensor_values (sensor_reader_id, pin, value) VALUES (%s, %s, %s)", (id, pin, value))
+                cnx.commit() 
         return True
-    except Exception as e: 
-        print('Error: ',e)
+    except Exception as e:
+        print('Error: ', e)
         return False
-def is_sensor_values_exist(id,pin):
+
+def is_sensor_values_exist(id, pin):
     try:
-        cnx = connect()
-        cursor = cnx.cursor(dictionary=True, buffered=True)
-        cursor.execute("SELECT * FROM sensor_values WHERE sensor_reader_id=%s AND pin=%s",(id,pin))
-        row = cursor.fetchone()
-        cursor.close()
-        cnx.close()
+        with connect() as cnx:
+            with cnx.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT * FROM sensor_values WHERE sensor_reader_id=%s AND pin=%s", (id, pin))
+                row = cursor.fetchone()
+        
+        # Memeriksa hasil query
         if row is None:
             return False
         return True
-    except Exception as e: 
+    except Exception as e:
+        print(f"Error: {e}")
         return False
-    
 
-def get_configuration(name,content=None):
+def get_configuration(name, content=None):
     try:
-        cnx = connect()
-        cursor = cnx.cursor(dictionary=True, buffered=True)
-        if content is None:
-            cursor.execute("SELECT * FROM configurations WHERE name = %s", (name,))
-        else:
-            cursor.execute("SELECT * FROM configurations WHERE name = %s AND content = %s", (name, content))
-        row = cursor.fetchone()
-        cursor.close()
-        cnx.close()
+        with connect() as cnx:
+            with cnx.cursor(dictionary=True) as cursor:
+                if content is None:
+                    cursor.execute("SELECT * FROM configurations WHERE name = %s", (name,))
+                else:
+                    cursor.execute("SELECT * FROM configurations WHERE name = %s AND content = %s", (name, content))
+                
+                row = cursor.fetchone()
+
         if row is None:
             return None
         return row['content']
     except Exception as e: 
-        print(e)
-        logging.error("get_configuration: "+e)
+        # Menangkap dan mencatat error
+        print(f"Error: {e}")
+        logging.error(f"get_configuration: {e}")
         return None
-def set_configuration(name,content):
-    try:
-        cnx = connect()
-        cursor = cnx.cursor()
-        cursor.execute("SELECT * FROM configurations WHERE name=%s",(name,))
-        row = cursor.fetchone()
-        if row is None:
-            cursor.execute("INSERT INTO configurations (name,content) VALUES (%s,%s)",(name,content))
-        else:
-            cursor.execute("UPDATE configurations SET content=%s WHERE name=%s",(content,name))
-        cnx.commit()
-        cursor.close()
-    except Exception as e: 
-        logging.error("set_configuration: "+e)
-        return None
+
     
+def set_configuration(name, content):
+    try:
+        with connect() as cnx:
+            with cnx.cursor() as cursor:
+                cursor.execute("SELECT * FROM configurations WHERE name = %s", (name,))
+                row = cursor.fetchone()
+                if row is None:
+                    cursor.execute("INSERT INTO configurations (name, content) VALUES (%s, %s)", (name, content))
+                else:
+                    cursor.execute("UPDATE configurations SET content = %s WHERE name = %s", (content, name))
+                cnx.commit()
+    except Exception as e:
+        # Menangkap dan mencatat error dengan lebih jelas
+        logging.error(f"set_configuration: {e}")
+        return None
 def get_calibration(id):
     try:
         cnx = connect()
