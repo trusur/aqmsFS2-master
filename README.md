@@ -54,7 +54,7 @@ systemctl status aqms-averaging
 `sudo crontab -e` then choose `nano`
 1. Average Data 1 Minute Every Minute
 ```bash
-* * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:average1min >/dev/null 2>&1
+* * * * * /user/bin/php /home/mx/aqms-efs1/gui/spark command:avg1min >/dev/null 2>&1
 ```
 2. Sent Data 1 Seconds Every 30sec
 ```bash
