@@ -42,7 +42,7 @@ def main():
             if hc:
                 ppm_hc = hc / 1000
                 mg_hc  =  0.0409 * ppm_hc * 44
-                value = f"HC:{hc}:{mg_hc};END_HC"
+                value = f"HC;{hc};{mg_hc};END_HC"
                 db.update_sensor_values(id,pin, value)
                 print(f"Read Pin {pin}")
             else:
