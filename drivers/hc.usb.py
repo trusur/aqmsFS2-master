@@ -62,7 +62,7 @@ def get_driver():
         cnx.close()
     
 
-async def main():
+def main():
     # driver = get_driver()
 
     # id = driver['id']
@@ -75,7 +75,7 @@ async def main():
     while True:
         try:
             # Read Modbus registers ( address start from 20 , total coil = 22 )
-            await client.connect()
+
             result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
         
             hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2) if not result.isError() else None
