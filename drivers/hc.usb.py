@@ -1,7 +1,6 @@
 import struct
 import time
 import db
-import sys
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
 
@@ -25,55 +24,24 @@ client = ModbusSerialClient(
 )
 
 
-
-
-def get_data_from_motherboard(type):
-    try:
-        cnx = db.connect()
-        cursor = cnx.cursor(dictionary=True, buffered=True)
-        cursor.execute("SELECT * FROM motherboard where type=%s and is_enable = 1 order by is_priority desc", (type,))
-        rows = cursor.fetchall() if type == "read" else cursor.fetchone()
-        cursor.close()
-        cnx.close()
-        return rows
-    except Exception as e:
-        print('Get Motherboards Error: ',e)
-        return []
-    finally:
-        cursor.close()
-        cnx.close()
-
-def get_driver():
-    try:
-        filename = sys.argv[0].split("/")[-1]
-        cnx = db.connect()
-        cursor = cnx.cursor(dictionary=True)
-        cursor.execute("select * from sensor_readers where driver='"+filename+"'")
-        row = cursor.fetchone()
-        cursor.close()
-        cnx.close()
-        return row
-    except Exception as e:
-        return None
-    finally:
-        cursor.close()
-        cnx.close()
-    
-
 def main():
-    # driver = get_driver()
-
-    # id = driver['id']
-    # motherboard = get_data_from_motherboard('read_hc')
-    # id_pin = motherboard[0]['id']
-    # pin = str(id) + str(id_pin)
     id = 2
     pin = 20
+
+    client = ModbusSerialClient(
+            port=port,
+            baudrate=baudrate,
+            parity=parity,
+            stopbits=stopbits,
+            bytesize=bytesize,
+            timeout=timeout,
+        )
+
     # Main loop to continuously read from the Modbus device
     while True:
         try:
             # Read Modbus registers ( address start from 20 , total coil = 22 )
-
+            
             result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
             if result.isError():
                 print(f"Error reading from Modbus slave {SLAVE_SENSORPM}.")
