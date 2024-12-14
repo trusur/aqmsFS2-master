@@ -23,19 +23,19 @@ client = ModbusSerialClient(
     timeout=timeout,
 )
 
+def connect_client():
+    """Coba untuk terhubung dengan client Modbus dan pastikan koneksi berhasil."""
+    while not client.connect():
+        print("Not connected, trying to connect!")
+        time.sleep(2)  # Tunggu 2 detik sebelum mencoba lagi
+    print("Connected to Modbus device!")
+
 
 def main():
     id = 2
     pin = 20
 
-    client = ModbusSerialClient(
-            port=port,
-            baudrate=baudrate,
-            parity=parity,
-            stopbits=stopbits,
-            bytesize=bytesize,
-            timeout=timeout,
-        )
+    connect_client()
 
     # Main loop to continuously read from the Modbus device
     while True:
