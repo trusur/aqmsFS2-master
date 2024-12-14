@@ -1,5 +1,5 @@
 [Unit]
-Description=AQMS Sending Data Background Service
+Description=AQMS Get Data Gases From Sensor HC BPI
 After=mysqld.target
 StartLimitIntervalSec=0
 [Service]
