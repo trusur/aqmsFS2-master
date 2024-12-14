@@ -4,13 +4,15 @@ import db
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusException
 
-SLAVE_SENSORPM = 1  # Sensor Gas & PM
-port = '/dev/ttyUSBHC'
+
+SLAVE_SENSORPM = 1 # Sensor Gas & PM
+
+port = '/dev/ttyUSBHC' 
 baudrate = 9600
 parity = 'N'
 stopbits = 1
 bytesize = 8
-timeout = 3
+timeout=3
 
 client = ModbusSerialClient(
     port=port,
@@ -21,41 +23,46 @@ client = ModbusSerialClient(
     timeout=timeout,
 )
 
+def connect_client():
+    """Coba untuk terhubung dengan client Modbus dan pastikan koneksi berhasil."""
+    while not client.connect():
+        print("Not connected, trying to connect!")
+        time.sleep(2)  # Tunggu 2 detik sebelum mencoba lagi
+    print("Connected to Modbus device!")
+
+
 def main():
     id = 2
     pin = 20
 
-    if not client.is_open():
-        if not client.connect():
-            print("Failed to connect to Modbus device!")
-            return
+    connect_client()
 
-    # Main loop untuk terus membaca dari perangkat Modbus
+    # Main loop to continuously read from the Modbus device
     while True:
         try:
-            # Baca register Modbus (alamat mulai dari 20, total register = 22)
-            result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM)
+            # Read Modbus registers ( address start from 20 , total coil = 22 )
+            
+            result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
             if result.isError():
                 print(f"Error reading from Modbus slave {SLAVE_SENSORPM}.")
-                time.sleep(1)
+                time.sleep(1)  
                 continue
 
-            # Ambil data untuk HC (Cahaya Hidrokarbon) dari register 20 dan 21
-            hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2)
-
+            hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2) 
+            
             if hc:
                 ppm_hc = hc / 1000
-                mg_hc = 0.0409 * ppm_hc * 44
+                mg_hc  =  0.0409 * ppm_hc * 44
                 value = f"HC:{hc}:{mg_hc};END_HC"
-                db.update_sensor_values(id, pin, value)
+                db.update_sensor_values(id,pin, value)
                 print(f"Read Pin {pin}")
             else:
                 print(f"Pin {pin} Error")
-
+        
         except Exception as e:
             print(f"Error: {e}")
-
-        # Tunggu sebentar sebelum membaca lagi
+        
+        # Wait before reading again
         time.sleep(1)
 
 
