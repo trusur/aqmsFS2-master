@@ -19,14 +19,14 @@ bytesize = 8
 timeout=1
 
 client = ModbusSerialClient(
-    method='rtu',
+    # method='rtu',
     port=port,
     baudrate=baudrate,
     parity=parity,
     stopbits=stopbits,
     bytesize=bytesize,
     timeout=timeout,
-    auto_open=True
+    # auto_open=True
 )
 
 
