@@ -19,11 +19,13 @@ def update_sensor_values(id,pin,value):
         cnx.commit()
         return True
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         print('Error: ',e)
         return False
-    finally:
-        cursor.close()
-        cnx.close()
+    
 def insert_sensor_values(id,pin,value):
     try:
         cnx = connect()
@@ -34,6 +36,10 @@ def insert_sensor_values(id,pin,value):
         cnx.close()
         return True
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         print('Error: ',e)
         return False
 def is_sensor_values_exist(id,pin):
@@ -48,6 +54,10 @@ def is_sensor_values_exist(id,pin):
             return False
         return True
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         return False
     
 
@@ -66,6 +76,10 @@ def get_configuration(name,content=None):
             return None
         return row['content']
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         print(e)
         logging.error("get_configuration: "+e)
         return None
@@ -82,6 +96,10 @@ def set_configuration(name,content):
         cnx.commit()
         cursor.close()
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         logging.error("set_configuration: "+e)
         return None
     
@@ -97,6 +115,10 @@ def get_calibration(id):
             return None
         return row  
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         print(e)
         logging.error("get_calibration: "+str(e))
         return None
@@ -115,6 +137,10 @@ def set_calibration_log(calibration_id,parameter_id,value,created_at):
     except Exception as e: 
         print(e)
         logging.error("set_calibration_log: "+str(e))
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         return False
 
 def get_calibration_active():
@@ -138,6 +164,10 @@ def get_calibration_active():
             return None
         return row  
     except Exception as e: 
+        if cnx :
+            cnx.close()
+        if cursor:
+            cursor.close()
         print(e)
         logging.error("get_calibration_active: "+str(e))
         return None
