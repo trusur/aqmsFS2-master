@@ -12,7 +12,7 @@ baudrate = 9600
 parity = 'N'
 stopbits = 1
 bytesize = 8
-timeout=3
+timeout=2
 
 client = ModbusSerialClient(
     port=port,
