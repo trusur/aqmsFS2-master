@@ -36,7 +36,6 @@ def truncate_sensor_values():
         cnx = db.connect()  
         cursor = cnx.cursor(buffered=True)
         cursor.execute("TRUNCATE TABLE sensor_values")
-        cursor.execute("ALTER TABLE measurement_logs ADD CONSTRAINT time_group_unique UNIQUE (time_group, xtimestamp, parameter_id)")
         cnx.commit()
         cursor.close()
         cnx.close()
