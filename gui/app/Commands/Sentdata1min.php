@@ -87,10 +87,10 @@ class Sentdata1min extends BaseCommand
 			CLI::write("Pengiriman tidak diaktifkan", "yellow");
 			return;
 		}
-		if(date("i") % $data_interval != 0) {
-			CLI::write("Waktu harus di kelipatan {$data_interval} menit", "yellow");
-			return;
-		}
+		// if(date("i") % $data_interval != 0) {
+		// 	CLI::write("Waktu harus di kelipatan {$data_interval} menit", "yellow");
+		// 	return;
+		// }
 		// if(date("s") != "00"){
 		// 	return;
 		// }
