@@ -13,7 +13,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "PM 2.5 & PM 10",
                 "type"      => "read",
-                "is_enable" => 0,
+                "is_enable" => 1,
                 "is_priority" => 0,
                 "command" => "getData,PMOPC,#",
                 "prefix_return" => "END_PM_OPC;",
@@ -32,7 +32,7 @@ class Motherboard extends Seeder
                 "sensorname" => "Gas Semeatech - Batch ",
                 "type"      => "read",
                 // "p_type"    => "gas",
-                "is_enable" => 0,
+                "is_enable" => 1,
                 "is_priority" => 0,
                 "command" => "getData,semeatech,batch,1,4,#",
                 "prefix_return" => "END_SEMEATECH_BATCH;",
@@ -69,7 +69,7 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Read SMART PUMP",
                 "type"      => "read_pump",
-                "is_enable" => 1,
+                "is_enable" => 0,
                 "is_priority" => 0,
                 "command" => "getData,SmartPump,#",
                 "prefix_return" => "END_SMART_PUMP;",
