@@ -65,7 +65,7 @@ class CreateTableLogSent extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addKey('parameter_id');
-        // $this->forge->addUniqueKey(['parameter_id','sub_avg_id' ], 'sub_avg_id_unique');
+        $this->forge->addUniqueKey(['parameter_id','sub_avg_id' ], 'sub_avg_id_unique');
         $this->forge->createTable('log_sent', true);
     }
 
