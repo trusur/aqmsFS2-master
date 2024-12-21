@@ -50,6 +50,7 @@ def main():
                 print(f"Pin {pin} Error")
         
         except Exception as e:
+            db.update_sensor_values(id,pin, -999)
             print(f"Error: {e}")
         
         # Wait before reading again
