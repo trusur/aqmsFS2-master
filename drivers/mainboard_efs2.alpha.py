@@ -88,9 +88,7 @@ def get_motherboard_value(ser, command, prefix_return):
         timeout = 0
         while responses.find(prefix_return) == -1 and timeout < max_timeout:
             line = ser.readline().decode('utf-8').strip('\r\n')
-            
-            if "ERROR" in line:
-                raise Exception(line)
+        
 
             #tambahakan kode pengecheckan apakah response = SELESAI CALIBRATION?
 
