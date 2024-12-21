@@ -17,18 +17,22 @@ def store_data_batch(sensor_reader_id:str,pin:str,data:str,prefix_return:str=Non
         datas = data.replace(" ", "").split(prefix_return) if prefix_return else data.replace(" ", "")
         for index, res in enumerate(datas):
             datas = res.split(";")
-            if datas not in ['', None] and len(datas) > 2:
-                new_pin = str(pin) + str(index+1)
+            new_pin = str(pin) + str(index+1)
+            if res not in ['', None] and len(res) > 2:
                 db.update_sensor_values(sensor_reader_id, new_pin, res)
+            if res in ['ERROR']:
+                db.update_sensor_values(sensor_reader_id, new_pin, -999)
+
     except Exception as e: 
         print('Data Batch Validation Error: '+str(e))
 
 def store_data_single(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
-        datas = data.replace(" ", "").split(";")
-        if datas not in ['', None]:
-            new_pin = str(pin) + str(0)
+        new_pin = str(pin) + str(0)
+        if data not in ['', None, 'ERROR']:
             db.update_sensor_values(sensor_reader_id,new_pin, data)
+        else :
+            db.update_sensor_values(sensor_reader_id,new_pin, -999)
     except Exception as e: 
         print('Data Batch Validation Error: '+str(e))
 
