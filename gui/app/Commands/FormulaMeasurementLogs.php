@@ -170,6 +170,7 @@ class FormulaMeasurementLogs extends BaseCommand
 					} catch (Exception $e) {
 						$measured = 0;
 						$raw = 0;
+						$value_ppb = 0;
 					}
 
 					$isInsertLog = true;
