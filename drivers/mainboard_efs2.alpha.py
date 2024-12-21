@@ -225,17 +225,23 @@ def update_pump_data(ser, db, get_pump):
     prefix_return = get_pump['prefix_return']
     response = get_motherboard_value(ser, command, prefix_return)
     
+   
+
     if "COMMAND_ERROR;" in response or not response or len(response.split(";")) <= 16:
         print("Error Read Pump Data")
         return False
 
+    if 'END_PLC_DELTA;' in response:
+        response = response.split("END_PLC_DELTA;")[1]
+
     res = response.split(";")
-    db.set_configuration("pump_speed", res[13])
-    db.set_configuration("pump_state", res[14])
-    db.set_configuration("pump_interval", res[16])
+     # SMART_PUMP;[StatusMode];[SpeedPWM];[PumpStatus];[SetTime];[Currenttime];END_SMART_PUMP;"
+    db.set_configuration("pump_speed", res[2])
+    db.set_configuration("pump_state", res[3])
+    db.set_configuration("pump_interval", res[4])
     
     # Calculate and set the last pump time
-    time_runner = int(res[16]) - int(res[15])
+    time_runner = int(res[4]) - int(res[5])
     pump_last = datetime.now() - timedelta(seconds=time_runner)
     db.set_configuration("pump_last", pump_last.strftime("%Y-%m-%d %H:%M:%S"))
     
