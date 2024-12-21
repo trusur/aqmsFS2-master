@@ -241,8 +241,8 @@ def update_pump_data(ser, db, get_pump):
     db.set_configuration("pump_interval", res[4])
     
     # Calculate and set the last pump time
-    time_runner = int(res[4]) - int(res[5])
-    pump_last = datetime.now() - timedelta(seconds=time_runner)
+    # time_runner = int(res[4]) - int(res[5])
+    pump_last = datetime.now() - timedelta(seconds=int(res[5]))
     db.set_configuration("pump_last", pump_last.strftime("%Y-%m-%d %H:%M:%S"))
     
     return True
