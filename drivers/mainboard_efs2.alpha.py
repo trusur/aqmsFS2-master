@@ -224,8 +224,6 @@ def update_pump_data(ser, db, get_pump):
     command = get_pump['command']
     prefix_return = get_pump['prefix_return']
     response = get_motherboard_value(ser, command, prefix_return)
-    
-   
 
     if "COMMAND_ERROR;" in response or not response or len(response.split(";")) <= 16:
         print("Error Read Pump Data")
@@ -318,6 +316,7 @@ def main():
                 if last_pump in [None,'']:
                     # if fails read pump data then repeat proccess
                     if not update_pump_data(ser, db, get_pump):
+                        sleep(3)
                         continue
                 else :
                     result = datetime.now() - timedelta(seconds=int(interval)) > datetime.strptime(last_pump, '%Y-%m-%d %H:%M:%S')
