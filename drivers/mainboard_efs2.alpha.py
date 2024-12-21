@@ -17,18 +17,22 @@ def store_data_batch(sensor_reader_id:str,pin:str,data:str,prefix_return:str=Non
         datas = data.replace(" ", "").split(prefix_return) if prefix_return else data.replace(" ", "")
         for index, res in enumerate(datas):
             datas = res.split(";")
-            if datas not in ['', None] and len(datas) > 2:
-                new_pin = str(pin) + str(index+1)
+            new_pin = str(pin) + str(index+1)
+            if datas not in ['', None,'ERROR'] and len(datas) > 2:
                 db.update_sensor_values(sensor_reader_id, new_pin, res)
+            else :
+                db.update_sensor_values(sensor_reader_id, new_pin, -999)
     except Exception as e: 
         print('Data Batch Validation Error: '+str(e))
 
 def store_data_single(sensor_reader_id:str,pin:str,data:str,prefix_return:str=None):
     try:
         datas = data.replace(" ", "").split(";")
-        if datas not in ['', None]:
+        if datas not in ['', None,'ERROR']:
             new_pin = str(pin) + str(0)
             db.update_sensor_values(sensor_reader_id,new_pin, data)
+        else :
+            db.update_sensor_values(sensor_reader_id,new_pin, -999)
     except Exception as e: 
         print('Data Batch Validation Error: '+str(e))
 
@@ -37,7 +41,7 @@ def store_data_single(sensor_reader_id:str,pin:str,data:str,prefix_return:str=No
 def store_data(sensor_reader_id:str,pin:str,data:str,sensor_type:str,prefix_return:str=None):
     try:
         datas = data.replace(" ", "").split(";")
-        if datas not in ['', None] and len(datas) >= 11:
+        if datas not in ['', None,'ERROR'] and len(datas) >= 11:
             new_pin = str(pin) + str(0)
             db.update_sensor_values(sensor_reader_id, new_pin, data,sensor_type)
     except Exception as e:
@@ -89,9 +93,6 @@ def get_motherboard_value(ser, command, prefix_return):
         while responses.find(prefix_return) == -1 and timeout < max_timeout:
             line = ser.readline().decode('utf-8').strip('\r\n')
             
-            if "ERROR" in line:
-                raise Exception(line)
-
             #tambahakan kode pengecheckan apakah response = SELESAI CALIBRATION?
 
             responses += line
