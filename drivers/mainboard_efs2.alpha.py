@@ -225,7 +225,7 @@ def update_pump_data(ser, db, get_pump):
     prefix_return = get_pump['prefix_return']
     response = get_motherboard_value(ser, command, prefix_return)
 
-    if "COMMAND_ERROR;" in response or not response or len(response.split(";")) <= 16:
+    if "COMMAND_ERROR;" in response or not response :
         print("Error Read Pump Data")
         return False
 
