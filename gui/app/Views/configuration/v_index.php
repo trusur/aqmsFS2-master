@@ -117,7 +117,7 @@
                                 <input type="number" min="1" required inputmode="numeric" placeholder="Pump speed in %" name="name[pump_speed]" value="<?= get_config('pump_speed') ?>" class="form-control form-control-sm">
                             </div>
                             <div class="mb-1 col-6">
-                                <label class="small">Pump Interval. <small class="text-muted" style="font-size: smaller;">(%)</small></label>
+                                <label class="small">Pump Interval. <small class="text-muted" style="font-size: smaller;">(mins)</small></label>
                                 <input type="number" min="5" required inputmode="numeric" placeholder="Pump Interval in mins" name="name[pump_interval]" value="<?= get_config('pump_interval') / 60 ?>" class="form-control form-control-sm">
                             </div>
                             <!-- <div class="mb-1 col-6">
