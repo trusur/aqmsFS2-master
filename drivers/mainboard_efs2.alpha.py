@@ -309,10 +309,9 @@ def main():
                         sleep(2)
                         continue
                     
-                    if not update_pump_data(ser, get_pump):
-                        sleep(3)
-                        continue
-
+                    db.set_configuration("pump_state",response.split(";")[3])
+                    db.set_configuration("pump_speed",response.split(";")[2])
+                    db.set_configuration("pump_interval",response.split(";")[4])
                     db.set_configuration("pump_has_trigger_change","")
 
                 # check last pump to update data pump
