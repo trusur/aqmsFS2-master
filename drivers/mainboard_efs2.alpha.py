@@ -308,6 +308,10 @@ def main():
                         print("Error Set Pump Interval")
                         sleep(2)
                         continue
+                    
+                    if not update_pump_data(ser, get_pump):
+                        sleep(3)
+                        continue
 
                     db.set_configuration("pump_has_trigger_change","")
 
