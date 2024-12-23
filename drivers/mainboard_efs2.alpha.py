@@ -233,7 +233,7 @@ def update_pump_data(ser, get_pump):
         response = response.split("END_PLC_DELTA;")[1]
 
     res = response.split(";")
-     # SMART_PUMP;[StatusMode];[SpeedPWM];[PumpStatus];[SetTime];[Currenttime];END_SMART_PUMP;"
+    # SMART_PUMP;[StatusMode];[SpeedPWM];[PumpStatus];[SetTime];[Currenttime];END_SMART_PUMP;"
     db.set_configuration("pump_speed", res[2])
     db.set_configuration("pump_state", res[3])
     db.set_configuration("pump_interval", res[4])
@@ -338,6 +338,12 @@ def main():
                         sleep(2)
                         continue
 
+                    # response = "SMART_PUMP;[StatusMode];[SpeedPWM];[PumpStatus];[SetTime];[Currenttime];END_SMART_PUMP;"
+                    mode = response.split(";")[1] 
+                    if mode != 1:
+                        sleep(2)
+                        continue
+                        
                     # command for switching togle pump
                     switching_pump = get_data_from_motherboard('togle_pump')
                     command_switching_pump = switching_pump['command']
@@ -347,10 +353,15 @@ def main():
                         print("Error Togle Pump")
                         sleep(2)
                         continue
+                    pump_status = response.split(";")[3]
+                    pump_status_now = db.get_configuration("pump_state")
+                    if pump_status == pump_status_now:
+                        sleep(2)
+                        continue
 
                     # command for switching mode pump auto 
                     switching_pump = get_data_from_motherboard('mode_pump')
-                    command_switching_pump = switching_pump['command'].replace('value', '1')
+                    command_switching_pump = switching_pump['command'].replace('value', '0')
                     prefix_return_switching_pump = switching_pump['prefix_return']
                     response = get_motherboard_value(ser, command_switching_pump, prefix_return_switching_pump)
                     if 'ERROR' in response:
@@ -358,12 +369,18 @@ def main():
                         sleep(2)
                         continue
                     
-
-                    # if fails read pump data then repeat proccess
-                    if not update_pump_data(ser, get_pump):
+                    mode = response.split(";")[1] 
+                    if mode != 0:
+                        sleep(2)
                         continue
+
+                    db.set_configuration("pump_state",response.split(";")[3])
+                    db.set_configuration("pump_switch",None)
+
+                    # # if fails read pump data then repeat proccess
+                    # if not update_pump_data(ser, get_pump):
+                    #     continue
                         
-                    db.set_configuration("pump_switch","")
                     
                 # check proses calibration
                 check_calibration = db.get_calibration_active()
