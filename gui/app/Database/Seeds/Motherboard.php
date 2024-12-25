@@ -96,10 +96,19 @@ class Motherboard extends Seeder
             [
                 "sensorname" => "Switch Pump",
                 "type"      => "switch_pump",
-                "is_enable" => 0,
+                "is_enable" => 1,
                 "is_priority" => 0,
-                "command" => "perlu disesuaikan",
-                "prefix_return" => "perlu disesuaikan",
+                "command" => "setData,SmartPump,Togle,#",
+                "prefix_return" => "END_SMART_PUMP;",
+                "prefix_return_batch" => null
+            ],
+            [
+                "sensorname" => "Mode Pump",
+                "type"      => "mode_pump",
+                "is_enable" => 1,
+                "is_priority" => 0,
+                "command" => "⁠setData,SmartPump,Mode,value,#",
+                "prefix_return" => "END_SMART_PUMP;",
                 "prefix_return_batch" => null
             ],
             [
