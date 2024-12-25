@@ -238,6 +238,7 @@ def update_pump_data(ser, get_pump):
     db.set_configuration("pump_speed", res[2])
     db.set_configuration("pump_state", res[3])
     db.set_configuration("pump_interval", res[4])
+    print(f"{res[3]} Running")
     
     # Calculate and set the last pump time
     # time_runner = int(res[4]) - int(res[5])
