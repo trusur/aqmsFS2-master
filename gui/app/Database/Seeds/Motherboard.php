@@ -107,7 +107,7 @@ class Motherboard extends Seeder
                 "type"      => "mode_pump",
                 "is_enable" => 1,
                 "is_priority" => 0,
-                "command" => "⁠setData,SmartPump,Mode,value#",
+                "command" => "setData,SmartPump,Mode,value#",
                 "prefix_return" => "END_SMART_PUMP;",
                 "prefix_return_batch" => null
             ],
