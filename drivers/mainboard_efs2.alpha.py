@@ -348,7 +348,7 @@ def main():
                         continue
                         
                     # command for switching togle pump
-                    switching_pump = get_data_from_motherboard('togle_pump')
+                    switching_pump = get_data_from_motherboard('switch_pump')
                     command_switching_pump = switching_pump['command']
                     prefix_return_switching_pump = switching_pump['prefix_return']
                     response = get_motherboard_value(ser, command_switching_pump, prefix_return_switching_pump)
