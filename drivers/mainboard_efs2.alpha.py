@@ -238,6 +238,7 @@ def update_pump_data(ser, get_pump):
     db.set_configuration("pump_speed", res[2])
     db.set_configuration("pump_state", res[3])
     db.set_configuration("pump_interval", res[4])
+    db.set_configuration("pump_mode", res[1])
     print(f"{res[3]} Running")
     
     # Calculate and set the last pump time
@@ -332,9 +333,14 @@ def main():
 
                 #  check trigger smart pump for setting interval and speed
                 pump_switch = db.get_configuration("pump_switch","1")
+                switching_pump = get_data_from_motherboard('mode_pump')
                 if pump_switch :
                     # command for switching mode pump manua, 0 untuk auto, 1 untuk Manual.
-                    switching_pump = get_data_from_motherboard('mode_pump')
+                    if not switching_pump:
+                        print("Command Togle Pump not active or not exist")
+                        sleep(2)
+                        continue
+
                     command_switching_pump = switching_pump['command'].replace('value', '1')
                     prefix_return_switching_pump = switching_pump['prefix_return']
                     response = get_motherboard_value(ser, command_switching_pump, prefix_return_switching_pump)
@@ -378,15 +384,10 @@ def main():
                     if mode != "0":
                         sleep(2)
                         continue
-
+                    db.set_configuration("pump_mode",response.split(";")[1])
                     db.set_configuration("pump_state",response.split(";")[3])
                     db.set_configuration("pump_switch",None)
 
-                    # # if fails read pump data then repeat proccess
-                    # if not update_pump_data(ser, get_pump):
-                    #     continue
-                        
-                    
                 # check proses calibration
                 check_calibration = db.get_calibration_active()
                 # parameter_calibration = check_calibration['code'] if check_calibration else None
@@ -403,6 +404,30 @@ def main():
                         if not 'SUCCESS' in response:
                             print("Error Start Calibration")
                             continue
+                
+                # Check pump , if manual then switch to auto
+                if db.get_configuration("pump_mode") == "1":
+                    if not switching_pump:
+                        print("Command Togle Pump not active or not exist")
+                        sleep(2)
+                        continue
+
+                    command_switching_pump = switching_pump['command'].replace('value', '0')
+                    prefix_return_switching_pump = switching_pump['prefix_return']
+                    response = get_motherboard_value(ser, command_switching_pump, prefix_return_switching_pump)
+                    if 'ERROR' in response:
+                        print("Error Switching Pump")
+                        sleep(2)
+                        continue
+
+                    # response = "SMART_PUMP;[StatusMode];[SpeedPWM];[PumpStatus];[SetTime];[Currenttime];END_SMART_PUMP;"
+                    mode = response.split(";")[1] 
+                    if mode != "1":
+                        sleep(2)
+                        continue
+                    
+                    db.set_configuration("pump_mode",mode)
+                
 
             # process get data sensor
             for motherboard in motherboards:

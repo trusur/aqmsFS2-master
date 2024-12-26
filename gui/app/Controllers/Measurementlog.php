@@ -29,6 +29,7 @@ class Measurementlog extends BaseController
 				'pump_state' => $this->configuration->where(['name' => 'pump_state'])->first()->content ?? 0,
 				'pump_last' => $this->configuration->where(['name' => 'pump_last'])->first()->content ?? date("Y-m-d H:i:s",strtotime("-1 hour")),
 				'pump_interval' => $this->configuration->where(['name' => 'pump_interval'])->first()->content ?? 360,
+				'pump_mode' => $this->configuration->where(['name' => 'pump_mode'])->first()->content ?? 0,
 				'now' => date('Y-m-d H:i:s'),
 			];
 			$data['logs'] = $this->realtime_value
