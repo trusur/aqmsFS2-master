@@ -422,7 +422,7 @@ def main():
 
                     # response = "SMART_PUMP;[StatusMode];[SpeedPWM];[PumpStatus];[SetTime];[Currenttime];END_SMART_PUMP;"
                     mode = response.split(";")[1] 
-                    if mode != "1":
+                    if mode != "0":
                         sleep(2)
                         continue
                     
