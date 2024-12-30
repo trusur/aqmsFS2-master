@@ -1,5 +1,5 @@
 [Unit]
-Description=AQMS Get Data Gases From Sensor HC BPI
+Description=AQMS Get Data Gases From Sensor BPI
 After=mysqld.target
 StartLimitIntervalSec=0
 [Service]
