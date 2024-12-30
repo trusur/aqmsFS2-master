@@ -49,7 +49,8 @@ def main():
     # Main loop to continuously read from the Modbus device
     while True:
         try:
-            resultPump = client.write_coil(address="0", value="0", slave=SLAVE_ID)  
+            resultPump = client.write_coil(address=0, value="True", slave=SLAVE_ID)  
+            resultPump = client.write_coil(address=9, value="True", slave=SLAVE_ID)  
 
             if resultPump.isError():
                 print("Error start Pump")
