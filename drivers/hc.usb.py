@@ -57,13 +57,13 @@ def main():
                 continue
 
 
-            pm25 = round(struct.unpack('>f', struct.pack('>HH', result.registers[1], result.registers[0]))[0], 2)
-            pm10 = round(struct.unpack('>f', struct.pack('>HH', result.registers[3], result.registers[2]))[0], 2)
-            co = round(struct.unpack('>f', struct.pack('>HH', result.registers[13], result.registers[12]))[0], 2)
-            so2 = round(struct.unpack('>f', struct.pack('>HH', result.registers[15], result.registers[14]))[0], 2)
-            no2 = round(struct.unpack('>f', struct.pack('>HH', result.registers[17], result.registers[16]))[0], 2)
-            o3 = round(struct.unpack('>f', struct.pack('>HH', result.registers[19], result.registers[18]))[0], 2)
-            hc = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2)
+            pm25 = None if  result.registers[1] ==0 else round(struct.unpack('>f', struct.pack('>HH', result.registers[1], result.registers[0]))[0], 2) 
+            pm10 = None if  result.registers[3] ==0 else  round(struct.unpack('>f', struct.pack('>HH', result.registers[3], result.registers[2]))[0], 2)
+            co = None if  result.registers[13] ==0 else  round(struct.unpack('>f', struct.pack('>HH', result.registers[13], result.registers[12]))[0], 2)
+            so2 = None if  result.registers[15] ==0 else  round(struct.unpack('>f', struct.pack('>HH', result.registers[15], result.registers[14]))[0], 2)
+            no2 = None if  result.registers[17] ==0 else  round(struct.unpack('>f', struct.pack('>HH', result.registers[17], result.registers[16]))[0], 2)
+            o3 = None if  result.registers[19] ==0 else  round(struct.unpack('>f', struct.pack('>HH', result.registers[19], result.registers[18]))[0], 2)
+            hc = None if  result.registers[21] ==0 else  round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2)
             
             # Update database based on parsed values
             for sensor, values in zip(['pm25', 'pm10', 'co', 'so2', 'no2', 'o3', 'hc'], [pm25, pm10, co, so2, no2, o3, hc]):
