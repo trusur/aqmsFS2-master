@@ -56,7 +56,6 @@ def main():
                 time.sleep(1)  
                 continue
 
-
             PM25 =  round(struct.unpack('>f', struct.pack('>HH', result.registers[1], result.registers[0]))[0], 2) 
             PM10 = round(struct.unpack('>f', struct.pack('>HH', result.registers[3], result.registers[2]))[0], 2)
             CO = round(struct.unpack('>f', struct.pack('>HH', result.registers[13], result.registers[12]))[0], 2)
@@ -65,6 +64,7 @@ def main():
             O3 = round(struct.unpack('>f', struct.pack('>HH', result.registers[19], result.registers[18]))[0], 2)
             HC = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2)
             
+            print(f"Read Sensor 1 pin  1-7 ")
             # Update database based on parsed values
             for sensor, values in zip(['PM25', 'PM10', 'CO', 'SO2', 'NO2', 'O3', 'HC'], [PM25, PM10, CO, SO2, NO2, O3, HC]):
                 value = parsefloat(values)
@@ -74,9 +74,9 @@ def main():
                         mg_hc = round(0.0409 * ppm_hc * 44, 2)
                         sensor_value = f"{sensor};{value};{mg_hc};END_{sensor}"
                     else:
-                        sensor_value = f"{sensor};{value};end_{sensor}"
+                        sensor_value = f"{sensor};{value};END_{sensor}"
                     db.update_sensor_values(1, pin_map[sensor], sensor_value)
-                    print(f"Read {sensor} Pin {pin_map[sensor]}")
+                    
                 else:
                     db.update_sensor_values(1, pin_map[sensor], -999)
                     print(f"Pin {sensor} {pin_map[sensor]} Error")
@@ -87,13 +87,13 @@ def main():
                 time.sleep(1)  
                 continue
 
-            wsv = resultweather.registers[0]  # Atmospheric pressure
-            wav = resultweather.registers[2]  # Wind Direction 360
-            tmp = resultweather.registers[4] / 10  # Temperature value
-            hum = resultweather.registers[3] / 10  # Humidity value
-            prs = resultweather.registers[9]  # Atmospheric pressure
-            hpr = resultweather.registers[13]  # Optical Rainfall Rainfall Value
-            rad = resultweather.registers[15]  # Solar Radiation
+            wsv = resultweather.registers[0]  # Atmospheric pressure 1
+            wav = resultweather.registers[2]  # Wind Direction 360 2
+            tmp = resultweather.registers[4] / 10  # Temperature value 3
+            hum = resultweather.registers[3] / 10  # Humidity value 4
+            prs = resultweather.registers[9]  # Atmospheric pressure 5
+            hpr = resultweather.registers[13]  # Optical Rainfall Rainfall Value 6
+            rad = resultweather.registers[15]  # Solar Radiation 7
             values = f"WEAHTER;{wsv};{wav};{tmp};{hum};{prs};{hpr};{rad};END_WEATHER"
             print(f"Read waether Pin 8")
             db.update_sensor_values(id,8,values)
