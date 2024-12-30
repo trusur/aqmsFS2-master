@@ -105,7 +105,7 @@ def init_pump():
         cnx.close()
     except Exception as e:
         print('Init Pump Error: ',e)
-        
+
 # print("Starting Pump...")
 # init_pump()
 truncate_sensor_values()
@@ -129,6 +129,11 @@ time.sleep(1)
 # Running AQMS Sending
 print("Checking AQMS  Sending...\n")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-sending", shell=True)
+time.sleep(1)
+
+# Running AQMS DM
+print("Checking AQMS DM...\n")
+subprocess.Popen("echo mx | sudo -S systemctl restart aqms-dm", shell=True)
 time.sleep(1)
 
 # Check CronJob
