@@ -15,6 +15,7 @@ def parsefloat(text):
 
 SLAVE_SENSORPM = 1 # Sensor Gas & PM
 SLAVE_SENSORWEATHER = 2 # SensorCuaca
+SLAVE_ID = 3 # PLC
 
 port = '/dev/ttyUSBHC' 
 baudrate = 9600
@@ -48,6 +49,12 @@ def main():
     # Main loop to continuously read from the Modbus device
     while True:
         try:
+            result = client.write_coil(address=0, value=0, slave=SLAVE_ID)  
+            if result.isError():
+                print("Error start Pump")
+                time.sleep(1)
+                continue
+
             # Read Modbus registers ( address start from 20 , total coil = 22 )
             result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
             
