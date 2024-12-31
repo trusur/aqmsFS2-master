@@ -5,18 +5,22 @@ import atexit
 import signal
 import psutil
 import os
+
+
 def is_process_running(pid):
     try:
         return psutil.Process(pid).is_running()
     except psutil.NoSuchProcess:
         return False
+
+
 def exit_handler():
     # Stoping AQMS Driver
     print("Stopping AQMS Driver Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
     print("AQMS Driver should be stopped...")
     time.sleep(1)
-    
+
     # Stopping AQMS Averaging
     print("Stopping AQMS Averaging Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
@@ -40,17 +44,19 @@ def exit_handler():
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-dm", shell=True)
     print("AQMS HC should be stopped...")
     time.sleep(1)
-    
-    file = open('test.txt','w')
-    file.write('1')
+
+    file = open("test.txt", "w")
+    file.write("1")
     file.close()
-def exit_handler_signal(signum,frame):
+
+
+def exit_handler_signal(signum, frame):
     # Stoping AQMS Driver
     print("Stopping AQMS Driver Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-driver-alpha", shell=True)
     print("AQMS Driver should be stopped...")
     time.sleep(1)
-    
+
     # Stopping AQMS Averaging
     print("Stopping AQMS Averaging Service...\n")
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-averaging", shell=True)
@@ -74,14 +80,15 @@ def exit_handler_signal(signum,frame):
     subprocess.Popen("echo mx | sudo -S systemctl stop aqms-dm", shell=True)
     print("AQMS HC should be stopped...")
     time.sleep(1)
-    
-    file = open('test.txt','w')
-    file.write('1')
+
+    file = open("test.txt", "w")
+    file.write("1")
     file.close()
+
 
 def truncate_sensor_values():
     try:
-        cnx = db.connect()  
+        cnx = db.connect()
         cursor = cnx.cursor(buffered=True)
         cursor.execute("TRUNCATE TABLE sensor_values")
         cnx.commit()
@@ -89,22 +96,26 @@ def truncate_sensor_values():
         cnx.close()
         print("Table sensor_values truncated successfully!")
     except Exception as e:
-        if cnx :
+        if cnx:
             cnx.close()
         if cursor:
             cursor.close()
-        print('Truncate Table Error: ', e)
+        print("Truncate Table Error: ", e)
+
 
 def init_pump():
     try:
         cnx = db.connect()
         cursor = cnx.cursor(buffered=True)
-        cursor.execute("UPDATE configurations SET content=NOW() WHERE name LIKE 'pump_last'")
+        cursor.execute(
+            "UPDATE configurations SET content=NOW() WHERE name LIKE 'pump_last'"
+        )
         cnx.commit()
         cursor.close()
         cnx.close()
     except Exception as e:
-        print('Init Pump Error: ',e)
+        print("Init Pump Error: ", e)
+
 
 # print("Starting Pump...")
 # init_pump()
@@ -142,7 +153,12 @@ subprocess.Popen("echo mx | sudo -S crontab -l", shell=True)
 time.sleep(2)
 
 print("Starting Web Server...")
-subprocess.Popen("php gui/spark serve", shell=True, stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+subprocess.Popen(
+    "php gui/spark serve",
+    shell=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT,
+)
 print("Ready..")
 time.sleep(2)
 
