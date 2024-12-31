@@ -1,0 +1,13 @@
+[Unit]
+Description=AQMS Get Data Gases From Sensor BPI
+After=mysqld.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=mx
+ExecStart=/usr/bin/python3 /home/mx/aqms-efs2/drivers/dm.py
+
+[Install]
+WantedBy=multi-user.target

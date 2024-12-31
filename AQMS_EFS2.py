@@ -68,6 +68,9 @@ def truncate_sensor_values():
 truncate_sensor_values()
 time.sleep(1)
 
+print("Checking AQMS DM Service...\n")
+subprocess.Popen("echo mx | sudo -S systemctl restart aqms-dm", shell=True)
+time.sleep(2)
 print("Checking AQMS HC Service...\n")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-hc", shell=True)
 time.sleep(2)
