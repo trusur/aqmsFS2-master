@@ -64,7 +64,7 @@ while True:
             time.sleep(random.uniform(0.1,0.5))
 
             # insert HC
-            hc = random.uniform(5, 30)
+            hc = random.uniform(random.uniform(5,19), random.uniform(20,30))
             ppb_hc = hc * 1000 / ( 0.0409 * 44)
             db.update_sensor_values(2,20, f"HC;{round(ppb_hc,2)};{round(hc,2)};END_HC;")
             print("Read Pin 20")
