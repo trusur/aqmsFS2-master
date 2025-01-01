@@ -111,7 +111,7 @@ while True:
             db.update_sensor_values(
                 1,
                 33,
-                f"SEMEATECH_DATA;2;SO2;{o3};{ppb_o3};{round(random.uniform(22, 25), 2)};{round(random.uniform(63, 65), 2)}",
+                f"SEMEATECH_DATA;2;03;{o3};{ppb_o3};{round(random.uniform(22, 25), 2)};{round(random.uniform(63, 65), 2)}",
             )
 
             co = int(random.uniform(500, 2000))  # 4
@@ -119,7 +119,7 @@ while True:
             db.update_sensor_values(
                 1,
                 34,
-                f"SEMEATECH_DATA;2;SO2;{co};{ppb_co};{round(random.uniform(22, 25), 2)};{round(random.uniform(63, 65), 2)}",
+                f"SEMEATECH_DATA;2;CO;{co};{ppb_co};{round(random.uniform(22, 25), 2)};{round(random.uniform(63, 65), 2)}",
             )
 
             db.update_sensor_values(1, 35, "END_SEMEATECH_BATCH;")
