@@ -12,6 +12,7 @@ use App\Models\m_parameter;
 use App\Models\m_sensor_value;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
+use Exception;
 
 class testing extends BaseCommand
 {
@@ -114,37 +115,45 @@ class testing extends BaseCommand
 					}
 				} // end foreach
 
-				$client_url = getenv('CLIENT_API_URL');
-				$client_key = getenv('CLIENT_API_KEY');
-				// START SENT TO GRENTEAMS
 
-				$data = json_encode($arr);
-				$curl = curl_init();
-				curl_setopt_array($curl, array(
-					CURLOPT_URL => $$client_url,
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => "",
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 30,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => "POST",
-					CURLOPT_POSTFIELDS => $data,
-					CURLOPT_HTTPHEADER => array(
-						"CLIENT-API-KEY: " . $client_key,
-						"cache-control: no-cache",
-						"content-type: application/json"
-					),
-					CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
-				));
 
-				$response = curl_exec($curl);
-				$err = curl_error($curl);
+				try {
+					$client_url = getenv('CLIENT_API_URL');
+					$client_key = getenv('CLIENT_API_KEY');
 
-				curl_close($curl);
-				if (strpos(" " . $response, "success") > 0) {
-					echo "SUCCESS";
-				} else {
-					echo $response;
+					$data = json_encode($arr);
+					$curl = curl_init();
+					curl_setopt_array($curl, array(
+						CURLOPT_URL => $client_url,
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_ENCODING => "",
+						CURLOPT_MAXREDIRS => 10,
+						CURLOPT_TIMEOUT => 30,
+						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						CURLOPT_CUSTOMREQUEST => "POST",
+						CURLOPT_POSTFIELDS => $data,
+						CURLOPT_HTTPHEADER => array(
+							"CLIENT-API-KEY: " . $client_key,
+							"cache-control: no-cache",
+							"content-type: application/json"
+						),
+						CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
+					));
+					$response = curl_exec($curl);
+
+					if (curl_errno($curl)) {
+						throw new Exception('cURL Error: ' . curl_error($curl));
+					}
+
+					curl_close($curl);
+
+					if (strpos(" " . $response, "success") > 0) {
+						echo "SUCCESS";
+					} else {
+						echo $response;
+					}
+				} catch (Exception $e) {
+					echo "Error: " . $e->getMessage();
 				}
 			}
 		}
