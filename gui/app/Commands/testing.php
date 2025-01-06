@@ -12,6 +12,8 @@ use App\Models\m_parameter;
 use App\Models\m_sensor_value;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
+use DateTime;
+use DateTimeZone;
 use Exception;
 
 class testing extends BaseCommand
@@ -97,10 +99,8 @@ class testing extends BaseCommand
 				$timeGroup = [];
 				foreach ($time_groups as $key => $time_group) {
 					$timeGroup[] = $time_group->time_group;
-					$arr[$key]["id_stasiun"] = $idStation;
+					$arr[$key]["id_stasiun"] = "DKI_CIRACAS";
 					$arr[$key]["waktu"] = $time_group->time_group;
-					$arr[$key]['sta_lat'] = "";
-					$arr[$key]['sta_lon'] = "";
 					$measurements = @$this->logSent->where(["time_group" => $time_group->time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll(500);
 					foreach ($measurements as $measurement) {
 						$parameter = @$this->parameters->select("code,p_type")->where(["id" => $measurement->parameter_id])->first();
@@ -115,7 +115,21 @@ class testing extends BaseCommand
 					}
 				} // end foreach
 
+				$arr = array_map(function ($item) {
+					foreach ($item as $key => $value) {
+						$item['waktu'] = (new DateTime($item['waktu'], new DateTimeZone('Asia/Jakarta')))
+							->setTimezone(new DateTimeZone('UTC'))
+							->format('Y-m-d\TH:i:s.v\Z');
 
+						if ($key === 'sub_avg_id' || strpos($key, 'stat_') === 0) {
+							unset($item[$key]);
+						}
+						$item["tipe_stasiun"] = "lowcost";
+						$item['sta_lat'] = "";
+						$item['sta_lon'] = "";
+					}
+					return $item;
+				}, $arr);
 
 				try {
 					$client_url = getenv('CLIENT_API_URL');
@@ -146,6 +160,7 @@ class testing extends BaseCommand
 					}
 
 					curl_close($curl);
+					print_r($response);
 
 					if (strpos(" " . $response, "success") > 0) {
 						echo "SUCCESS";
