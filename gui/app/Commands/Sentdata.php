@@ -156,7 +156,7 @@ class Sentdata extends BaseCommand
 						$new_arr = [$arr];
 						// SENDING DATA TO GREENTEAMS
 						try {
-							$client_url = getenv('CLIENT_API_URL');
+							$client_url = getenv('CLIENT_API_URL_ISPU');
 							$client_key = getenv('CLIENT_API_KEY');
 
 							$data = json_encode($new_arr);
