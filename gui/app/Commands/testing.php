@@ -6,8 +6,6 @@ use App\Models\m_configuration;
 use App\Models\m_measurement;
 use App\Models\m_measurement_1min;
 use App\Models\m_measurement_log;
-use App\Models\m_log_sent;
-use App\Models\m_copy_measurement_log;
 use App\Models\m_parameter;
 use App\Models\m_sensor_value;
 use CodeIgniter\CLI\BaseCommand;
@@ -16,7 +14,7 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 
-class testing extends BaseCommand
+class Sentdata1min extends BaseCommand
 {
 	/**
 	 * The Command's Group
@@ -30,7 +28,6 @@ class testing extends BaseCommand
 	protected $measurements;
 	protected $configurations;
 	protected $lastPutData;
-	protected $logSent;
 
 	public function __construct()
 	{
@@ -38,8 +35,7 @@ class testing extends BaseCommand
 		$this->sensor_values =  new m_sensor_value();
 		$this->measurement_logs =  new m_measurement_log();
 		$this->configurations =  new m_configuration();
-		$this->measurements =  new m_measurement_log();
-		$this->logSent =  new m_log_sent();
+		$this->measurements =  new m_measurement_1min();
 		$this->lastPutData = "0000-00-00 00:00";
 	}
 	/**
@@ -47,7 +43,7 @@ class testing extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $name = 'command:testing';
+	protected $name = 'command:sentdata1min';
 
 	/**
 	 * The Command's Description
@@ -61,7 +57,7 @@ class testing extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'command:testing';
+	protected $usage = 'command:sentdata1min';
 
 	/**
 	 * The Command's Arguments
@@ -85,90 +81,79 @@ class testing extends BaseCommand
 	public function run(array $params)
 	{
 		$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
-
+		$minute = date("i") > 30 ? "30" : "00";
+		$endAt = date("Y-m-d H:$minute:00");
 		if ($is_sentto_trusur == "1") {
 			$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
-			$lastPutData = @$this->logSent->where(["is_sent_cloud" => 0, "time_group !=" => null])->orderBy("id")->first()->time_group;
+			$lastPutData = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
 			if ($lastPutData) {
 				$measurement_ids = [];
 				$this->lastPutData = $lastPutData;
 				$is_exist = true;
-				$time_groups = $this->logSent->select("time_group")->where("is_sent_cloud = 0 and time_group >= '{$lastPutData}'")->groupBy("time_group")->findAll(1000);
-
+				$time_groups = $this->measurements->select("time_group")->where("is_sent_cloud = 0 and time_group < '{$endAt}'")->groupBy("time_group")->findAll();
 				$idStation = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
-				$timeGroup = [];
-				foreach ($time_groups as $key => $time_group) {
-					$timeGroup[] = $time_group->time_group;
-					$arr[$key]["id_stasiun"] = "DKI_CIRACAS";
-					$arr[$key]["waktu"] = $time_group->time_group;
-					$measurements = @$this->logSent->where(["time_group" => $time_group->time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll(500);
+				foreach ($time_groups as $time_group) {
+					$arr["id_stasiun"] = $idStation;
+					$arr["waktu"] = $time_group->time_group;
+					$measurements = @$this->measurements->where(["time_group" => $time_group->time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll(500);
 					foreach ($measurements as $measurement) {
 						$parameter = @$this->parameters->select("code,p_type")->where(["id" => $measurement->parameter_id])->first();
-						$arr[$key][$parameter->code] = $measurement->value;
-						if ($measurement->sub_avg_id) {
-							$arr[$key]["sub_avg_id"] = $measurement->sub_avg_id;
-						}
+						$arr[$parameter->code] = $measurement->value;
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
-							$arr[$key]["stat_{$parameter->code}"] = $measurement->is_valid;
+							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
+							$arr["total_{$parameter->code}"] = $measurement->total_data;
+							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
 						}
-						//$measurement_ids[] = $measurement->id;
+						$measurement_ids[] = $measurement->id;
+						$arr["avg_id"] = $measurement->avg_id;
+						$arr["sub_avg_id"] = $measurement->sub_avg_id;
 					}
-				} // end foreach
 
-				$arr = array_map(function ($item) {
-					foreach ($item as $key => $value) {
-						$item['waktu'] = (new DateTime($item['waktu'], new DateTimeZone('Asia/Jakarta')))
-							->setTimezone(new DateTimeZone('UTC'))
-							->format('Y-m-d\TH:i:s.v\Z');
+					$arr['waktu'] = (new DateTime($arr['waktu'], new DateTimeZone('Asia/Jakarta')))
+						->setTimezone(new DateTimeZone('UTC'))
+						->format('Y-m-d\TH:i:s.v\Z');
+					$arr["tipe_stasiun"] = "lowcost";
+					$arr['sta_lat'] = "";
+					$arr['sta_lon'] = "";
 
-						if ($key === 'sub_avg_id' || strpos($key, 'stat_') === 0) {
-							unset($item[$key]);
+					
+					// SENDING DATA TO GREENTEAMS
+					try {
+						$client_url = getenv('CLIENT_API_URL');
+						$client_key = getenv('CLIENT_API_KEY');
+						$new_arr = [$arr];
+						$data = json_encode($new_arr);
+						$curl = curl_init();
+						curl_setopt_array($curl, array(
+							CURLOPT_URL => $client_url,
+							CURLOPT_RETURNTRANSFER => true,
+							CURLOPT_ENCODING => "",
+							CURLOPT_MAXREDIRS => 10,
+							CURLOPT_TIMEOUT => 30,
+							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+							CURLOPT_CUSTOMREQUEST => "POST",
+							CURLOPT_POSTFIELDS => $data,
+							CURLOPT_HTTPHEADER => array(
+								"CLIENT-API-KEY: " . $client_key,
+								"cache-control: no-cache",
+								"content-type: application/json"
+							),
+							CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
+						));
+						curl_exec($curl);
+
+						if (curl_errno($curl)) {
+							echo 'cURL Error: ' . curl_error($curl);
 						}
-						$item["tipe_stasiun"] = "lowcost";
-						$item['sta_lat'] = "";
-						$item['sta_lon'] = "";
+
+						curl_close($curl);
+					} catch (Exception $e) {
+						echo "Error: " . $e->getMessage();
+					} finally {
+						if (isset($curl)) {
+							curl_close($curl);
+						}
 					}
-					return $item;
-				}, $arr);
-
-				try {
-					$client_url = getenv('CLIENT_API_URL');
-					$client_key = getenv('CLIENT_API_KEY');
-
-					$data = json_encode($arr);
-					$curl = curl_init();
-					curl_setopt_array($curl, array(
-						CURLOPT_URL => $client_url,
-						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_ENCODING => "",
-						CURLOPT_MAXREDIRS => 10,
-						CURLOPT_TIMEOUT => 30,
-						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						CURLOPT_CUSTOMREQUEST => "POST",
-						CURLOPT_POSTFIELDS => $data,
-						CURLOPT_HTTPHEADER => array(
-							"CLIENT-API-KEY: " . $client_key,
-							"cache-control: no-cache",
-							"content-type: application/json"
-						),
-						CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
-					));
-					$response = curl_exec($curl);
-
-					if (curl_errno($curl)) {
-						throw new Exception('cURL Error: ' . curl_error($curl));
-					}
-
-					curl_close($curl);
-					print_r($response);
-
-					if (strpos(" " . $response, "success") > 0) {
-						echo "SUCCESS";
-					} else {
-						echo $response;
-					}
-				} catch (Exception $e) {
-					echo "Error: " . $e->getMessage();
 				}
 			}
 		}
