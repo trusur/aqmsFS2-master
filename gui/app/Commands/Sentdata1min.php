@@ -176,21 +176,14 @@ class Sentdata1min extends BaseCommand
 								if ($err) {
 									echo "cURL Error #:" . $err;
 								} else {
-									$arr = array_map(function ($item) {
-										foreach ($item as $key => $value) {
-											$item['waktu'] = (new DateTime($item['waktu'], new DateTimeZone('Asia/Jakarta')))
-												->setTimezone(new DateTimeZone('UTC'))
-												->format('Y-m-d\TH:i:s.v\Z');
+									$arr['waktu'] = (new DateTime($arr['waktu'], new DateTimeZone('Asia/Jakarta')))
+										->setTimezone(new DateTimeZone('UTC'))
+										->format('Y-m-d\TH:i:s.v\Z');
+									$arr["tipe_stasiun"] = "lowcost";
+									$arr['sta_lat'] = "";
+									$arr['sta_lon'] = "";
 
-											if ($key === 'sub_avg_id' || strpos($key, 'stat_') === 0) {
-												unset($item[$key]);
-											}
-											$item["tipe_stasiun"] = "lowcost";
-											$item['sta_lat'] = "";
-											$item['sta_lon'] = "";
-										}
-										return $item;
-									}, $arr);
+
 
 									// SENDING DATA TO GREENTEAMS
 									try {
