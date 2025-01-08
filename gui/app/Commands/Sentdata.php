@@ -11,6 +11,9 @@ use App\Models\m_parameter;
 use App\Models\m_sensor_value;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
+use DateTime;
+use DateTimeZone;
+use Exception;
 
 class Sentdata extends BaseCommand
 {
@@ -110,6 +113,7 @@ class Sentdata extends BaseCommand
 						$measurement_ids .= $measurement->id . ",";
 					}
 				}
+				
 				$measurement_ids = substr($measurement_ids, 0, -1);
 				if ($is_exist) {
 					$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
@@ -117,23 +121,23 @@ class Sentdata extends BaseCommand
 					$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
 					$data = json_encode($arr);
 					$curl = curl_init();
-					curl_setopt_array($curl, array(
-						CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data.php",
-						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_ENCODING => "",
-						CURLOPT_MAXREDIRS => 10,
-						CURLOPT_TIMEOUT => 30,
-						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						CURLOPT_CUSTOMREQUEST => "PUT",
-						CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
-						CURLOPT_POSTFIELDS => $data,
-						CURLOPT_HTTPHEADER => array(
-							"Api-Key: " . $trusur_api_key,
-							"cache-control: no-cache",
-							"content-type: application/json"
-						),
-						CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
-					));
+						curl_setopt_array($curl, array(
+							CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data.php",
+							CURLOPT_RETURNTRANSFER => true,
+							CURLOPT_ENCODING => "",
+							CURLOPT_MAXREDIRS => 10,
+							CURLOPT_TIMEOUT => 30,
+							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+							CURLOPT_CUSTOMREQUEST => "PUT",
+							CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
+							CURLOPT_POSTFIELDS => $data,
+							CURLOPT_HTTPHEADER => array(
+								"Api-Key: " . $trusur_api_key,
+								"cache-control: no-cache",
+								"content-type: application/json"
+							),
+							CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
+						));
 
 					$response = curl_exec($curl);
 					$err = curl_error($curl);
@@ -143,6 +147,49 @@ class Sentdata extends BaseCommand
 					if ($err) {
 						echo "cURL Error #:" . $err;
 					} else {
+						$arr["tipe_stasiun"] = "lowcost";
+						$arr['sta_lat'] = "";
+						$arr['sta_lon'] = "";
+						$arr['waktu'] = (new DateTime($arr['waktu'], new DateTimeZone('Asia/Jakarta')))
+											->setTimezone(new DateTimeZone('UTC'))
+											->format('Y-m-d\TH:i:s.v\Z');
+						$new_arr = [$arr];
+						// SENDING DATA TO GREENTEAMS
+						try {
+							$client_url = getenv('CLIENT_API_URL');
+							$client_key = getenv('CLIENT_API_KEY');
+
+							$data = json_encode($new_arr);
+							$curl = curl_init();
+							curl_setopt_array($curl, array(
+								CURLOPT_URL => $client_url,
+								CURLOPT_RETURNTRANSFER => true,
+								CURLOPT_ENCODING => "",
+								CURLOPT_MAXREDIRS => 10,
+								CURLOPT_TIMEOUT => 30,
+								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+								CURLOPT_CUSTOMREQUEST => "POST",
+								CURLOPT_POSTFIELDS => $data,
+								CURLOPT_HTTPHEADER => array(
+									"CLIENT-API-KEY: " . $client_key,
+									"cache-control: no-cache",
+									"content-type: application/json"
+								),
+								CURLOPT_SSL_VERIFYPEER => 0,
+							));
+							curl_exec($curl);
+							if (curl_errno($curl)) {
+								echo 'cURL Error: ' . curl_error($curl);
+							}
+							curl_close($curl);
+						} catch (Exception $e) {
+							echo "Error: " . $e->getMessage();
+						} finally {
+							if (isset($curl)) {
+								curl_close($curl);
+							}
+						}
+						
 						if (strpos(" " . $response, "success") > 0) {
 							$this->measurements->where(["time_group" => $time_group])->set(["is_sent_cloud" => 1, "sent_cloud_at" => date("Y-m-d H:i:s")])->update();
 						} else {
