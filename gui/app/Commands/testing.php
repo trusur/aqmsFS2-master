@@ -115,8 +115,8 @@ class Sentdata1min extends BaseCommand
 					$arr["tipe_stasiun"] = "lowcost";
 					$arr['sta_lat'] = "";
 					$arr['sta_lon'] = "";
-
 					
+
 					// SENDING DATA TO GREENTEAMS
 					try {
 						$client_url = getenv('CLIENT_API_URL');
@@ -140,10 +140,13 @@ class Sentdata1min extends BaseCommand
 							),
 							CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
 						));
-						curl_exec($curl);
+						
+						$response = curl_exec($curl);
 
 						if (curl_errno($curl)) {
 							echo 'cURL Error: ' . curl_error($curl);
+						} else {
+							echo json_encode($response);
 						}
 
 						curl_close($curl);
