@@ -189,8 +189,8 @@ class Sentdata1min extends BaseCommand
 									try {
 										$client_url = getenv('CLIENT_API_URL');
 										$client_key = getenv('CLIENT_API_KEY');
-
-										$data = json_encode($arr);
+										$new_arr = [$arr];
+										$data = json_encode($new_arr);
 										$curl = curl_init();
 										curl_setopt_array($curl, array(
 											CURLOPT_URL => $client_url,
