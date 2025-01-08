@@ -14,7 +14,7 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 
-class Sentdata1min extends BaseCommand
+class testing extends BaseCommand
 {
 	/**
 	 * The Command's Group
@@ -43,7 +43,7 @@ class Sentdata1min extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $name = 'command:sentdata1min';
+	protected $name = 'command:testing';
 
 	/**
 	 * The Command's Description
@@ -57,7 +57,7 @@ class Sentdata1min extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $usage = 'command:sentdata1min';
+	protected $usage = 'command:testing';
 
 	/**
 	 * The Command's Arguments
@@ -115,7 +115,7 @@ class Sentdata1min extends BaseCommand
 					$arr["tipe_stasiun"] = "lowcost";
 					$arr['sta_lat'] = "";
 					$arr['sta_lon'] = "";
-					
+
 
 					// SENDING DATA TO GREENTEAMS
 					try {
