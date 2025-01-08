@@ -12,9 +12,6 @@ use App\Models\m_parameter;
 use App\Models\m_sensor_value;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
-use DateTime;
-use DateTimeZone;
-use Exception;
 
 class Sentdata1sec extends BaseCommand
 {
@@ -104,7 +101,7 @@ class Sentdata1sec extends BaseCommand
 					foreach ($measurements as $measurement) {
 						$parameter = @$this->parameters->select("code,p_type")->where(["id" => $measurement->parameter_id])->first();
 						$arr[$key][$parameter->code] = $measurement->value;
-						if ($measurement->sub_avg_id) {
+						if($measurement->sub_avg_id){
 							$arr[$key]["sub_avg_id"] = $measurement->sub_avg_id;
 						}
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
@@ -114,42 +111,42 @@ class Sentdata1sec extends BaseCommand
 					}
 				} // end foreach
 				if ($is_exist) {
-					// Sent to Server
-					$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
-					$trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
-					$trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
-					$data = json_encode($arr);
-					$curl = curl_init();
-					curl_setopt_array($curl, array(
-						CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data_sec.php",
-						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_ENCODING => "",
-						CURLOPT_MAXREDIRS => 10,
-						CURLOPT_TIMEOUT => 30,
-						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						CURLOPT_CUSTOMREQUEST => "PUT",
-						CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
-						CURLOPT_POSTFIELDS => $data,
-						CURLOPT_HTTPHEADER => array(
-							"Api-Key: " . $trusur_api_key,
-							"cache-control: no-cache",
-							"content-type: application/json"
-						),
-						CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
-					));
-
-					$response = curl_exec($curl);
-					$err = curl_error($curl);
-
-					print_r($response);
-
-					curl_close($curl);
-
-					if ($err) {
-						echo "cURL Error #:" . $err;
-					} else {
-						$response = json_decode($response, true);
-						if (@$response["success"]) {
+                    // Sent to Server
+                    $trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->first()->content ?? "";
+                    $trusur_api_password = @$this->configurations->where("name", "trusur_api_password")->first()->content ?? "";
+                    $trusur_api_key = @$this->configurations->where("name", "trusur_api_key")->first()->content ?? "";
+                    $data = json_encode($arr);
+                    $curl = curl_init();
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL => "https://" . $trusur_api_server . "/api/put_data_sec.php",
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 30,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => "PUT",
+                        CURLOPT_USERPWD => $trusur_api_username . ":" . $trusur_api_password,
+                        CURLOPT_POSTFIELDS => $data,
+                        CURLOPT_HTTPHEADER => array(
+                            "Api-Key: " . $trusur_api_key,
+                            "cache-control: no-cache",
+                            "content-type: application/json"
+                        ),
+                        CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
+                    ));
+    
+                    $response = curl_exec($curl);
+                    $err = curl_error($curl);
+                    
+                    print_r($response);
+    
+                    curl_close($curl);
+    
+                    if ($err) {
+                        echo "cURL Error #:" . $err;
+                    } else {
+                        $response = json_decode($response,true);
+                        if (@$response["success"]) {
 
 							// START SENT TO DKI
 							$trusur_api_username = @$this->configurations->where("name", "trusur_api_username")->findAll()[0]->content;
@@ -180,76 +177,28 @@ class Sentdata1sec extends BaseCommand
 							$err = curl_error($curl);
 
 							curl_close($curl);
-							// END SENT TO DKI
+
 							if ($err) {
 								echo "cURL Error #:" . $err;
 							} else {
-								$arr = array_map(function ($item) {
-									foreach ($item as $key => $value) {
-										$item['waktu'] = (new DateTime($item['waktu'], new DateTimeZone('Asia/Jakarta')))
-											->setTimezone(new DateTimeZone('UTC'))
-											->format('Y-m-d\TH:i:s.v\Z');
-
-										if ($key === 'sub_avg_id' || strpos($key, 'stat_') === 0) {
-											unset($item[$key]);
-										}
-										$item["tipe_stasiun"] = "lowcost";
-										$item['sta_lat'] = "";
-										$item['sta_lon'] = "";
-									}
-									return $item;
-								}, $arr);
-
-								// SENDING DATA TO GREENTEAMS
-								try {
-									$client_url = getenv('CLIENT_API_URL');
-									$client_key = getenv('CLIENT_API_KEY');
-
-									$data = json_encode($arr);
-									$curl = curl_init();
-									curl_setopt_array($curl, array(
-										CURLOPT_URL => $client_url,
-										CURLOPT_RETURNTRANSFER => true,
-										CURLOPT_ENCODING => "",
-										CURLOPT_MAXREDIRS => 10,
-										CURLOPT_TIMEOUT => 30,
-										CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-										CURLOPT_CUSTOMREQUEST => "POST",
-										CURLOPT_POSTFIELDS => $data,
-										CURLOPT_HTTPHEADER => array(
-											"CLIENT-API-KEY: " . $client_key,
-											"cache-control: no-cache",
-											"content-type: application/json"
-										),
-										CURLOPT_SSL_VERIFYPEER => 0,
-									));
-									curl_exec($curl);
-
-									if (curl_errno($curl)) {
-										echo 'cURL Error: ' . curl_error($curl);
-									}
-
-									curl_close($curl);
-								} catch (Exception $e) {
-									echo "Error: " . $e->getMessage();
-								} finally {
-									if (isset($curl)) {
-										curl_close($curl);
-									}
-								}
-
 								if (strpos(" " . $response, "success") > 0) {
 									$this->logSent->whereIn("time_group", $timeGroup)->delete();
 								} else {
 									echo $response;
 								}
 							}
-						} else {
-							print_r($response);
-						}
-					}
-				}
+							// END SENT TO DKI
+
+                        } else {
+                            print_r($response);
+                        }
+                    }
+
+
+					
+                }
 			}
+
 		}
 	}
 }
