@@ -10,6 +10,9 @@ use App\Models\m_parameter;
 use App\Models\m_sensor_value;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
+use DateTime;
+use DateTimeZone;
+use Exception;
 
 class Sentdata1min extends BaseCommand
 {
@@ -79,7 +82,7 @@ class Sentdata1min extends BaseCommand
 	{
 		$is_sentto_trusur = @$this->configurations->where("name", "is_sentto_trusur")->first()->content ?? "1";
 		$minute = date("i") > 30 ? "30" : "00";
-        $endAt = date("Y-m-d H:$minute:00");
+		$endAt = date("Y-m-d H:$minute:00");
 		if ($is_sentto_trusur == "1") {
 			$trusur_api_server = @$this->configurations->where("name", "trusur_api_server")->first()->content ?? "";
 			$lastPutData = @$this->measurements->where(["is_sent_cloud" => 0])->orderBy("id")->first()->time_group;
@@ -101,7 +104,7 @@ class Sentdata1min extends BaseCommand
 							$arr["total_{$parameter->code}"] = $measurement->total_data;
 							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
 						}
-						$measurement_ids[] = $measurement->id; 
+						$measurement_ids[] = $measurement->id;
 						$arr["avg_id"] = $measurement->avg_id;
 						$arr["sub_avg_id"] = $measurement->sub_avg_id;
 					}
@@ -130,12 +133,12 @@ class Sentdata1min extends BaseCommand
 							),
 							CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
 						));
-		
+
 						$response = curl_exec($curl);
 						$err = curl_error($curl);
-		
+
 						curl_close($curl);
-		
+
 						if ($err) {
 							echo "cURL Error #:" . $err;
 						} else {
@@ -161,43 +164,85 @@ class Sentdata1min extends BaseCommand
 										"cache-control: no-cache",
 										"content-type: application/json"
 									),
-									CURLOPT_SSL_VERIFYPEER => 0, //skip SSL Verification | disable SSL verify peer
+									CURLOPT_SSL_VERIFYPEER => 0,
 								));
-				
+
 								$response = curl_exec($curl);
 								$err = curl_error($curl);
-				
+
 								curl_close($curl);
-				
+								// END SENT DATA TO DKI
+
 								if ($err) {
 									echo "cURL Error #:" . $err;
 								} else {
+									$arr = array_map(function ($item) {
+										foreach ($item as $key => $value) {
+											$item['waktu'] = (new DateTime($item['waktu'], new DateTimeZone('Asia/Jakarta')))
+												->setTimezone(new DateTimeZone('UTC'))
+												->format('Y-m-d\TH:i:s.v\Z');
+
+											if ($key === 'sub_avg_id' || strpos($key, 'stat_') === 0) {
+												unset($item[$key]);
+											}
+											$item["tipe_stasiun"] = "lowcost";
+											$item['sta_lat'] = "";
+											$item['sta_lon'] = "";
+										}
+										return $item;
+									}, $arr);
+
+									// SENDING DATA TO GREENTEAMS
+									try {
+										$client_url = getenv('CLIENT_API_URL');
+										$client_key = getenv('CLIENT_API_KEY');
+
+										$data = json_encode($arr);
+										$curl = curl_init();
+										curl_setopt_array($curl, array(
+											CURLOPT_URL => $client_url,
+											CURLOPT_RETURNTRANSFER => true,
+											CURLOPT_ENCODING => "",
+											CURLOPT_MAXREDIRS => 10,
+											CURLOPT_TIMEOUT => 30,
+											CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+											CURLOPT_CUSTOMREQUEST => "POST",
+											CURLOPT_POSTFIELDS => $data,
+											CURLOPT_HTTPHEADER => array(
+												"CLIENT-API-KEY: " . $client_key,
+												"cache-control: no-cache",
+												"content-type: application/json"
+											),
+											CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
+										));
+										curl_exec($curl);
+
+										if (curl_errno($curl)) {
+											echo 'cURL Error: ' . curl_error($curl);
+										}
+
+										curl_close($curl);
+									} catch (Exception $e) {
+										echo "Error: " . $e->getMessage();
+									} finally {
+										if (isset($curl)) {
+											curl_close($curl);
+										}
+									}
+
 									if (strpos(" " . $response, "success") > 0) {
 										$this->measurements->where(["time_group" => $time_group->time_group])->delete();
 									} else {
 										echo $response;
 									}
 								}
-								// END SENT DATA TO DKI
 							} else {
 								echo $response;
 							}
 						}
 					}
-
 				}
 			}
-
-
-
-
-
-
-
-
-
-
-			
 		}
 	}
 }
