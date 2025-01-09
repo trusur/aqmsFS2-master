@@ -101,11 +101,11 @@ class testing extends BaseCommand
 						$arr[$parameter->code] = $measurement->value;
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
-							$arr["total_{$parameter->code}"] = $measurement->total_data;
-							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
+							$arr["total_{$parameter->code}"] = (float) $measurement->total_data;
+							$arr["valid_{$parameter->code}"] = (float) $measurement->total_valid;
 						}
 						$measurement_ids[] = $measurement->id;
-						$arr["avg_id"] = $measurement->avg_id;
+						$arr["avg_id"] = (int) $measurement->avg_id;
 						$arr["sub_avg_id"] = $measurement->sub_avg_id;
 					}
 
@@ -115,6 +115,7 @@ class testing extends BaseCommand
 					$arr["tipe_stasiun"] = "lowcost";
 					$arr['sta_lat'] = "";
 					$arr['sta_lon'] = "";
+					unset($arr['sub_avg_id']);
 
 
 					// SENDING DATA TO GREENTEAMS
@@ -140,7 +141,7 @@ class testing extends BaseCommand
 							),
 							CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
 						));
-						
+
 						$response = curl_exec($curl);
 
 						if (curl_errno($curl)) {
