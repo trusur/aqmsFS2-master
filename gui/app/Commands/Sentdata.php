@@ -106,8 +106,8 @@ class Sentdata extends BaseCommand
 						}
 						if($parameter->p_type == "particulate" || $parameter->p_type == "gas"){
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
-							$arr["total_{$parameter->code}"] = $measurement->total_data;
-							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
+							$arr["total_{$parameter->code}"] = (float) $measurement->total_data;
+							$arr["valid_{$parameter->code}"] = (float) $measurement->total_valid;
 							
 						}
 						$measurement_ids .= $measurement->id . ",";
@@ -153,6 +153,9 @@ class Sentdata extends BaseCommand
 						$arr['waktu'] = (new DateTime($arr['waktu'], new DateTimeZone('Asia/Jakarta')))
 											->setTimezone(new DateTimeZone('UTC'))
 											->format('Y-m-d\TH:i:s.v\Z');
+						unset($arr['sub_avg_id']);
+						unset($arr['avg_id']);
+						
 						$new_arr = [$arr];
 						// SENDING DATA TO GREENTEAMS
 						try {
@@ -214,6 +217,9 @@ class Sentdata extends BaseCommand
 				foreach ($measurements as $measurement) {
 					$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
 					$arr[$parameter->code] = $measurement->value;
+					if($measurement->avg_id){
+						$arr["avg_id"] = $measurement->avg_id;
+					}
 					$measurement_ids .= $measurement->id . ",";
 				}
 			}
