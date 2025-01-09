@@ -101,8 +101,8 @@ class Sentdata1min extends BaseCommand
 						$arr[$parameter->code] = $measurement->value;
 						if ($parameter->p_type == "particulate" || $parameter->p_type == "gas") {
 							$arr["stat_{$parameter->code}"] = $measurement->is_valid;
-							$arr["total_{$parameter->code}"] = $measurement->total_data;
-							$arr["valid_{$parameter->code}"] = $measurement->total_valid;
+							$arr["total_{$parameter->code}"] = (float) $measurement->total_data;
+							$arr["valid_{$parameter->code}"] = (float) $measurement->total_valid;
 						}
 						$measurement_ids[] = $measurement->id;
 						$arr["avg_id"] = $measurement->avg_id;
@@ -182,8 +182,8 @@ class Sentdata1min extends BaseCommand
 									$arr["tipe_stasiun"] = "lowcost";
 									$arr['sta_lat'] = "";
 									$arr['sta_lon'] = "";
-
-
+									unset($arr['sub_avg_id']);
+									unset($arr['avg_id']);
 
 									// SENDING DATA TO GREENTEAMS
 									try {
