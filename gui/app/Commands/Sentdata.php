@@ -100,7 +100,7 @@ class Sentdata extends BaseCommand
 					$measurements = @$this->measurements->where(["time_group" => $time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll();
 					foreach ($measurements as $measurement) {
 						$parameter = @$this->parameters->where(["id" => $measurement->parameter_id])->first();
-						$arr[$parameter->code] = $measurement->value;
+						$arr[$parameter->code] = (float) $measurement->value;
 						if($measurement->avg_id){
 							$arr["avg_id"] = $measurement->avg_id;
 						}
