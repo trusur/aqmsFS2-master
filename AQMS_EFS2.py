@@ -68,21 +68,26 @@ def truncate_sensor_values():
 truncate_sensor_values()
 time.sleep(1)
 
-print("Checking AQMS DM Service...\n")
-subprocess.Popen("echo mx | sudo -S systemctl restart aqms-dm", shell=True)
-time.sleep(2)
+# print("Checking AQMS DM Service...\n")
+# subprocess.Popen("echo mx | sudo -S systemctl restart aqms-dm", shell=True)
+# time.sleep(2)
+
 print("Checking AQMS HC Service...\n")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-hc", shell=True)
 time.sleep(2)
+
 print("Checking AQMS Averaging Service...\n")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-averaging", shell=True)
 time.sleep(2)
+
 print("Checking AQMS Averaging Sending...\n")
 subprocess.Popen("echo mx | sudo -S systemctl restart aqms-sending", shell=True)
 time.sleep(2)
+
 print("Checking Cronjob Service...\n")
 subprocess.Popen("echo mx | sudo -S crontab -l", shell=True)
 time.sleep(2)
+
 print("Starting Web Server...")
 subprocess.Popen("php gui/spark serve", shell=True, stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
 print("Ready..")
