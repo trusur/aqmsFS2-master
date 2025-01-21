@@ -67,23 +67,23 @@ def read_float_swap(instrument, address):
 
 # Running Main Function
 def main():
-    instrument_plc = minimalmodbus.Instrument(port=port, slaveaddress=SLAVE_PLC)
-    instrument_plc.serial.baudrate = 9600
-    instrument_plc.serial.bytesize = serial.EIGHTBITS
-    instrument_plc.serial.parity = serial.PARITY_NONE
-    instrument_plc.serial.stopbits = serial.STOPBITS_ONE  
+    # instrument_plc = minimalmodbus.Instrument(port=port, slaveaddress=SLAVE_PLC)
+    # instrument_plc.serial.baudrate = 9600
+    # instrument_plc.serial.bytesize = serial.EIGHTBITS
+    # instrument_plc.serial.parity = serial.PARITY_NONE
+    # instrument_plc.serial.stopbits = serial.STOPBITS_ONE  
 
-    print(f"Berhasil terhubung ke PLC slave id {SLAVE_PLC}")
+    # print(f"Berhasil terhubung ke PLC slave id {SLAVE_PLC}")
 
-    while True:
-        try:
-            data = instrument_plc.write_bit(20, 1)
-            if data == None:
-                print(f"PLC : Pump On" )
-                break
-        except minimalmodbus.ModbusException:
-            print("Trying to turn on pump")
-        time.sleep(0.1)
+    # while True:
+    #     try:
+    #         data = instrument_plc.write_bit(20, 1)
+    #         if data == None:
+    #             print(f"PLC : Pump On" )
+    #             break
+    #     except minimalmodbus.ModbusException:
+    #         print("Trying to turn on pump")
+    #     time.sleep(0.1)
 
     try:
         instrument = minimalmodbus.Instrument(port=port, slaveaddress=SLAVE_SENSORPM)
