@@ -1,9 +1,10 @@
-import struct
+import minimalmodbus
+import serial
 import time
+import struct
 import db
-from pymodbus.client import ModbusSerialClient
-from pymodbus.exceptions import ModbusException
 import math
+from datetime import datetime
 
 def parsefloat(text):
     try:
@@ -13,27 +14,20 @@ def parsefloat(text):
     except Exception:
         return None
 
-SLAVE_SENSORPM = 1 # Sensor Gas & PM
-SLAVE_SENSORWEATHER = 2 # SensorCuaca
-SLAVE_ID = 3 # PLC
+PORT = '/dev/ttyUSBHC'
+SLAVE_ID = 1
+REGISTER_ADDRESS = 40
+ADRESS = {
+    "PM25" : 20, # 40021 - 40001
+    "PM10" : 22, # 40023 - 40001
+    "CO"  : 32, # 40033 - 40001
+    "SO2"  : 34, # 40035 - 40001
+    "NO2"  : 36, # 40037 - 40001
+    "O3"  : 38, # 40039 - 40001
+    "HC"  : 40, # 40041 - 40001
+}
 
-port = '/dev/ttyUSBHC' 
-baudrate = 9600
-parity = 'N'
-stopbits = 1
-bytesize = 8
-timeout=2
-
-client = ModbusSerialClient(
-    port=port,
-    baudrate=baudrate,
-    parity=parity,
-    stopbits=stopbits,
-    bytesize=bytesize,
-    timeout=timeout,
-)
-
-pin_map = {
+PIN_MAP = {
     "PM25": 1,
     "PM10": 2,
     "CO": 3,
@@ -43,80 +37,49 @@ pin_map = {
     "HC": 7
 }
 
-
-def main():
-    id = 1
-    # Main loop to continuously read from the Modbus device
-    while True:
-        try:
-            resultPump = client.write_coil(address=0, value="True", slave=SLAVE_ID)  
-            resultPump = client.write_coil(address=9, value="True", slave=SLAVE_ID)  
-
-            if resultPump.isError():
-                print("Error start Pump")
-                time.sleep(1)
-                continue
-            else :
-                print(resultPump)
-                print ("Success menulis ke coil")
-            # Read Modbus registers ( address start from 20 , total coil = 22 )
-            result = client.read_holding_registers(address=20, count=22, slave=SLAVE_SENSORPM) 
-            
-            if result.isError():
-                print(f"Error reading from Modbus slave {SLAVE_SENSORPM}.")
-                time.sleep(1)  
-                continue
-
-            PM25 =  round(struct.unpack('>f', struct.pack('>HH', result.registers[1], result.registers[0]))[0], 2) 
-            PM10 = round(struct.unpack('>f', struct.pack('>HH', result.registers[3], result.registers[2]))[0], 2)
-            CO = round(struct.unpack('>f', struct.pack('>HH', result.registers[13], result.registers[12]))[0], 2)
-            SO2 = round(struct.unpack('>f', struct.pack('>HH', result.registers[15], result.registers[14]))[0], 2)
-            NO2 = round(struct.unpack('>f', struct.pack('>HH', result.registers[17], result.registers[16]))[0], 2)
-            O3 = round(struct.unpack('>f', struct.pack('>HH', result.registers[19], result.registers[18]))[0], 2)
-            HC = round(struct.unpack('>f', struct.pack('>HH', result.registers[21], result.registers[20]))[0], 2)
-            
-            print(f"Read Sensor 1 pin  1-7 ")
-            # Update database based on parsed values
-            for sensor, values in zip(['PM25', 'PM10', 'CO', 'SO2', 'NO2', 'O3', 'HC'], [PM25, PM10, CO, SO2, NO2, O3, HC]):
-                value = parsefloat(values)
-                if value is not None:
-                    if sensor == 'HC':
-                        ppm_hc = value / 1000
-                        mg_hc = round(0.0409 * ppm_hc * 44, 2)
-                        sensor_value = f"{sensor};{value};{mg_hc};END_{sensor}"
-                    else:
-                        sensor_value = f"{sensor};{value};END_{sensor}"
-                    db.update_sensor_values(1, pin_map[sensor], sensor_value)
-                    
-                else:
-                    db.update_sensor_values(1, pin_map[sensor], -999)
-                    print(f"Pin {sensor} {pin_map[sensor]} Error")
-
-            resultweather = client.read_holding_registers(address=501, count=16, slave=SLAVE_SENSORWEATHER)
-            if resultweather.isError():
-                print(f"Error reading from Modbus slave {SLAVE_SENSORWEATHER}.")
-                time.sleep(1)  
-                continue
-
-            wsv = resultweather.registers[0]  # Atmospheric pressure 1
-            wav = resultweather.registers[2]  # Wind Direction 360 2
-            tmp = resultweather.registers[4] / 10  # Temperature value 3
-            hum = resultweather.registers[3] / 10  # Humidity value 4
-            prs = resultweather.registers[9]  # Atmospheric pressure 5
-            hpr = resultweather.registers[13]  # Optical Rainfall Rainfall Value 6
-            rad = resultweather.registers[15]  # Solar Radiation 7
-            values = f"WEAHTER;{wsv};{wav};{tmp};{hum};{prs};{hpr};{rad};END_WEATHER"
-            print(f"Read waether Pin 8")
-            db.update_sensor_values(id,8,values)
-
-        except Exception as e:
-            for pin in pin_map.values():
-                db.update_sensor_values(1, pin, -999)
-            print(f"Error: {e}")
+def read_float_swap(instrument, address):
+    try:
+        registers = instrument.read_registers(address, 2)
+        bytes_ab = registers[0].to_bytes(2, byteorder='big')
+        bytes_cd = registers[1].to_bytes(2, byteorder='big')
         
-        # Wait before reading again
-        time.sleep(1)
+        swapped = bytes_cd + bytes_ab
+        value = struct.unpack('>f', swapped)[0]
+        return round(value, 2)
+    except Exception as e:
+        raise Exception(f"Error reading float: {str(e)}")
 
+try:
+    instrument = minimalmodbus.Instrument(port=PORT, slaveaddress=SLAVE_ID)
+    instrument.serial.baudrate = 9600
+    instrument.serial.bytesize = serial.EIGHTBITS
+    instrument.serial.parity = serial.PARITY_NONE
+    instrument.serial.stopbits = serial.STOPBITS_ONE
+    instrument.serial.timeout = 1
+    
+    print(f"Berhasil terhubung ke {PORT}")
+    
+    while True:
+        # start_time = time.time()
+        #print(f"Mulai {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}")
+        for key, address in ADRESS.items():
+            try:
+                value = read_float_swap(instrument, address)
+                fix_value = parsefloat(value)
+        
+                if  fix_value is  None:
+                    raise ValueError(f"Invalid value for {key}")
+                    
+                sensor_value = f"{key};{fix_value};END_{key}"
+                db.update_sensor_values(1, PIN_MAP[key], sensor_value)
+            except Exception as e:
+                db.update_sensor_values(1, PIN_MAP[key], -999)
+                print(f"{key} - Address {key} error")
+            time.sleep(0.02)  
+            
+        # print(f"--\nSelama {time.time() - start_time}")
+        # print(f"Selesai {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}")
+        
+except Exception as e:
+    print(f"Error koneksi: {e}")
 
-if __name__ == "__main__":
-    main()
