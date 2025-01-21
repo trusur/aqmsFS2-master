@@ -93,6 +93,7 @@ def main():
                     print(f"{key} - Address {key} error")
                 time.sleep(0.02)  
             
+            print(f"Read waether Pin 8")
             resultweather = client.read_holding_registers(address=500, count=16, slave=SLAVE_SENSORWEATHER)
             if resultweather.isError():
                 print(f"Error reading from Modbus slave {SLAVE_SENSORWEATHER}.")
@@ -108,7 +109,6 @@ def main():
             hpr = resultweather.registers[13] / 10 # Optical Rainfall Rainfall Value 6
             rad = resultweather.registers[15]  # Solar Radiation 7
             values = f"WEAHTER;{wsv};{wav};{tmp};{hum};{prs};{hpr};{rad};END_WEATHER"
-            print(f"Read waether Pin 8")
             db.update_sensor_values(1,8,values)
 
             # print(f"--\nSelama {time.time() - start_time}")
