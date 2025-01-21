@@ -100,7 +100,7 @@ def main():
                 continue
 
             
-            wsv = resultweather.registers[0]  # wind speed 1
+            wsv = resultweather.registers[0] / 100  # wind speed 1
             wav = resultweather.registers[3]  # Wind Direction 2
             tmp = resultweather.registers[5] / 10  # Temperature value 3
             hum = resultweather.registers[4] / 10  # Humidity value 4
