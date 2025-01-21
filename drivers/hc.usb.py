@@ -77,8 +77,6 @@ def main():
         print(f"Berhasil terhubung ke slave id {SLAVE_SENSORPM}")
     
         while True:
-            # start_time = time.time()
-            #print(f"Mulai {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}")
             print(f"Read waether Pin 1-7")
             for key, address in ADRESS.items():
                 try:
@@ -89,30 +87,29 @@ def main():
                         
                     sensor_value = f"{key};{fix_value};END_{key}"
                     db.update_sensor_values(1, PIN_MAP[key], sensor_value)
-                    print(f"{key} : {value}")
+
                 except Exception as e:
                     db.update_sensor_values(1, PIN_MAP[key], -999)
                     print(f"{key} - Address {key} error")
                 time.sleep(0.02)  
             
-            resultweather = client.read_holding_registers(address=501, count=16, slave=SLAVE_SENSORWEATHER)
+            resultweather = client.read_holding_registers(address=500, count=16, slave=SLAVE_SENSORWEATHER)
             if resultweather.isError():
                 print(f"Error reading from Modbus slave {SLAVE_SENSORWEATHER}.")
                 time.sleep(1)  
                 continue
 
-            wsv = resultweather.registers[0]  # Atmospheric pressure 1
-            wav = resultweather.registers[2]  # Wind Direction 360 2
-            tmp = resultweather.registers[4] / 10  # Temperature value 3
-            hum = resultweather.registers[3] / 10  # Humidity value 4
+            
+            wsv = resultweather.registers[0]  # wind speed 1
+            wav = resultweather.registers[3]  # Wind Direction 2
+            tmp = resultweather.registers[5] / 10  # Temperature value 3
+            hum = resultweather.registers[4] / 10  # Humidity value 4
             prs = resultweather.registers[9]  # Atmospheric pressure 5
-            hpr = resultweather.registers[13]  # Optical Rainfall Rainfall Value 6
+            hpr = resultweather.registers[13] / 10 # Optical Rainfall Rainfall Value 6
             rad = resultweather.registers[15]  # Solar Radiation 7
             values = f"WEAHTER;{wsv};{wav};{tmp};{hum};{prs};{hpr};{rad};END_WEATHER"
-            print(values)
             print(f"Read waether Pin 8")
-            db.update_sensor_values(id,8,values)
-
+            db.update_sensor_values(1,8,values)
 
             # print(f"--\nSelama {time.time() - start_time}")
             # print(f"Selesai {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}")
