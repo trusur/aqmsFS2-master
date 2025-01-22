@@ -67,13 +67,14 @@ def read_float_swap(instrument, address):
 
 # Running Main Function
 def main():
+    # JUST TESTING TO PLC
     # instrument_plc = minimalmodbus.Instrument(port=port, slaveaddress=SLAVE_PLC)
     # instrument_plc.serial.baudrate = 9600
     # instrument_plc.serial.bytesize = serial.EIGHTBITS
     # instrument_plc.serial.parity = serial.PARITY_NONE
     # instrument_plc.serial.stopbits = serial.STOPBITS_ONE  
 
-    # print(f"Berhasil terhubung ke PLC slave id {SLAVE_PLC}")
+    # print(f"Connected on port : {port} slave id : {SLAVE_PLC}")
 
     # while True:
     #     try:
@@ -92,7 +93,7 @@ def main():
         instrument.serial.parity = serial.PARITY_NONE
         instrument.serial.stopbits = serial.STOPBITS_ONE
         instrument.serial.timeout = 1
-        print(f"Berhasil terhubung ke slave id {SLAVE_SENSORPM}")
+        print(f"Connected on port : {port} slave id : {SLAVE_PLC}")
     
         while True:
             print(f"Read waether Pin 1-7")
@@ -114,11 +115,10 @@ def main():
             print(f"Read waether Pin 8")
             resultweather = client.read_holding_registers(address=500, count=16, slave=SLAVE_SENSORWEATHER)
             if resultweather.isError():
-                print(f"Error reading from Modbus slave {SLAVE_SENSORWEATHER}.")
+                print(f"Error reading from slave id {SLAVE_SENSORWEATHER}.")
                 time.sleep(1)  
                 continue
-
-            
+        
             wsv = resultweather.registers[0] / 100  # wind speed 1
             wav = resultweather.registers[3]  # Wind Direction 2
             tmp = resultweather.registers[5] / 10  # Temperature value 3
@@ -135,10 +135,10 @@ def main():
     except Exception as e:
         print(f"Error koneksi: {e}")
     finally:
+        # if 'instrument_plc' in locals() and instrument_plc.serial.is_open:
+        #     instrument_plc.serial.close()
         if 'instrument' in locals() and instrument.serial.is_open:
             instrument.serial.close()
-        if 'instrument_plc' in locals() and instrument_plc.serial.is_open:
-            instrument_plc.serial.close()
         if client:
             client.close()
         
