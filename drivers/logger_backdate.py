@@ -122,8 +122,8 @@ def main():
                     k = generate_datetime_list(z[0], z[1])
                     times.extend(k)
                 else:
-                    times.append(k)
-
+                    format_time = (datetime.strptime(k, "%d/%m/%Y %H:%M:%S")).strftime("%Y-%m-%d %H:%M:%S")
+                    times.append(format_time)
             for t in times:
                 value = random_value(x)
                 is_valid = (
