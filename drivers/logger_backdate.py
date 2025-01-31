@@ -62,6 +62,10 @@ def batch_insert_measurement(cnx,data, batch_size=5000):
             INSERT INTO measurements (parameter_id, value, sensor_value, is_valid, total_valid, total_data, avg_id, time_group)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s )
             ON DUPLICATE KEY UPDATE
+                is_sent_klhk = 0,
+                sent_klhk_at = null,
+                is_sent_cloud  = 0,
+                sent_cloud_at  = null ,
                 avg_id = VALUES(avg_id);
             """
 
