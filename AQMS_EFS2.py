@@ -154,7 +154,7 @@ time.sleep(2)
 
 print("Starting Web Server...")
 subprocess.Popen(
-    "php gui/spark serve",
+    "php gui/spark serve --host 0.0.0.0 --port 8080",
     shell=True,
     stdout=subprocess.DEVNULL,
     stderr=subprocess.STDOUT,
