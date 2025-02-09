@@ -89,7 +89,7 @@ subprocess.Popen("echo mx | sudo -S crontab -l", shell=True)
 time.sleep(2)
 
 print("Starting Web Server...")
-subprocess.Popen("php gui/spark serve --host 0.0.0.0 --port 8080", shell=True, stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+subprocess.Popen("php gui/spark serve", shell=True, stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
 print("Ready..")
 time.sleep(2)
 print("Trying to open application...")
