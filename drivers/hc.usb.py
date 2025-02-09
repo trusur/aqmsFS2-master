@@ -120,13 +120,13 @@ def main():
                 time.sleep(1)  
                 continue
         
-            wsv = resultweather.registers[0] / 100 if len(resultweather.registers) > 0 else None # wind speed 1
-            wav = resultweather.registers[3]  if len(resultweather.registers) > 3 else None # Wind Direction 2
-            tmp = resultweather.registers[5] / 10 if len(resultweather.registers) > 5 else None  # Temperature value 3
-            hum = resultweather.registers[4] / 10 if len(resultweather.registers) > 4 else None # Humidity value 4
-            prs = resultweather.registers[9] if len(resultweather.registers) > 9 else None # Atmospheric pressure 5
-            hpr = resultweather.registers[13] / 10 if len(resultweather.registers) > 13 else None # Optical Rainfall Rainfall Value 6
-            rad = resultweather.registers[15] if len(resultweather.registers) > 15 else None  # Solar Radiation 7
+            wsv = resultweather.registers[0] / 100 if len(resultweather.registers) > 0 else "" # wind speed 1
+            wav = resultweather.registers[3]  if len(resultweather.registers) > 3 else "" # Wind Direction 2
+            tmp = resultweather.registers[5] / 10 if len(resultweather.registers) > 5 else ""  # Temperature value 3
+            hum = resultweather.registers[4] / 10 if len(resultweather.registers) > 4 else "" # Humidity value 4
+            prs = resultweather.registers[9] if len(resultweather.registers) > 9 else "" # Atmospheric pressure 5
+            hpr = resultweather.registers[13] / 10 if len(resultweather.registers) > 13 else "" # Optical Rainfall Rainfall Value 6
+            rad = resultweather.registers[15] if len(resultweather.registers) > 15 else ""  # Solar Radiation 7
 
             values = f"WEAHTER;{wsv};{wav};{tmp};{hum};{prs};{hpr};{rad};END_WEATHER"
             db.update_sensor_values(1,8,values)
