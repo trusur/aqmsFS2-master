@@ -96,7 +96,7 @@ def main():
         print(f"Connected on port : {port} slave id : {SLAVE_PLC}")
     
         while True:
-            print(f"Read waether Pin 1-7")
+            print(f"Read Sensor Pin 1-7")
             for key, address in ADRESS.items():
                 try:
                     value = read_float_swap(instrument, address)
