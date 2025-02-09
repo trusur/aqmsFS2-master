@@ -102,14 +102,14 @@ def main():
                     value = read_float_swap(instrument, address)
                     fix_value = parsefloat(value)
                     if  fix_value is  None:
-                        raise ValueError(f"Invalid value for {key}")
+                        raise ValueError(f"Invalid value for {key} at address {address}")
                         
                     sensor_value = f"{key};{fix_value};END_{key}"
                     db.update_sensor_values(1, PIN_MAP[key], sensor_value)
 
                 except Exception as e:
                     db.update_sensor_values(1, PIN_MAP[key], -999)
-                    print(f"{key} - Address {key} error")
+                    print(f"{key} - Address {address} error")
                 time.sleep(0.02)  
             
             print(f"Read waether Pin 8")
