@@ -63,6 +63,7 @@ def read_float_swap(instrument, address):
         value = struct.unpack('>f', swapped)[0]
         return round(value, 2)
     except Exception as e:
+        return None
         raise Exception(f"Error reading float: {str(e)}")
 
 # Running Main Function
@@ -101,8 +102,8 @@ def main():
                 try:
                     value = read_float_swap(instrument, address)
                     fix_value = parsefloat(value)
-                    if  fix_value is  None:
-                        raise ValueError(f"Invalid value for {key} at address {address}")
+                    # if  fix_value is  None:
+                    #     raise ValueError(f"Invalid value for {key} at address {address}")
                         
                     sensor_value = f"{key};{fix_value};END_{key}"
                     db.update_sensor_values(1, PIN_MAP[key], sensor_value)
