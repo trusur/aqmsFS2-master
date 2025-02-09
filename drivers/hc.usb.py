@@ -52,7 +52,7 @@ def parsefloat(text):
         if not math.isnan(num):
             return num
     except Exception:
-        return None
+        return ""
 def read_float_swap(instrument, address):
     try:
         registers = instrument.read_registers(address, 2)
@@ -63,7 +63,7 @@ def read_float_swap(instrument, address):
         value = struct.unpack('>f', swapped)[0]
         return round(value, 2)
     except Exception as e:
-        return None
+        return ""
         raise Exception(f"Error reading float: {str(e)}")
 
 # Running Main Function
