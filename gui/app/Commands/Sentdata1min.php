@@ -176,52 +176,52 @@ class Sentdata1min extends BaseCommand
 								if ($err) {
 									echo "cURL Error #:" . $err;
 								} else {
-									$arr['waktu'] = (new DateTime($arr['waktu'], new DateTimeZone('Asia/Jakarta')))
-										->setTimezone(new DateTimeZone('UTC'))
-										->format('Y-m-d\TH:i:s.v\Z');
-									$arr["tipe_stasiun"] = "lowcost";
-									$arr['sta_lat'] = "";
-									$arr['sta_lon'] = "";
-									unset($arr['sub_avg_id']);
-									unset($arr['avg_id']);
+									// $arr['waktu'] = (new DateTime($arr['waktu'], new DateTimeZone('Asia/Jakarta')))
+									// 	->setTimezone(new DateTimeZone('UTC'))
+									// 	->format('Y-m-d\TH:i:s.v\Z');
+									// $arr["tipe_stasiun"] = "lowcost";
+									// $arr['sta_lat'] = "";
+									// $arr['sta_lon'] = "";
+									// unset($arr['sub_avg_id']);
+									// unset($arr['avg_id']);
 
-									// SENDING DATA TO GREENTEAMS
-									try {
-										$client_url = getenv('CLIENT_API_URL');
-										$client_key = getenv('CLIENT_API_KEY');
-										$new_arr = [$arr];
-										$data = json_encode($new_arr);
-										$curl = curl_init();
-										curl_setopt_array($curl, array(
-											CURLOPT_URL => $client_url,
-											CURLOPT_RETURNTRANSFER => true,
-											CURLOPT_ENCODING => "",
-											CURLOPT_MAXREDIRS => 10,
-											CURLOPT_TIMEOUT => 30,
-											CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-											CURLOPT_CUSTOMREQUEST => "POST",
-											CURLOPT_POSTFIELDS => $data,
-											CURLOPT_HTTPHEADER => array(
-												"CLIENT-API-KEY: " . $client_key,
-												"cache-control: no-cache",
-												"content-type: application/json"
-											),
-											CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
-										));
-										curl_exec($curl);
+									// // SENDING DATA TO GREENTEAMS
+									// try {
+									// 	$client_url = getenv('CLIENT_API_URL');
+									// 	$client_key = getenv('CLIENT_API_KEY');
+									// 	$new_arr = [$arr];
+									// 	$data = json_encode($new_arr);
+									// 	$curl = curl_init();
+									// 	curl_setopt_array($curl, array(
+									// 		CURLOPT_URL => $client_url,
+									// 		CURLOPT_RETURNTRANSFER => true,
+									// 		CURLOPT_ENCODING => "",
+									// 		CURLOPT_MAXREDIRS => 10,
+									// 		CURLOPT_TIMEOUT => 30,
+									// 		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+									// 		CURLOPT_CUSTOMREQUEST => "POST",
+									// 		CURLOPT_POSTFIELDS => $data,
+									// 		CURLOPT_HTTPHEADER => array(
+									// 			"CLIENT-API-KEY: " . $client_key,
+									// 			"cache-control: no-cache",
+									// 			"content-type: application/json"
+									// 		),
+									// 		CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
+									// 	));
+									// 	curl_exec($curl);
 
-										if (curl_errno($curl)) {
-											echo 'cURL Error: ' . curl_error($curl);
-										}
+									// 	if (curl_errno($curl)) {
+									// 		echo 'cURL Error: ' . curl_error($curl);
+									// 	}
 
-										curl_close($curl);
-									} catch (Exception $e) {
-										echo "Error: " . $e->getMessage();
-									} finally {
-										if (isset($curl)) {
-											curl_close($curl);
-										}
-									}
+									// 	curl_close($curl);
+									// } catch (Exception $e) {
+									// 	echo "Error: " . $e->getMessage();
+									// } finally {
+									// 	if (isset($curl)) {
+									// 		curl_close($curl);
+									// 	}
+									// }
 
 									if (strpos(" " . $response, "success") > 0) {
 										$this->measurements->where(["time_group" => $time_group->time_group])->delete();
