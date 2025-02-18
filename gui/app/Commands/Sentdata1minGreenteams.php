@@ -82,10 +82,9 @@ class Sentdata1minGreenteams extends BaseCommand
 	{
 		$idStation = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
 		$idStation = 'DKI_CIRACAS';
-		$startAt = date("Y-m-d H:i:00", strtotime("-20 minutes"));
+		$startAt = date("Y-m-d H:i:00", strtotime("-2 minutes"));
 		$endAt = date("Y-m-d H:i:00");
 		$timerRange = @$this->measurements->where("time_group <= '{$endAt}' and time_group >= '{$startAt}'")->groupBy("time_group")->select("time_group")->findAll();
-
 
 		$result = [];
 		foreach ($timerRange as $timer) {
