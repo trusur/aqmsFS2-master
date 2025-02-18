@@ -81,7 +81,6 @@ class Sentdata1minGreenteams extends BaseCommand
 	public function run(array $params)
 	{
 		$idStation = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
-		$idStation = 'DKI_CIRACAS';
 		$startAt = date("Y-m-d H:i:00", strtotime("-2 minutes"));
 		$endAt = date("Y-m-d H:i:00");
 		$datas = @$this->measurements->where("time_group < '{$endAt}' and time_group >= '{$startAt}'")->findAll();
