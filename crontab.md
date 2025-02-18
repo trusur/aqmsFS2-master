@@ -1,5 +1,6 @@
 # Average 1 Minute
 * * * * * /usr/bin/php /home/mx/aqms-efs1/gui/spark command:avg1min >/dev/null 2>&1
+* * * * * sleep 15; /usr/bin/php /home/mx/aqms-efs1/gui/spark command:sent1mingt >/dev/null 2>&1
 # Send Data 1 Second Every Minute
 * * * * * /usr/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1sec >/dev/null 2>&1
 * * * * * sleep 5; /usr/bin/php /home/mx/aqms-efs1/gui/spark command:sentdata1sec >/dev/null 2>&1
