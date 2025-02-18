@@ -81,33 +81,40 @@ class Sentdata1minGreenteams extends BaseCommand
 	public function run(array $params)
 	{
 		$idStation = @$this->configurations->where("name", "id_stasiun")->first()->content ?? null;
-		$startAt = date("Y-m-d H:i:00", strtotime("-2 minutes"));
+		$idStation = 'DKI_CIRACAS';
+		$startAt = date("Y-m-d H:i:00", strtotime("-20 minutes"));
 		$endAt = date("Y-m-d H:i:00");
-		$datas = @$this->measurements->where("time_group <= '{$endAt}' and time_group >= '{$startAt}'")->findAll();
+		$timerRange = @$this->measurements->where("time_group <= '{$endAt}' and time_group >= '{$startAt}'")->groupBy("time_group")->select("time_group")->findAll();
 
-		$arr = [];
-		foreach ($datas as $data) {
-			$parameter = @$this->parameters->select("code,p_type")->where(["id" => $data->parameter_id])->first();
-			$arr[] = [
-				'id_stasiun' => $idStation,
-				'waktu'		=> (new DateTime($data->time_group, new DateTimeZone('Asia/Jakarta')))
-					->setTimezone(new DateTimeZone('UTC'))
-					->format('Y-m-d\TH:i:s.v\Z'),
-				"{$parameter->code}" => ($data->value === null || $data->value === "") ? 0 : (int) $data->value,
-				'tipe_stasiun' => 'lowcost',
-				'sta_lat' => '',
-				'sta_lon' => ''
-			];
+
+		$result = [];
+		foreach ($timerRange as $timer) {
+			$measurements = @$this->measurements->where(["time_group" => $timer->time_group, "is_sent_cloud" => 0])->orderBy("id")->findAll(500);
+			$arr = [];
+			$arr['id_stasiun'] = $idStation;
+			$arr['waktu'] = (new DateTime($timer->time_group, new DateTimeZone('Asia/Jakarta')))
+				->setTimezone(new DateTimeZone('UTC'))
+				->format('Y-m-d\TH:i:s.v\Z');
+			$arr['tipe_stasiun'] = 'lowcost';
+			$arr['sta_lat'] = '';
+			$arr['sta_lon'] = '';
+			foreach ($measurements as $data) {
+				$parameter = @$this->parameters->select("code,p_type")->where(["id" => $data->parameter_id])->first();
+				$arr[$parameter->code] = ($data->value === null || $data->value === "") ? 0 : (int) $data->value;
+			}
+			
+			$result[] = $arr;
 		}
 
-		if (empty($arr)) {
+
+		if (empty($result)) {
 			CLI::write("No data to sent from $startAt to $endAt", "red");
 			return;
 		}
 
 		$client_url = getenv('CLIENT_API_URL');
 		$client_key = getenv('CLIENT_API_KEY');
-		$body = json_encode($arr, JSON_UNESCAPED_SLASHES);
+		$body = json_encode($result, JSON_UNESCAPED_SLASHES);
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
 			CURLOPT_URL => $client_url,
@@ -126,7 +133,7 @@ class Sentdata1minGreenteams extends BaseCommand
 			CURLOPT_SSL_VERIFYPEER => 0, // Disable SSL peer verification (use with caution)
 		));
 
-		curl_exec($curl);
+		$repo = curl_exec($curl);
 		$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE); // Dapatkan HTTP Status Code
 		$curl_error = curl_error($curl);
 
